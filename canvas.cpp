@@ -23,7 +23,14 @@ void Canvas::initializeGL()
 
 void Canvas::paintGL()
 {
-
+    glBegin(GL_POLYGON);
+            glColor4f(0,1,0, 0.25);// Цвет которым рисовать
+            glVertex2f(200, 300); // Точка 1 из 4 - отсчет по часовой стрелке
+            glVertex2f(300, 300);
+            glVertex2f(300, 400);
+            glVertex2f(200, 400);
+        glEnd();
+//        swapBuffers();
 }
 
 void Canvas::resizeGL(int width, int height)
@@ -33,37 +40,5 @@ void Canvas::resizeGL(int width, int height)
 
 void Canvas::draw()
 {
-//    qglColor(Qt::red);
-//        glBegin(GL_QUADS);
-//            glNormal3f(0,0,-1);
-//            glVertex3f(-1,-1,0);
-//            glVertex3f(-1,1,0);
-//            glVertex3f(1,1,0);
-//            glVertex3f(1,-1,0);
 
-//        glEnd();
-//        glBegin(GL_TRIANGLES);
-//            glNormal3f(0,-1,0.707);
-//            glVertex3f(-1,-1,0);
-//            glVertex3f(1,-1,0);
-//            glVertex3f(0,0,1.2);
-//        glEnd();
-//        glBegin(GL_TRIANGLES);
-//            glNormal3f(1,0, 0.707);
-//            glVertex3f(1,-1,0);
-//            glVertex3f(1,1,0);
-//            glVertex3f(0,0,1.2);
-//        glEnd();
-//        glBegin(GL_TRIANGLES);
-//            glNormal3f(0,1,0.707);
-//            glVertex3f(1,1,0);
-//            glVertex3f(-1,1,0);
-//            glVertex3f(0,0,1.2);
-//        glEnd();
-//        glBegin(GL_TRIANGLES);
-//            glNormal3f(-1,0,0.707);
-//            glVertex3f(-1,1,0);
-//            glVertex3f(-1,-1,0);
-//            glVertex3f(0,0,1.2);
-//        glEnd();
 }

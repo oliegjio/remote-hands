@@ -1,6 +1,7 @@
 #ifndef CANVAS_H
 #define CANVAS_H
 
+#include <QtOpenGL>
 #include <QGLWidget>
 
 class Canvas : public QGLWidget
