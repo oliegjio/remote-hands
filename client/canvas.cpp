@@ -1,6 +1,7 @@
 #include "canvas.h"
 
-Canvas::Canvas(QWidget *parent) : QGLWidget(parent)
+Canvas::Canvas()
+    : QGLWidget(QGLFormat(QGL::SampleBuffers))
 {
 
 }
@@ -23,22 +24,62 @@ void Canvas::initializeGL()
 
 void Canvas::paintGL()
 {
-    glBegin(GL_POLYGON);
-            glColor4f(0,1,0, 0.25);// Цвет которым рисовать
-            glVertex2f(200, 300); // Точка 1 из 4 - отсчет по часовой стрелке
-            glVertex2f(300, 300);
-            glVertex2f(300, 400);
-            glVertex2f(200, 400);
-        glEnd();
-//        swapBuffers();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+    glTranslatef(0.0, 0.0, -10.0);
+    glRotatef(0 / 16.0, 1.0, 0.0, 0.0);
+    glRotatef(0 / 16.0, 0.0, 1.0, 0.0);
+    glRotatef(0 / 16.0, 0.0, 0.0, 1.0);
+    draw();
 }
 
 void Canvas::resizeGL(int width, int height)
 {
+    int side = qMin(width, height);
+    glViewport((width - side) / 2, (height - side) / 2, side, side);
 
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+#ifdef QT_OPENGL_ES_1
+    glOrthof(-2, +2, -2, +2, 1.0, 15.0);
+#else
+    glOrtho(-2, +2, -2, +2, 1.0, 15.0);
+#endif
+    glMatrixMode(GL_MODELVIEW);
 }
 
 void Canvas::draw()
 {
-
+    qglColor(Qt::red);
+    glBegin(GL_QUADS);
+        glNormal3f(0,0,-1);
+        glVertex3f(-1,-1,0);
+        glVertex3f(-1,1,0);
+        glVertex3f(1,1,0);
+        glVertex3f(1,-1,0);
+    glEnd();
+    glBegin(GL_TRIANGLES);
+        glNormal3f(0,-1,0.707);
+        glVertex3f(-1,-1,0);
+        glVertex3f(1,-1,0);
+        glVertex3f(0,0,1.2);
+    glEnd();
+    glBegin(GL_TRIANGLES);
+        glNormal3f(1,0, 0.707);
+        glVertex3f(1,-1,0);
+        glVertex3f(1,1,0);
+        glVertex3f(0,0,1.2);
+    glEnd();
+    glBegin(GL_TRIANGLES);
+        glNormal3f(0,1,0.707);
+        glVertex3f(1,1,0);
+        glVertex3f(-1,1,0);
+        glVertex3f(0,0,1.2);
+    glEnd();
+    glBegin(GL_TRIANGLES);
+        glNormal3f(-1,0,0.707);
+        glVertex3f(-1,1,0);
+        glVertex3f(-1,-1,0);
+        glVertex3f(0,0,1.2);
+    glEnd();
 }

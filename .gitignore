@@ -2,3 +2,4 @@
 *.user
 *_moc*
 remote-hands
+build-*
