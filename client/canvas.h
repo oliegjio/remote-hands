@@ -9,7 +9,7 @@ class Canvas : public QGLWidget
     Q_OBJECT
 
 public:
-    Canvas(QWidget *parent = nullptr);
+    Canvas();
     ~Canvas();
 
 protected:
