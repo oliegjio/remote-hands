@@ -24,13 +24,13 @@ void Canvas::initializeGL()
 void Canvas::paintGL()
 {
     glBegin(GL_POLYGON);
-            glColor4f(0,1,0, 0.25);// Цвет которым рисовать
-            glVertex2f(200, 300); // Точка 1 из 4 - отсчет по часовой стрелке
+            glColor4f(0,1,0, 0.25);
+            glVertex2f(200, 300);
             glVertex2f(300, 300);
             glVertex2f(300, 400);
             glVertex2f(200, 400);
-        glEnd();
-//        swapBuffers();
+    glEnd();
+    swapBuffers();
 }
 
 void Canvas::resizeGL(int width, int height)
