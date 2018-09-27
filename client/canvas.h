@@ -4,6 +4,8 @@
 #include <QtOpenGL>
 #include <QGLWidget>
 
+#include "limb.h"
+
 class Canvas : public QGLWidget
 {
     Q_OBJECT
@@ -21,6 +23,8 @@ protected:
 
 private:
     GLfloat rotation = 0;
+
+    Limb *leftLimb;
 };
 
 #endif // CANVAS_H
