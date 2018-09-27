@@ -38,7 +38,7 @@ void Canvas::resizeGL(int width, int height)
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glFrustum(-5, 5, -5, 5, 1.0, 100.0);
+    glFrustum(-2, 2, -2, 2, 1.0, 100.0);
     glMatrixMode(GL_MODELVIEW);
 }
 
@@ -47,12 +47,12 @@ void Canvas::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glLoadIdentity();
-    glTranslatef(-5.0, 0.0, -5.0);
+    glTranslatef(-5.0, 0.0, -10.0);
     glScalef(-5.0, 1.0, 1.0);
     Shapes::drawCube();
 
     glLoadIdentity();
-    glTranslatef(10.0, 0.0, -5.0);
+    glTranslatef(10.0, 0.0, -10.0);
     glScalef(-5.0, 1.0, 1.0);
     glRotatef(rotation, 1, 0, 0);
     Shapes::drawCube();
