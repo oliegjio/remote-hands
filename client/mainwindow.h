@@ -5,6 +5,7 @@
 
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QTimer>
 
 #include "canvas.h"
 
@@ -22,7 +23,12 @@ private:
 
     Canvas *canvas;
 
+    QTimer *timer;
+
     void init();
+
+public slots:
+    void update();
 };
 
 #endif // MAINWINDOW_H

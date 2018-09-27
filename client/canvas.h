@@ -12,13 +12,15 @@ public:
     Canvas();
     ~Canvas();
 
+    void draw();
+
 protected:
     void initializeGL();
     void resizeGL(int width, int height);
     void paintGL();
 
 private:
-    void draw();
+    GLfloat rotation = 0;
 };
 
 #endif // CANVAS_H

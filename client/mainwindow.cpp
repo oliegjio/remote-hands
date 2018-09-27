@@ -4,7 +4,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     canvas = new Canvas();
     centralWidget = new QWidget(this);
-    mainLayout = new QVBoxLayout();
+    mainLayout = new QVBoxLayout;
+    timer = new QTimer;
 
     init();
 }
@@ -22,4 +23,13 @@ void MainWindow::init()
     mainLayout->setSpacing(0);
 
     mainLayout->addWidget(canvas);
+
+    timer->setInterval(100);
+    timer->start();
+    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+}
+
+void MainWindow::update()
+{
+    canvas->draw();
 }
