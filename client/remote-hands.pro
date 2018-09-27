@@ -12,9 +12,11 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     canvas.cpp \
-    shapes.cpp
+    shapes.cpp \
+    limb.cpp
 
 HEADERS += \
     mainwindow.h \
     canvas.h \
-    shapes.h
+    shapes.h \
+    limb.h

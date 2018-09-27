@@ -24,7 +24,7 @@ void MainWindow::init()
 
     mainLayout->addWidget(canvas);
 
-    timer->setInterval(100);
+    timer->setInterval(1000);
     timer->start();
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
 }
