@@ -1,15 +1,16 @@
 #include "canvas.h"
 
+
+
 Canvas::Canvas()
     : QGLWidget(QGLFormat(QGL::SampleBuffers))
-{
-
-}
+{}
 
 Canvas::~Canvas() {}
 
 void Canvas::initializeGL()
 {
+
     qglClearColor(Qt::black);
 
     glEnable(GL_DEPTH_TEST);
