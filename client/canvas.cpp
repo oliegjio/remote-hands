@@ -1,25 +1,16 @@
 #include "canvas.h"
 
-<<<<<<< HEAD
-
-
-Canvas::Canvas()
-    : QGLWidget(QGLFormat(QGL::SampleBuffers))
-{}
-=======
 #include <GL/glu.h>
 
 Canvas::Canvas() : QGLWidget(QGLFormat(QGL::SampleBuffers))
 {
     leftLimb = new Limb(0, 0, -10);
 }
->>>>>>> 3ab5a24c1e52b107d2e0f174e915f606c1ab434f
 
 Canvas::~Canvas() {}
 
 void Canvas::initializeGL()
 {
-
     qglClearColor(Qt::black);
 
     glEnable(GL_DEPTH_TEST);
@@ -29,16 +20,16 @@ void Canvas::initializeGL()
     glEnable(GL_COLOR_MATERIAL);
     glShadeModel(GL_SMOOTH);
 
-    static GLfloat lightPosition[4] = { 0, 0, 10, 1.0 };
+    static GLfloat lightPosition[4] = { 0, 0, 10, 1.0f };
     glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 
-    static GLfloat ambient[4] = {0.6, 0.6, 0.6, 1.0};
+    static GLfloat ambient[4] = {0.6f, 0.6f, 0.6f, 1.0f};
     glLightfv(GL_LIGHT0, GL_AMBIENT, ambient);
 
-    static GLfloat diffuse[4] = {0.8, 0.8, 0.8, 1.0};
+    static GLfloat diffuse[4] = {0.8f, 0.8f, 0.8f, 1.0f};
     glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
 
-    static GLfloat specular[4] = {1.0, 1.0, 1.0, 1.0};
+    static GLfloat specular[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     glLightfv(GL_LIGHT0, GL_SPECULAR, specular);
 }
 
