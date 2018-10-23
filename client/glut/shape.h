@@ -3,24 +3,27 @@
 #ifdef _WIN32
 	#include <windows.h>
 #endif
-#include <gl/glut.h>
+#include <GL/glut.h>
 
-#include "vertex.h"
-#include "scene_object.h"
+#include "vec.h"
 
-class shape : public scene_object {
+class shape {
 public:
 	static shape *make_cube();
 
 	void draw() const;
-	void rotate(const GLfloat & angle);
-	void translate(const GLfloat & x, const GLfloat & y, const GLfloat & z);
-	void scale(const GLfloat & x, const GLfloat & y, const GLfloat & z);
-
 	void print() const;
 
-private:
-	std::vector<vertex> vertices;
+	vec4 rotation{ 0.0f, 0.0f, 0.0f, 0.0f };
+	vec3 translation{ 0.0f, 0.0f, 0.0f };
+	vec3 scaling{ 1.0f, 1.0f, 1.0f };
+	vec3 color{ 0.0f, 0.0f, 0.0f };
 
-	shape();
+private:
+	shape() {};
+
+	std::vector<vec3> vertices;
+
+	vec3 center{ 0.0f, 0.0f, 0.0f };
+	void compute_center();
 };

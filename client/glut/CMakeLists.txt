@@ -5,9 +5,8 @@ project(${MY_NAME})
 
 set(MY_FILES
 	main.cpp
-	scene_object.h
 	shape.h shape.cpp
-	vertex.h vertex.cpp
+	vec.h
 )
 
 if (WIN32)
