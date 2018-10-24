@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include "shape.h"
+#include "complex_shape.h"
 
 #define WIN_WIDTH 1000
 #define WIN_HEIGHT 800
@@ -16,26 +17,45 @@ clock_t current_time = clock();
 clock_t last_time = current_time;
 float dt = 0;
 
-std::vector<shape*> shapes;
+auto hand = new complex_shape;
 
 void setup()
 {
-	auto shape1 = shape::make_cube();
-	shape1->translation = vec3{ 0.0f, 0.0f, -10.0f };
-	shape1->scaling = vec3{ 2.0f, 2.0f, 2.0f };
-	shape1->color = vec3{ 0.0f, 1.0f, 0.0f };
-	shape1->rotation = vec4{ 30.0f, 1.0f, 1.0f, 0.0f };
-	shapes.push_back(shape1);
+    vec3 scale {1.0f, 3.0f, 1.0f};
+
+    auto limb1 = shape::make_cube();
+    limb1->translation = vec3 {0.0f, -10.0f, -40.0f};
+    limb1->scaling = scale;
+    limb1->rotation = vec4 {-90.0f, 0.0f, 0.0f, 1.0f};
+    limb1->color = vec3 {1.0f, 0.0f, 0.0f};
+    hand->add_shape(*limb1);
+
+	auto limb2 = shape::make_cube();
+	limb2->translation = vec3 {2.0f, -5.0f, -40.0f};
+	limb2->scaling = scale;
+	limb2->color = vec3 {0.0f, 1.0f, 0.0f};
+    hand->add_shape(*limb2);
+
+    auto limb3 = shape::make_cube();
+    limb3->translation = vec3 {0.0f, 0.0f, -40.0f};
+    limb3->scaling = scale;
+    limb3->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
+    limb3->color = vec3 {0.0f, 0.0f, 1.0f};
+    hand->add_shape(*limb3);
+
+    auto limb4 = shape::make_cube();
+    limb4->translation = vec3 {-8.0f, 0.0f, -40.0f};
+    limb4->scaling = scale;
+    limb4->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
+    limb4->color = vec3 {0.0f, 1.0f, 1.0f};
+    hand->add_shape(*limb4);
 }
 
 void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-	for (const auto & shape : shapes)
-	{
-		shape->draw();
-	}
+	hand->draw();
 
 	glutSwapBuffers();
 }

@@ -6,7 +6,8 @@ project (${MY_NAME})
 set (MY_FILES
         "main.cpp"
         "shape.h" "shape.cpp"
-        "vec.h")
+        "vec.h"
+        "complex_shape.cpp" "complex_shape.h")
 
 if (WIN32)
     include_directories("include")
