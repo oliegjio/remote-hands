@@ -77,10 +77,11 @@ int main(int argc, char **argv)
 	glDepthFunc(GL_LESS);
 	glShadeModel(GL_SMOOTH);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
 	const float light_position[4] = { 0.0f, 0.0f, 10.0f, 1.0f };
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-	glClearDepth(1.0f);
 
+	glClearDepth(1.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	glutDisplayFunc(display);

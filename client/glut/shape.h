@@ -24,6 +24,6 @@ private:
 
 	std::vector<vec3> vertices;
 
-	vec3 center{ 0.0f, 0.0f, 0.0f };
-	void compute_center();
+	//vec3 center{ 0.0f, 0.0f, 0.0f };
+	//void compute_center();
 };

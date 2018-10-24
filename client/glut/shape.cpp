@@ -38,8 +38,6 @@ shape *shape::make_cube()
 	cube->vertices.push_back(vec3{ 1.0f, -1.0f, 1.0f }); // Bottom Left Of The Quad (Right)
 	cube->vertices.push_back(vec3{ 1.0f, -1.0f, -1.0f }); // Bottom Right Of The Quad (Right)
 
-	cube->compute_center();
-
 	return cube;
 }
 
@@ -67,12 +65,12 @@ void shape::print() const
 	}
 }
 
-void shape::compute_center()
-{
-	center = vec3();
-	for (const auto & vertex : vertices)
-	{
-		center += vertex;
-	}
-	center /= static_cast<float>(vertices.size());
-}
+//void shape::compute_center()
+//{
+//	center = vec3();
+//	for (const auto & vertex : vertices)
+//	{
+//		center += vertex;
+//	}
+//	center /= static_cast<float>(vertices.size());
+//}
