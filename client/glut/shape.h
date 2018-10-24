@@ -23,7 +23,5 @@ private:
 	shape() {};
 
     std::vector<vec3> vertices;
-
-	//vec3 center{ 0.0f, 0.0f, 0.0f };
-	//void compute_center();
+    GLenum draw_mode = GL_TRIANGLES;
 };

@@ -1,11 +1,12 @@
 #ifdef _WIN32
 	#include <windows.h>
 #endif
-#include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <vector>
 #include <cmath>
 #include <ctime>
 #include <iostream>
+#include <cstdio>
 
 #include "shape.h"
 #include "complex_shape.h"
