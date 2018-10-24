@@ -46,7 +46,7 @@ shape *shape::make_cube()
 void shape::draw() const
 {
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+    glPushMatrix();
 
     glTranslatef(translation[0], translation[1], translation[2]);
     glRotatef(rotation[0], rotation[1], rotation[2], rotation[3]);
@@ -59,6 +59,8 @@ void shape::draw() const
         glVertex3f(vertex[0], vertex[1], vertex[2]);
     }
     glEnd();
+
+    glPopMatrix();
 }
 
 void shape::print() const
