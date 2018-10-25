@@ -4,11 +4,9 @@
 
 #include "shape.h"
 
-class complex_shape {
+class shape_group {
 public:
-    complex_shape() {};
-
-    void add_shape(const shape &new_shape);
+    shape_group() {};
 
     vec4 rotation { 0.0f, 0.0f, 0.0f, 0.0f };
     vec3 translation { 0.0f, 0.0f, 0.0f };

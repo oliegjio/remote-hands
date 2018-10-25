@@ -1,6 +1,6 @@
-#include "complex_shape.h"
+#include "shape_group.h"
 
-void complex_shape::draw() const {
+void shape_group::draw() const {
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
 
@@ -13,8 +13,4 @@ void complex_shape::draw() const {
     }
 
     glPopMatrix();
-}
-
-void complex_shape::add_shape(const shape &new_shape) {
-    shapes.push_back(new_shape);
 }
