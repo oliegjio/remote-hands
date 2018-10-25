@@ -14,3 +14,9 @@ void shape_group::draw() const {
 
     glPopMatrix();
 }
+
+shape_group::shape_group(std::initializer_list<shape> arguments) {
+    for (auto it = arguments.begin(); it != arguments.end(); ++it) {
+        shapes.push_back(*it);
+    }
+}

@@ -1,13 +1,10 @@
 #pragma once
 
-#include <vector>
+#include "shape_group.h"
 
-#include "shape.h"
-
-class shape_group {
+class tied_shape {
 public:
-    shape_group() {};
-    shape_group(std::initializer_list<shape> arguments);
+    tied_shape() {}
 
     void draw() const;
 
@@ -15,6 +12,5 @@ public:
     vec3 translation { 0.0f, 0.0f, 0.0f };
     vec3 scaling { 1.0f, 1.0f, 1.0f };
 
-    std::vector<shape> shapes;
+    std::vector<shape_group> groups;
 };
-

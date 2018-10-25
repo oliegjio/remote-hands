@@ -10,7 +10,7 @@
 
 #include "shape.h"
 #include "shape_group.h"
-#include "linked_shape.h"
+#include "tied_shape.h"
 
 #define WIN_WIDTH 1000
 #define WIN_HEIGHT 800
