@@ -8,7 +8,7 @@ set (MY_FILES
         "shape.h" "shape.cpp"
         "vec.h"
         "shape_group.cpp" "shape_group.h"
-        "tied_shape.cpp" "tied_shape.h")
+        "nested_shape.cpp" "nested_shape.h")
 
 if (WIN32)
     include_directories("include")

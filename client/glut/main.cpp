@@ -10,7 +10,7 @@
 
 #include "shape.h"
 #include "shape_group.h"
-#include "tied_shape.h"
+#include "nested_shape.h"
 
 #define WIN_WIDTH 1000
 #define WIN_HEIGHT 800
@@ -19,41 +19,43 @@ clock_t current_time = clock();
 clock_t last_time = current_time;
 float dt = 0;
 
-auto hand = new shape_group;
+auto hand = new nested_shape;
 
 void setup()
 {
     vec3 scale {1.0f, 3.0f, 1.0f};
 
-    auto limb1 = shape::make_cube();
-    limb1->translation = vec3 {0.0f, -5.0f, -40.0f};
-    limb1->scaling = scale;
-    limb1->rotation = vec4 {-90.0f, 0.0f, 0.0f, 1.0f};
-    limb1->color = vec3 {1.0f, 0.0f, 0.0f};
-    hand->shapes.push_back(*limb1);
+	auto limb1 = shape::make_cube();
+	limb1->translation = vec3 {0.0f, -5.0f, -40.0f};
+	limb1->scaling = scale;
+	limb1->rotation = vec4 {-90.0f, 0.0f, 0.0f, 1.0f};
+	limb1->color = vec3 {1.0f, 0.0f, 0.0f};
 
 	auto limb2 = shape::make_cube();
 	limb2->translation = vec3 {2.0f, 0.0f, -40.0f};
 	limb2->scaling = scale;
 	limb2->color = vec3 {0.0f, 1.0f, 0.0f};
-    hand->shapes.push_back(*limb2);
 
-    auto limb3 = shape::make_cube();
-    limb3->translation = vec3 {0.0f, 5.0f, -40.0f};
-    limb3->scaling = scale;
-    limb3->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
-    limb3->color = vec3 {0.0f, 0.0f, 1.0f};
-    hand->shapes.push_back(*limb3);
+	auto limb3 = shape::make_cube();
+	limb3->translation = vec3 {0.0f, 5.0f, -40.0f};
+	limb3->scaling = scale;
+	limb3->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
+	limb3->color = vec3 {0.0f, 0.0f, 1.0f};
 
-    auto limb4 = shape::make_cube();
-    limb4->translation = vec3 {-8.0f, 5.0f, -40.0f};
-    limb4->scaling = scale;
-    limb4->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
-    limb4->color = vec3 {0.0f, 1.0f, 1.0f};
-    hand->shapes.push_back(*limb4);
+	auto limb4 = shape::make_cube();
+	limb4->translation = vec3 {-8.0f, 5.0f, -40.0f};
+	limb4->scaling = scale;
+	limb4->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
+	limb4->color = vec3 {0.0f, 1.0f, 1.0f};
 
-    hand->rotation = {30.0f, 0.0f, 0.0f, 1.0f};
-    hand->shapes[3].rotation += {20.0f, 0.0f, 0.0f, 0.0f};
+    shape_group group1 {*limb1};
+    shape_group group2 {*limb2};
+    group2.rotation = {20.0f, 0.0f, 0.0f, 1.0f};
+    shape_group group3 {*limb3};
+    shape_group group4 {*limb4};
+
+    std::vector<shape_group> groups {group1, group2, group3, group4};
+    hand = new nested_shape(groups);
 }
 
 void display()
