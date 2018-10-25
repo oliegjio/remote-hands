@@ -20,6 +20,7 @@ clock_t last_time = current_time;
 float dt = 0;
 
 auto hand = new nested_shape;
+std::vector<shape_group> groups;
 
 void setup()
 {
@@ -50,11 +51,10 @@ void setup()
 
     shape_group group1 {*limb1};
     shape_group group2 {*limb2};
-    group2.rotation = {20.0f, 0.0f, 0.0f, 1.0f};
     shape_group group3 {*limb3};
     shape_group group4 {*limb4};
 
-    std::vector<shape_group> groups {group1, group2, group3, group4};
+    groups = std::vector<shape_group> {group1, group2, group3, group4};
     hand = new nested_shape(groups);
 }
 
@@ -86,6 +86,8 @@ void idle()
 	last_time = current_time;
 
 //    hand->rotation += {10.f * dt, 0.0f, 0.0f, 1.0f};
+//    hand->child->group.rotation += {10.0f * dt, 0.0f, 0.0f, 1.0f};
+//    hand->child->child->group.rotation += {10.0f * dt, 0.0f, 0.0f, 1.0f};
 
 	glutPostRedisplay();
 }
