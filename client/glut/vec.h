@@ -6,6 +6,7 @@
 #include <GL/glut.h>
 #include <vector>
 #include <stdexcept>
+#include <iostream>
 
 template <size_t N>
 class vec {
