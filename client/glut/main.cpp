@@ -75,14 +75,11 @@ void reshape(int width, int height)
 
 void idle()
 {
-    static float hand_rotation = 0.0f;
-
 	current_time = clock();
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-    hand->rotation = {hand_rotation * dt, 0.0f, 0.0f, 1.0f};
-    hand_rotation += 5.0f;
+    hand->rotation += {10.f * dt, 0.0f, 0.0f, 1.0f};
 
 	glutPostRedisplay();
 }

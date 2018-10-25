@@ -12,7 +12,7 @@ void complex_shape::draw() const {
     glRotatef(rotation[0], rotation[1], rotation[2], rotation[3]);
     glScalef(scaling[0], scaling[1], scaling[2]);
 
-    for (const auto &shape : shapes) {
+    for (auto shape : shapes) {
         shape.draw();
     }
 
