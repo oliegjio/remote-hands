@@ -16,7 +16,6 @@ public:
 
     void draw() const;
 
-private:
     std::vector<shape> shapes;
 };
 

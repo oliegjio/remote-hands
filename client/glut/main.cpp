@@ -50,6 +50,9 @@ void setup()
     limb4->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
     limb4->color = vec3 {0.0f, 1.0f, 1.0f};
     hand->add_shape(*limb4);
+
+    hand->rotation = {30.0f, 0.0f, 0.0f, 1.0f};
+    hand->shapes[3].rotation += {20.0f, 0.0f, 0.0f, 0.0f};
 }
 
 void display()
@@ -79,7 +82,7 @@ void idle()
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-    hand->rotation += {10.f * dt, 0.0f, 0.0f, 1.0f};
+//    hand->rotation += {10.f * dt, 0.0f, 0.0f, 1.0f};
 
 	glutPostRedisplay();
 }
