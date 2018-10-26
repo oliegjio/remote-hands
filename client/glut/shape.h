@@ -20,6 +20,10 @@ public:
 
 	vec3 color { 0.0f, 0.0f, 0.0f };
 
+	vec4 basis_x {1.0f, 0.0f, 0.0f, 1.0f};
+    vec4 basis_y {0.0f, 1.0f, 0.0f, 1.0f};
+    vec4 basis_z {0.0f, 0.0f, 1.0f, 1.0f};
+
 private:
 	shape() {};
 

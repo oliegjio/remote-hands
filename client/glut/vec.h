@@ -13,7 +13,7 @@ class vec {
 public:
 	vec();
 	vec(const GLfloat & number);
-	vec(std::initializer_list<float> arguments);
+	vec(std::initializer_list<GLfloat> arguments);
 
 	size_t length() const;
 	void print() const;
@@ -25,7 +25,7 @@ public:
 	vec<N> & operator*=(const vec<N> & other);
 	vec<N> & operator/=(const vec<N> & other);
 
-	vec<N> & operator/=(const float & number);
+	vec<N> & operator/=(const GLfloat & number);
 
 	bool operator==(const vec<N> & other) const;
 
@@ -124,7 +124,7 @@ vec<N> &vec<N>::operator/=(const vec<N> & other)
 }
 
 template<size_t N>
-vec<N> & vec<N>::operator/=(const float & number)
+vec<N> & vec<N>::operator/=(const GLfloat & number)
 {
 	for (size_t i = 0; i < N; i++)
 	{
@@ -147,15 +147,15 @@ bool vec<N>::operator==(const vec<N> & other) const
 }
 
 template<size_t N>
-GLfloat vec<N>::operator[](const size_t & i) const
+GLfloat vec<N>::operator[](const size_t &i) const
 {
 	return data[i];
 }
 
 template<size_t N>
-GLfloat & vec<N>::operator[](const size_t & i)
+GLfloat &vec<N>::operator[](const size_t &i)
 {
-	return &data[i];
+	return data[i];
 }
 
 template <size_t N>

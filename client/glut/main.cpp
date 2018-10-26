@@ -11,6 +11,7 @@
 #include "shape.h"
 #include "shape_group.h"
 #include "nested_shape.h"
+#include "matrix.h"
 
 #define WIN_WIDTH 1000
 #define WIN_HEIGHT 800

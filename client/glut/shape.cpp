@@ -1,6 +1,7 @@
 #include "shape.h"
 
 #include <iostream>
+#include <iomanip>
 
 shape *shape::make_cube()
 {
