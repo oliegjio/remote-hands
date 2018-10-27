@@ -18,19 +18,21 @@ public:
 	size_t length() const;
 	void print() const;
 
-	vec<N> operator+(const vec<N> & other) const;
-	vec<N> operator*(const vec<N> & other) const;
+//	vec<N> &operator=(vec<N> other);
 
-	vec<N> & operator+=(const vec<N> & other);
-	vec<N> & operator*=(const vec<N> & other);
-	vec<N> & operator/=(const vec<N> & other);
+	vec<N> operator+(const vec<N> &other) const;
+	vec<N> operator*(const vec<N> &other) const;
 
-	vec<N> & operator/=(const GLfloat & number);
+	vec<N> &operator+=(const vec<N> &other);
+	vec<N> &operator*=(const vec<N> &other);
+	vec<N> &operator/=(const vec<N> &other);
 
-	bool operator==(const vec<N> & other) const;
+	vec<N> &operator/=(const GLfloat &number);
 
-	GLfloat operator[](const size_t & i) const;
-	GLfloat & operator[](const size_t & i);
+	bool operator==(const vec<N> &other) const;
+
+	GLfloat operator[](const size_t &i) const;
+	GLfloat &operator[](const size_t &i);
 
 private:
 	GLfloat data[N];
@@ -181,3 +183,13 @@ size_t vec<N>::length() const
 {
 	return N;
 }
+
+//template<size_t N>
+//vec<N> &vec<N>::operator=(vec<N> other) {
+//    if (this != &other) {
+//        for (size_t i = 0; i < N; i++) {
+//            data[i] = other.data[i];
+//        }
+//    }
+//    return *this;
+//}

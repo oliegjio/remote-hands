@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include "matrix.h"
 
 shape *shape::make_cube()
 {
@@ -52,6 +53,13 @@ void shape::draw() const
     glTranslatef(translation[0], translation[1], translation[2]);
     glRotatef(rotation[0], rotation[1], rotation[2], rotation[3]);
 	glScalef(scaling[0], scaling[1], scaling[2]);
+
+	float data[16];
+	glGetFloatv(GL_MODELVIEW_MATRIX, data);
+	matrix4 transformation(data);
+	vec4 result = transformation * basis_x;
+	result.print();
+//	basis_x = result;
 
     glColor3f(color[0], color[1], color[2]);
     glBegin(draw_mode);
