@@ -2,13 +2,12 @@
 
 #include "shape_group.h"
 
-class nested_shape {
-public:
+struct nested_shape {
     nested_shape() {};
-    nested_shape(std::vector<shape_group> groups);
+    nested_shape(std::vector<shape_group*> groups);
 
-    void draw() const;
+    void draw();
 
-    shape_group group;
+    shape_group *group;
     nested_shape *child;
 };

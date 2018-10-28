@@ -11,15 +11,14 @@
 #include "vec.h"
 
 template<size_t R, size_t C>
-class matrix {
-public:
+struct matrix {
+    matrix() {};
     matrix(const GLfloat *data);
 
     void print() const;
 
     vec<R> operator*(const vec<C> &other) const;
 
-private:
     size_t rows = R;
     size_t columns = C;
 

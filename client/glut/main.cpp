@@ -21,7 +21,7 @@ clock_t last_time = current_time;
 float dt = 0;
 
 auto hand = new nested_shape;
-std::vector<shape_group> groups;
+std::vector<shape_group*> groups;
 
 void setup()
 {
@@ -50,12 +50,13 @@ void setup()
 	limb4->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
 	limb4->color = vec3 {0.0f, 1.0f, 1.0f};
 
-    shape_group group1 {*limb1};
-    shape_group group2 {*limb2};
-    shape_group group3 {*limb3};
-    shape_group group4 {*limb4};
+    auto group1 = new shape_group {limb1};
+//    group1->translation += {10.0f, 0.0, 0.0f};
+    auto group2 = new shape_group {limb2};
+    auto group3 = new shape_group {limb3};
+    auto group4 = new shape_group {limb4};
 
-    groups = std::vector<shape_group> {group1, group2, group3, group4};
+    groups = std::vector<shape_group*> {group1, group2, group3, group4};
     hand = new nested_shape(groups);
 }
 
@@ -80,15 +81,19 @@ void reshape(int width, int height)
 	glutPostRedisplay();
 }
 
+float rotation = 0.0f;
+
 void idle()
 {
 	current_time = clock();
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-//    hand->rotation += {10.f * dt, 0.0f, 0.0f, 1.0f};
-//    hand->child->group.rotation += {10.0f * dt, 0.0f, 0.0f, 1.0f};
-//    hand->child->child->group.rotation += {10.0f * dt, 0.0f, 0.0f, 1.0f};
+	auto b = hand->child->group->shapes[0]->basis_z;
+    b.print();
+    hand->child->child->group->rotation = {rotation, b[0], b[1], b[2]};
+
+    rotation += -1.0f;
 
 	glutPostRedisplay();
 }

@@ -9,16 +9,18 @@
 #include <iostream>
 
 template <size_t N>
-class vec {
-public:
+struct vec {
 	vec();
+	vec(const vec &other);
 	vec(const GLfloat & number);
 	vec(std::initializer_list<GLfloat> arguments);
 
-	size_t length() const;
+	size_t dimensions() const;
 	void print() const;
+	void normalize();
+	float length() const;
 
-//	vec<N> &operator=(vec<N> other);
+	vec<N> &operator=(const vec<N> &other);
 
 	vec<N> operator+(const vec<N> &other) const;
 	vec<N> operator*(const vec<N> &other) const;
@@ -34,8 +36,7 @@ public:
 	GLfloat operator[](const size_t &i) const;
 	GLfloat &operator[](const size_t &i);
 
-private:
-	GLfloat data[N];
+    GLfloat data[N];
 };
 
 typedef vec<3> vec3;
@@ -179,17 +180,42 @@ void vec<N>::print() const
 }
 
 template<size_t N>
-size_t vec<N>::length() const
+size_t vec<N>::dimensions() const
 {
 	return N;
 }
 
-//template<size_t N>
-//vec<N> &vec<N>::operator=(vec<N> other) {
-//    if (this != &other) {
-//        for (size_t i = 0; i < N; i++) {
-//            data[i] = other.data[i];
-//        }
-//    }
-//    return *this;
-//}
+template<size_t N>
+vec<N> &vec<N>::operator=(const vec<N> &other) {
+    if (this != &other) {
+        for (size_t i = 0; i < N; i++) {
+            data[i] = other.data[i];
+        }
+    }
+    return *this;
+}
+
+template<size_t N>
+vec<N>::vec(const vec &other) {
+    for (size_t i = 0; i < N; i++) {
+        data[i] = other.data[i];
+    }
+}
+
+template<size_t N>
+void vec<N>::normalize() {
+    float len = length();
+    for (size_t i = 0; i < N; i++) {
+        data[i] /= len;
+    }
+}
+
+template<size_t N>
+float vec<N>::length() const {
+    float len = 0;
+    for (size_t i = 0; i < N; i++) {
+        len += std::pow(data[i], 2.0f);
+    }
+
+    return std::sqrt(len);
+}
