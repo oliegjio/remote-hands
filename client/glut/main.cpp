@@ -81,7 +81,7 @@ void setup() {
     auto group5 = new shape_group {limb5};
     group5->translation = {-16.0f + hand_x, 12.0f + hand_y, 0.0f + hand_z};
 
-    groups = std::vector<shape_group*> {group1, group2, group3, group4, group5};
+    groups = {group1, group2, group3, group4, group5};
     hand = new nested_shape(groups);
 }
 
@@ -107,6 +107,7 @@ void reshape(int width, int height) {
 float rotation = 0.0f;
 bool rotation_turn = true;
 float max_rotation = 45.0f;
+float rotation_speed = 90.0f;
 
 void idle() {
 	current_time = clock();
@@ -129,16 +130,16 @@ void idle() {
     hand->child->child->child->translation = {-2.0f, 0.0f, 0.0f};
     hand->child->child->child->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
 
-    if (rotation == -max_rotation) {
+    if (rotation < -max_rotation) {
         rotation_turn = false;
-    } else if (rotation == max_rotation) {
+    } else if (rotation > max_rotation) {
         rotation_turn = true;
     }
 
     if (rotation_turn) {
-        rotation -= 1.0f;
+        rotation -= rotation_speed * dt;
     } else {
-        rotation += 1.0f;
+        rotation += rotation_speed * dt;
     }
 
 	glutPostRedisplay();

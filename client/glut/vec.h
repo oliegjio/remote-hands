@@ -12,7 +12,7 @@ template <size_t N>
 struct vec {
 	vec();
 	vec(const vec &other);
-	vec(const GLfloat & number);
+	vec(const GLfloat &number);
 	vec(std::initializer_list<GLfloat> arguments);
 
 	size_t dimensions() const;
@@ -43,106 +43,84 @@ typedef vec<3> vec3;
 typedef vec<4> vec4;
 
 template <size_t N>
-vec<N>::vec()
-{
-	for (size_t i = 0; i < N; i++)
-	{
+vec<N>::vec() {
+	for (size_t i = 0; i < N; i++) {
 		data[i] = 0.0f;
 	}
 }
 
 template <size_t N>
-vec<N>::vec(const GLfloat & number)
-{
-	for (size_t i = 0; i < N; i++)
-	{
+vec<N>::vec(const GLfloat &number) {
+	for (size_t i = 0; i < N; i++) {
 		data[i] = number;
 	}
 }
 
 template <size_t N>
-vec<N>::vec(std::initializer_list<GLfloat> arguments)
-{
-	if (arguments.size() != N)
-	{
+vec<N>::vec(std::initializer_list<GLfloat> arguments) {
+	if (arguments.size() != N) {
 		std::runtime_error("ERROR: Initializer list for `vec` class received wrong number of arguments!");
 	}
 	size_t i = 0;
-	for (auto it = arguments.begin(); it != arguments.end(); ++it, i++)
-	{
+	for (auto it = arguments.begin(); it != arguments.end(); ++it, i++) {
 		data[i] = *it;
 	}
 }
 
 template<size_t N>
-vec<N> vec<N>::operator+(const vec<N> & other) const
-{
+vec<N> vec<N>::operator+(const vec<N> &other) const {
 	vec<N> result;
-	for (size_t i = 0; i < N; i++)
-	{
+	for (size_t i = 0; i < N; i++) {
 		result = data[i] + other.data[i];
 	}
 	return result;
 }
 
 template<size_t N>
-vec<N> vec<N>::operator*(const vec<N> & other) const
-{
+vec<N> vec<N>::operator*(const vec<N> &other) const {
 	vec<N> result(1.0f);
-	for (size_t i = 0; i < N; i++)
-	{
+	for (size_t i = 0; i < N; i++) {
 		result = data[i] * other.data[i];
 	}
 	return result;
 }
 
 template<size_t N>
-vec<N> &vec<N>::operator+=(const vec<N> & other)
-{
-	for (size_t i = 0; i < N; i++)
-	{
+vec<N> &vec<N>::operator+=(const vec<N> &other) {
+	for (size_t i = 0; i < N; i++) {
 		data[i] += other.data[i];
 	}
 	return *this;
 }
 
 template<size_t N>
-vec<N> &vec<N>::operator*=(const vec<N> & other)
-{
-	for (size_t i = 0; i < N; i++)
-	{
+vec<N> &vec<N>::operator*=(const vec<N> &other) {
+	for (size_t i = 0; i < N; i++) {
 		data[i] *= other.data[i];
 	}
 	return *this;
 }
 
 template<size_t N>
-vec<N> &vec<N>::operator/=(const vec<N> & other)
-{
-	for (size_t i = 0; i < N; i++)
-	{
+vec<N> &vec<N>::operator/=(const vec<N> &other) {
+	for (size_t i = 0; i < N; i++) {
 		data[i] /= other.data[i];
 	}
 	return *this;
 }
 
 template<size_t N>
-vec<N> & vec<N>::operator/=(const GLfloat & number)
-{
-	for (size_t i = 0; i < N; i++)
-	{
+vec<N> & vec<N>::operator/=(const GLfloat &number) {
+	for (size_t i = 0; i < N; i++) {
 		data[i] /= number;
 	}
 	return *this;
 }
 
 template<size_t N>
-bool vec<N>::operator==(const vec<N> & other) const
-{
-	for (size_t i = 0; i < N; i++)
-	{
-		if (data[i] != other.data[i])
-		{
+bool vec<N>::operator==(const vec<N> &other) const {
+	for (size_t i = 0; i < N; i++) {
+		if (data[i] != other.data[i]) {
 			return false;
 		}
 	}
@@ -150,29 +128,22 @@ bool vec<N>::operator==(const vec<N> & other) const
 }
 
 template<size_t N>
-GLfloat vec<N>::operator[](const size_t &i) const
-{
+GLfloat vec<N>::operator[](const size_t &i) const {
 	return data[i];
 }
 
 template<size_t N>
-GLfloat &vec<N>::operator[](const size_t &i)
-{
+GLfloat &vec<N>::operator[](const size_t &i) {
 	return data[i];
 }
 
 template <size_t N>
-void vec<N>::print() const
-{
+void vec<N>::print() const {
 	std::cout << " (";
-	for (size_t i = 0; i < N; i++)
-	{
-		if (i != N - 1)
-		{
+	for (size_t i = 0; i < N; i++) {
+		if (i != N - 1) {
 			std::cout << data[i] << ", ";
-		}
-		else
-		{
+		} else {
 			std::cout << data[i];
 		}
 	}
@@ -180,8 +151,7 @@ void vec<N>::print() const
 }
 
 template<size_t N>
-size_t vec<N>::dimensions() const
-{
+size_t vec<N>::dimensions() const {
 	return N;
 }
 
