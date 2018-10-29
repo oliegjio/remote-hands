@@ -55,7 +55,7 @@ void shape::draw() {
 
     glColor3f(color[0], color[1], color[2]);
     glBegin(draw_mode);
-    for (const auto & vertex : vertices)
+    for (const auto &vertex : vertices)
     {
         glVertex3f(vertex[0], vertex[1], vertex[2]);
     }
@@ -66,7 +66,7 @@ void shape::draw() {
 
 void shape::print() const
 {
-	for (const auto & vec : vertices)
+	for (const auto &vec : vertices)
 	{
 		vec.print();
 	}

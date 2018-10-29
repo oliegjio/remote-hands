@@ -8,10 +8,8 @@
 #include <iostream>
 #include <cstdio>
 
-#include "shape.h"
-#include "shape_group.h"
 #include "nested_shape.h"
-#include "matrix.h"
+#include "hands.h"
 
 #define WIN_WIDTH 1000
 #define WIN_HEIGHT 800
@@ -20,76 +18,15 @@ clock_t current_time = clock();
 clock_t last_time = current_time;
 float dt = 0;
 
-auto hand = new nested_shape;
-std::vector<shape_group*> groups;
+nested_shape *hand;
 
 void setup() {
-    vec3 scale {1.0f, 3.0f, 1.0f};
-
-	auto limb1 = shape::make_cube();
-	limb1->scaling = scale;
-	limb1->rotation = vec4 {-90.0f, 0.0f, 0.0f, 1.0f};
-	limb1->color = vec3 {1.0f, 0.0f, 0.0f};
-    auto rotor1 = shape::make_cube();
-    rotor1->translation = {2.0f, 0.0f, 0.0f};
-    rotor1->scaling = {0.5f, 2.0f, 0.5f};
-    rotor1->color = vec3 {0.0f, 1.0f, 0.0f};
-
-	auto limb2 = shape::make_cube();
-	limb2->scaling = scale;
-	limb2->color = vec3 {0.0f, 1.0f, 0.0f};
-	auto rotor2 = shape::make_cube();
-	rotor2->translation = {0.0f, 2.0f, 0.0f};
-	rotor2->scaling = {0.5f, 0.5f, 2.0f};
-	rotor2->color = vec3 {0.0f, 0.0f, 1.0f};
-
-	auto limb3 = shape::make_cube();
-	limb3->scaling = scale;
-	limb3->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
-	limb3->color = vec3 {0.0f, 0.0f, 1.0f};
-    auto rotor3 = shape::make_cube();
-    rotor3->translation = {-2.0f, 0.0f, 0.0f};
-    rotor3->scaling = {0.5f, 0.5f, 2.0f};
-    rotor3->color = vec3 {0.0f, 1.0f, 1.0f};
-
-	auto limb4 = shape::make_cube();
-	limb4->scaling = scale;
-	limb4->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
-	limb4->color = vec3 {0.0f, 1.0f, 1.0f};
-    auto rotor4 = shape::make_cube();
-    rotor4->translation = {-2.0f, 0.0f, 0.0f};
-    rotor4->scaling = {0.5f, 0.5f, 2.0f};
-    rotor4->color = vec3 {1.0f, 1.0f, 0.0f};
-
-    auto limb5 = shape::make_cube();
-    limb5->scaling = scale;
-    limb5->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
-    limb5->color = vec3 {1.0f, 1.0f, 0.0f};
-
-	GLfloat hand_x = 0.0f;
-    GLfloat hand_y = -10.0f;
-    GLfloat hand_z = -65.0f;
-
-    auto group1 = new shape_group {limb1, rotor1};
-    group1->translation = {0.0f + hand_x, 0.0f + hand_y, 0.0f + hand_z};
-    auto group2 = new shape_group {limb2, rotor2};
-    group2->translation = {2.0f + hand_x, 6.0f + hand_y, 0.0f + hand_z};
-    auto group3 = new shape_group {limb3, rotor3};
-    group3->translation = {0.0f + hand_x, 12.0f + hand_y, 0.0f + hand_z};
-    auto group4 = new shape_group {limb4, rotor4};
-    group4->translation = {-8.0f + hand_x, 12.0f + hand_y, 0.0f + hand_z};
-    auto group5 = new shape_group {limb5};
-    group5->translation = {-16.0f + hand_x, 12.0f + hand_y, 0.0f + hand_z};
-
-    groups = {group1, group2, group3, group4, group5};
-    hand = new nested_shape(groups);
+    hand = make_one_plane_hand();
 }
 
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
 	hand->draw();
-
 	glutSwapBuffers();
 }
 
@@ -104,31 +41,26 @@ void reshape(int width, int height) {
 	glutPostRedisplay();
 }
 
-float rotation = 0.0f;
-bool rotation_turn = true;
-float max_rotation = 45.0f;
-float rotation_speed = 90.0f;
-
 void idle() {
 	current_time = clock();
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-	hand->rotation = {rotation, 0.0f, 1.0, 0.0f};
-    hand->translation = {2.0f, 0.0, 0.0f};
-    hand->group->shapes[1]->rotation = {rotation, 0.0f, 1.0f, 0.0f};
+    static float rotation = 0.0f;
+    static bool rotation_turn = true;
+    static float max_rotation = 45.0f;
+    static float rotation_speed = 90.0f;
 
-    hand->child->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-    hand->child->translation = {0.0f, 2.0f, 0.0f};
-    hand->child->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+	hand->at(0)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->at(0)->translation = {0.0f, 2.0f, 0.0f};
+    hand->at(0)->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
 
-    hand->child->child->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-    hand->child->child->translation = {-2.0f, 0.0f, 0.0f};
-    hand->child->child->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->at(1)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->at(1)->translation = {0.0f, 2.0f, 0.0f};
+    hand->at(1)->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
 
-    hand->child->child->child->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-    hand->child->child->child->translation = {-2.0f, 0.0f, 0.0f};
-    hand->child->child->child->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->at(2)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->at(2)->translation = {0.0f, 2.0f, 0.0f};
 
     if (rotation < -max_rotation) {
         rotation_turn = false;

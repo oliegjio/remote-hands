@@ -9,7 +9,8 @@ set (MY_FILES
         "vec.h"
         "shape_group.cpp" "shape_group.h"
         "nested_shape.cpp" "nested_shape.h"
-        "matrix.h")
+        "matrix.h"
+        "hands.h")
 
 if (WIN32)
     include_directories("include")
