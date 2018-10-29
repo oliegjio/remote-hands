@@ -92,8 +92,15 @@ void idle()
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-    hand->child->group->rotation = {rotation, 0.0f, 1.0f, 0.0f};
-    hand->child->child->group->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+	hand->rotation = {rotation, 0.0f, 1.0, 0.0f};
+    hand->translation = {1.8f, 0.0, 0.0f};
+
+    hand->child->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->child->translation = {0.0f, 3.2f, 0.0f};
+
+    hand->child->child->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->child->child->translation = {-3.0f, 0.0f, 0.0f};
+
     rotation += 1.0f;
 
 	glutPostRedisplay();
