@@ -9,6 +9,7 @@ void nested_shape::draw() {
 
         glTranslatef(group->translation[0], group->translation[1], group->translation[2]);
         glRotatef(group->rotation[0], group->rotation[1], group->rotation[2], group->rotation[3]);
+        glTranslatef(-group->translation[0], -group->translation[1], -group->translation[2]);
         glScalef(group->scaling[0], group->scaling[1], group->scaling[2]);
 
         child->draw();
@@ -27,4 +28,5 @@ nested_shape::nested_shape(std::vector<shape_group*> groups) {
         child = new nested_shape(groups);
     }
 }
+
 

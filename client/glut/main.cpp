@@ -28,33 +28,36 @@ void setup()
     vec3 scale {1.0f, 3.0f, 1.0f};
 
 	auto limb1 = shape::make_cube();
-	limb1->translation = vec3 {0.0f, -5.0f, -40.0f};
 	limb1->scaling = scale;
 	limb1->rotation = vec4 {-90.0f, 0.0f, 0.0f, 1.0f};
 	limb1->color = vec3 {1.0f, 0.0f, 0.0f};
 
 	auto limb2 = shape::make_cube();
-	limb2->translation = vec3 {2.0f, 0.0f, -40.0f};
 	limb2->scaling = scale;
 	limb2->color = vec3 {0.0f, 1.0f, 0.0f};
+	auto rotor2 = shape::make_cube();
+	rotor2->translation = {0.0f, 1.5f, 0.0f};
+	rotor2->scaling = {2.0f, 0.3f, 0.3f};
+	rotor2->color = vec3 {0.0f, 0.5f, 0.0f};
 
 	auto limb3 = shape::make_cube();
-	limb3->translation = vec3 {0.0f, 5.0f, -40.0f};
 	limb3->scaling = scale;
 	limb3->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
 	limb3->color = vec3 {0.0f, 0.0f, 1.0f};
 
 	auto limb4 = shape::make_cube();
-	limb4->translation = vec3 {-8.0f, 5.0f, -40.0f};
 	limb4->scaling = scale;
 	limb4->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
 	limb4->color = vec3 {0.0f, 1.0f, 1.0f};
 
     auto group1 = new shape_group {limb1};
-//    group1->translation += {10.0f, 0.0, 0.0f};
-    auto group2 = new shape_group {limb2};
+    group1->translation = {0.0f, -5.0, -40.0f};
+    auto group2 = new shape_group {limb2, rotor2};
+    group2->translation = {2.0f, 0.0, -40.0f};
     auto group3 = new shape_group {limb3};
+    group3->translation = {0.0f, 5.0, -40.0f};
     auto group4 = new shape_group {limb4};
+    group4->translation = {-8.0f, 5.0, -40.0f};
 
     groups = std::vector<shape_group*> {group1, group2, group3, group4};
     hand = new nested_shape(groups);
@@ -75,7 +78,7 @@ void reshape(int width, int height)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0f, (GLfloat) width / (GLfloat) height, 0.1f, 100.0f);
+	gluPerspective(45.0f, (GLfloat) width / (GLfloat) height, 0.1f, 500.0f);
 	glMatrixMode(GL_MODELVIEW);
 
 	glutPostRedisplay();
@@ -89,11 +92,9 @@ void idle()
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-	auto b = hand->child->group->shapes[0]->basis_z;
-    b.print();
-    hand->child->child->group->rotation = {rotation, b[0], b[1], b[2]};
-
-    rotation += -1.0f;
+    hand->child->group->rotation = {rotation, 0.0f, 1.0f, 0.0f};
+    hand->child->child->group->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    rotation += 1.0f;
 
 	glutPostRedisplay();
 }
