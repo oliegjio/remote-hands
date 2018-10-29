@@ -66,9 +66,9 @@ void setup() {
     limb5->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
     limb5->color = vec3 {1.0f, 1.0f, 0.0f};
 
-	GLfloat hand_x = 5.0f;
-    GLfloat hand_y = -5.0f;
-    GLfloat hand_z = -40.0f;
+	GLfloat hand_x = 0.0f;
+    GLfloat hand_y = -10.0f;
+    GLfloat hand_z = -65.0f;
 
     auto group1 = new shape_group {limb1, rotor1};
     group1->translation = {0.0f + hand_x, 0.0f + hand_y, 0.0f + hand_z};
@@ -105,6 +105,8 @@ void reshape(int width, int height) {
 }
 
 float rotation = 0.0f;
+bool rotation_turn = true;
+float max_rotation = 45.0f;
 
 void idle() {
 	current_time = clock();
@@ -127,7 +129,17 @@ void idle() {
     hand->child->child->child->translation = {-2.0f, 0.0f, 0.0f};
     hand->child->child->child->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
 
-    rotation += 1.0f;
+    if (rotation == -max_rotation) {
+        rotation_turn = false;
+    } else if (rotation == max_rotation) {
+        rotation_turn = true;
+    }
+
+    if (rotation_turn) {
+        rotation -= 1.0f;
+    } else {
+        rotation += 1.0f;
+    }
 
 	glutPostRedisplay();
 }
