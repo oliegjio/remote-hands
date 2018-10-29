@@ -4,7 +4,6 @@
 
 nested_shape *make_4_dof_hand() {
     vec3 limb_scale {1.0f, 3.0f, 1.0f};
-    vec3 rotor_scale {0.5f, 0.5f, 2.0f};
 
     auto limb1 = shape::make_cube();
     limb1->scaling = limb_scale;
@@ -12,7 +11,7 @@ nested_shape *make_4_dof_hand() {
     limb1->color = vec3 {1.0f, 0.0f, 0.0f};
     auto rotor1 = shape::make_cube();
     rotor1->translation = {2.0f, 0.0f, 0.0f};
-    rotor1->scaling = rotor_scale;
+    rotor1->scaling = {0.5, 2.0f, 0.5f};
     rotor1->color = vec3 {0.0f, 1.0f, 0.0f};
 
     auto limb2 = shape::make_cube();
@@ -20,7 +19,7 @@ nested_shape *make_4_dof_hand() {
     limb2->color = vec3 {0.0f, 1.0f, 0.0f};
     auto rotor2 = shape::make_cube();
     rotor2->translation = {0.0f, 2.0f, 0.0f};
-    rotor2->scaling = rotor_scale;
+    rotor2->scaling = {0.5f, 0.5f, 2.0f};
     rotor2->color = vec3 {0.0f, 0.0f, 1.0f};
 
     auto limb3 = shape::make_cube();
@@ -29,7 +28,7 @@ nested_shape *make_4_dof_hand() {
     limb3->color = vec3 {0.0f, 0.0f, 1.0f};
     auto rotor3 = shape::make_cube();
     rotor3->translation = {-2.0f, 0.0f, 0.0f};
-    rotor3->scaling = rotor_scale;
+    rotor3->scaling = {0.5f, 0.5f, 2.0f};
     rotor3->color = vec3 {0.0f, 1.0f, 1.0f};
 
     auto limb4 = shape::make_cube();
@@ -38,7 +37,7 @@ nested_shape *make_4_dof_hand() {
     limb4->color = vec3 {0.0f, 1.0f, 1.0f};
     auto rotor4 = shape::make_cube();
     rotor4->translation = {-2.0f, 0.0f, 0.0f};
-    rotor4->scaling = rotor_scale;
+    rotor4->scaling = {0.5f, 0.5f, 2.0f};
     rotor4->color = vec3 {1.0f, 1.0f, 0.0f};
 
     auto limb5 = shape::make_cube();
@@ -68,6 +67,41 @@ nested_shape *make_4_dof_hand() {
     std::vector<shape_group*> groups = {group1, group2, group3, group4, group5};
     auto hand = new nested_shape(groups);
     return hand;
+}
+
+void animate_4_dof_hand(nested_shape *hand, const float &dt) {
+    static float rotation = 0.0f;
+    static bool rotation_turn = true;
+    static float max_rotation = 45.0f;
+    static float rotation_speed = 90.0f;
+
+    hand->at(0)->rotation = {rotation, 0.0f, 1.0, 0.0f};
+    hand->at(0)->translation = {2.0f, 0.0, 0.0f};
+    hand->at(0)->group->shapes[1]->rotation = {rotation, 0.0f, 1.0f, 0.0f};
+
+    hand->at(1)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->at(1)->translation = {0.0f, 2.0f, 0.0f};
+    hand->at(1)->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+
+    hand->at(2)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->at(2)->translation = {-2.0f, 0.0f, 0.0f};
+    hand->at(2)->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+
+    hand->at(3)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->at(3)->translation = {-2.0f, 0.0f, 0.0f};
+    hand->at(3)->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+
+    if (rotation < -max_rotation) {
+        rotation_turn = false;
+    } else if (rotation > max_rotation) {
+        rotation_turn = true;
+    }
+
+    if (rotation_turn) {
+        rotation -= rotation_speed * dt;
+    } else {
+        rotation += rotation_speed * dt;
+    }
 }
 
 nested_shape *make_one_plane_hand() {
@@ -121,4 +155,35 @@ nested_shape *make_one_plane_hand() {
     std::vector<shape_group*> groups = {group1, group2, group3, group4};
     auto hand = new nested_shape(groups);
     return hand;
+}
+
+void animate_one_plane_hand(nested_shape *hand, const float &dt) {
+    static float rotation = 0.0f;
+    static bool rotation_turn = true;
+    static float max_rotation = 45.0f;
+    static float rotation_speed = 90.0f;
+
+    hand->at(0)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->at(0)->translation = {0.0f, 2.0f, 0.0f};
+    hand->at(0)->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+
+    hand->at(1)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->at(1)->translation = {0.0f, 2.0f, 0.0f};
+    hand->at(1)->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+
+    hand->at(2)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->at(2)->translation = {0.0f, 2.0f, 0.0f};
+    hand->at(2)->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+
+    if (rotation < -max_rotation) {
+        rotation_turn = false;
+    } else if (rotation > max_rotation) {
+        rotation_turn = true;
+    }
+
+    if (rotation_turn) {
+        rotation -= rotation_speed * dt;
+    } else {
+        rotation += rotation_speed * dt;
+    }
 }

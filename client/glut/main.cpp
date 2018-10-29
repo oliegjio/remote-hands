@@ -46,33 +46,7 @@ void idle() {
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-    static float rotation = 0.0f;
-    static bool rotation_turn = true;
-    static float max_rotation = 45.0f;
-    static float rotation_speed = 90.0f;
-
-	hand->at(0)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-    hand->at(0)->translation = {0.0f, 2.0f, 0.0f};
-    hand->at(0)->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-
-    hand->at(1)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-    hand->at(1)->translation = {0.0f, 2.0f, 0.0f};
-    hand->at(1)->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-
-    hand->at(2)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-    hand->at(2)->translation = {0.0f, 2.0f, 0.0f};
-
-    if (rotation < -max_rotation) {
-        rotation_turn = false;
-    } else if (rotation > max_rotation) {
-        rotation_turn = true;
-    }
-
-    if (rotation_turn) {
-        rotation -= rotation_speed * dt;
-    } else {
-        rotation += rotation_speed * dt;
-    }
+    animate_one_plane_hand(hand, dt);
 
 	glutPostRedisplay();
 }
