@@ -45,7 +45,7 @@ shape *shape::make_cube()
     return cube;
 }
 
-void shape::draw() {
+void shape::draw() const {
 	glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
 
@@ -62,12 +62,4 @@ void shape::draw() {
     glEnd();
 
     glPopMatrix();
-}
-
-void shape::print() const
-{
-	for (const auto &vec : vertices)
-	{
-		vec.print();
-	}
 }

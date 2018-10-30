@@ -9,7 +9,8 @@
 #include <iostream>
 
 template <size_t N>
-struct vec {
+class vec {
+public:
 	vec();
 	vec(const vec &other);
 	vec(const GLfloat &number);
@@ -36,9 +37,11 @@ struct vec {
 	GLfloat operator[](const size_t &i) const;
 	GLfloat &operator[](const size_t &i);
 
+private:
     GLfloat data[N];
 };
 
+typedef vec<2> vec2;
 typedef vec<3> vec3;
 typedef vec<4> vec4;
 

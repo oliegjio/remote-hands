@@ -1,6 +1,6 @@
 #include "nested_shape.h"
 
-void nested_shape::draw() {
+void nested_shape::draw() const {
     group->draw();
 
     if (child != nullptr) {

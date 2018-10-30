@@ -11,8 +11,7 @@ struct shape {
     shape() {};
 	static shape *make_cube();
 
-	void draw();
-	void print() const;
+	void draw() const;
 
 	vec4 rotation {0.0f, 0.0f, 0.0f, 0.0f};
 	vec3 translation {0.0f, 0.0f, 0.0f};

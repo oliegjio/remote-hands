@@ -8,7 +8,7 @@ struct shape_group {
     shape_group() {};
     shape_group(std::initializer_list<shape*> arguments);
 
-    void draw();
+    void draw() const;
 
     vec4 rotation {0.0f, 0.0f, 0.0f, 0.0f};
     vec3 translation {0.0f, 0.0f, 0.0f};

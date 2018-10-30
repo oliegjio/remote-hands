@@ -2,7 +2,7 @@
 
 #include "matrix.h"
 
-void shape_group::draw() {
+void shape_group::draw() const {
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
 

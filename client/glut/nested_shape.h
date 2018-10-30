@@ -6,7 +6,7 @@ struct nested_shape {
     nested_shape() {};
     nested_shape(std::vector<shape_group*> groups);
 
-    void draw();
+    void draw() const;
 
     nested_shape *at(const size_t &i);
 
