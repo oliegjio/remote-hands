@@ -23,6 +23,7 @@ float dt = 0.0f;
 
 nested_shape *hand;
 shape *follower = shape::make_cube();
+vec2 position = {20.0f, -10.0f};
 
 void setup() {
     hand = make_one_plane_hand();
@@ -76,34 +77,45 @@ void idle() {
     static float rotation_2 = 0.0f;
     static float rotation_3 = 0.0f;
     static float phi = rotation_1 + rotation_2 + rotation_3;
-    static vec2 position = {30.0f, 0.0f};
 
     float l1, l2, l3;
     l1 = l2 = l3 = 10.0f;
 
     float cos = (std::powf(position[0], 2.0f) + std::powf(position[1], 2.0f) - std::powf(l1, 2.0f) - std::powf(l2, 2.0f)) / (2 * l1 * l2);
-    float sin = std::sqrtf(1 - std::powf(std::cosf(rotation_2), 2.0f));
-    float k1 = l1 + l2 * std::cosf(rotation_2);
-    float k2 = l2;
+    float sin = std::sqrtf(std::fabsf(1 - std::powf(cos, 2.0f)));
+    float k1 = l1 + l2 * cos;
+    float k2 = l2 * sin;
     float xn = position[0] - l3 * std::cosf(phi);
     float yn = position[1] - l3 * std::sinf(phi);
 
     float new_rotation_1 = std::atan2f(k1 * yn - k2 * xn, k1 * xn - k2 * yn);
     float new_rotation_2 = std::atan2f(sin, cos);
-    float new_rotation_3 = phi - (rotation_1 + rotation_2);
+    float new_rotation_3 = phi - (new_rotation_1 + new_rotation_2);
+
+//    std::cout << new_rotation_1 * (180 / PI) << "  " << new_rotation_2 * (180 / PI) << "  " << new_rotation_3 * (180 / PI) << std::endl;
 
     rotation_1 = new_rotation_1;
     rotation_2 = new_rotation_2;
     rotation_3 = new_rotation_3;
     phi = rotation_1 + rotation_2 + rotation_3;
 
-    hand->shapes[0]->rotation = {rotation_1, 0.0f, 0.0f, 1.0f};
-    hand->shapes[2]->rotation = {rotation_2, 0.0f, 0.0f, 1.0f};
-    hand->shapes[4]->rotation = {rotation_3, 0.0f, 0.0f, 1.0f};
+    hand->shapes[0]->rotation = {rotation_1 * (180 / PI), 0.0f, 0.0f, 1.0f};
+    hand->shapes[2]->rotation = {rotation_2 * (180 / PI), 0.0f, 0.0f, 1.0f};
+    hand->shapes[4]->rotation = {rotation_3 * (180 / PI), 0.0f, 0.0f, 1.0f};
 
     follower->translation = {position[0], position[1], 0};
 
 	glutPostRedisplay();
+}
+
+float smooth_map(float x, float in_min, float in_max, float out_min, float out_max) {
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+void motion(int x, int y) {
+    float nx = smooth_map(x, 0, WIN_WIDTH, -20.0f, 20.0f);
+    float ny = -smooth_map(y, 0, WIN_HEIGHT, -20.0f, 20.0f);
+    position = {nx, ny, -75.0f};
 }
 
 int main(int argc, char **argv) {
@@ -131,7 +143,8 @@ int main(int argc, char **argv) {
 
 	glutDisplayFunc(display);
 	glutIdleFunc(idle);
-	glutReshapeFunc(reshape);
+    glutMotionFunc(motion);
+    glutReshapeFunc(reshape);
 
 	glutMainLoop();
 
