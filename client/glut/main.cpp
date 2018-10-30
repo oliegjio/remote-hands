@@ -113,8 +113,9 @@ float smooth_map(float x, float in_min, float in_max, float out_min, float out_m
 }
 
 void motion(int x, int y) {
-    float nx = smooth_map(x, 0, WIN_WIDTH, -20.0f, 20.0f);
-    float ny = -smooth_map(y, 0, WIN_HEIGHT, -20.0f, 20.0f);
+    float range = 30.0f;
+    float nx = smooth_map(x, 0, WIN_WIDTH, -range, range);
+    float ny = -smooth_map(y, 0, WIN_HEIGHT, -range, range);
     position = {nx, ny, -75.0f};
 }
 
