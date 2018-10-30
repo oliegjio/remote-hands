@@ -64,6 +64,7 @@ void idle() {
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
+
     animate_one_plane_hand(hand, dt);
 
 	glutPostRedisplay();
