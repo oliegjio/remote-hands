@@ -7,6 +7,7 @@
 #include <vector>
 #include <stdexcept>
 #include <iostream>
+#include <cmath>
 
 template <size_t N>
 class vec {

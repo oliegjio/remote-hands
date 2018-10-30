@@ -23,7 +23,7 @@ float dt = 0.0f;
 
 nested_shape *hand;
 shape *follower = shape::make_cube();
-vec2 position = {20.0f, -10.0f};
+vec2 position = {30.0f, 0.0f};
 
 void setup() {
     hand = make_one_plane_hand();
@@ -63,8 +63,8 @@ vec2 forward_kinematic(float angle1, float angle2, float angle3) {
 	float l2 = 10.0f;
 	float l3 = 10.0f;
 	return vec2 {
-		l1 * std::cosf(angle1) + l2 * std::cosf(angle1 + angle2) + l3 * std::cosf(angle1 + angle2 + angle3),
-		l1 * std::sinf(angle1) + l2 * std::sinf(angle1 + angle2) + l3 * std::sinf(angle1 + angle2 + angle3)
+		l1 * cosf(angle1) + l2 * cosf(angle1 + angle2) + l3 * cosf(angle1 + angle2 + angle3),
+		l1 * sinf(angle1) + l2 * sinf(angle1 + angle2) + l3 * sinf(angle1 + angle2 + angle3)
 	};
 }
 
@@ -81,15 +81,15 @@ void idle() {
     float l1, l2, l3;
     l1 = l2 = l3 = 10.0f;
 
-    float cos = (std::powf(position[0], 2.0f) + std::powf(position[1], 2.0f) - std::powf(l1, 2.0f) - std::powf(l2, 2.0f)) / (2 * l1 * l2);
-    float sin = std::sqrtf(std::fabsf(1 - std::powf(cos, 2.0f)));
-    float k1 = l1 + l2 * cos;
-    float k2 = l2 * sin;
-    float xn = position[0] - l3 * std::cosf(phi);
-    float yn = position[1] - l3 * std::sinf(phi);
+    float cosine = (powf(position[0], 2.0f) + powf(position[1], 2.0f) - powf(l1, 2.0f) - powf(l2, 2.0f)) / (2 * l1 * l2);
+    float sine = sqrtf(fabsf(1 - powf(cosine, 2.0f)));
+    float k1 = l1 + l2 * cosine;
+    float k2 = l2 * sine;
+    float xn = position[0] - l3 * cosf(phi);
+    float yn = position[1] - l3 * sinf(phi);
 
-    float new_rotation_1 = std::atan2f(k1 * yn - k2 * xn, k1 * xn - k2 * yn);
-    float new_rotation_2 = std::atan2f(sin, cos);
+    float new_rotation_1 = atan2f(k1 * yn - k2 * xn, k1 * xn - k2 * yn);
+    float new_rotation_2 = atan2f(sine, cosine);
     float new_rotation_3 = phi - (new_rotation_1 + new_rotation_2);
 
 //    std::cout << new_rotation_1 * (180 / PI) << "  " << new_rotation_2 * (180 / PI) << "  " << new_rotation_3 * (180 / PI) << std::endl;
@@ -116,7 +116,7 @@ void motion(int x, int y) {
     float range = 30.0f;
     float nx = smooth_map(x, 0, WIN_WIDTH, -range, range);
     float ny = -smooth_map(y, 0, WIN_HEIGHT, -range, range);
-    position = {nx, ny, -75.0f};
+    position = {nx, ny};
 }
 
 int main(int argc, char **argv) {
