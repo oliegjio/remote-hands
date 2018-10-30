@@ -19,22 +19,30 @@
 
 clock_t current_time = clock();
 clock_t last_time = current_time;
-float dt = 0;
+float dt = 0.0f;
 
 nested_shape *hand;
 shape *follower = shape::make_cube();
 
 void setup() {
-    hand = make_one_plane_hand(0.0f, -10.0f, -65.0f);
+    hand = make_one_plane_hand();
+    hand->rotation = {-90.0f, 0.0f, 0.0f, 1.0f};
 
-    follower->scaling = {3.0f, 0.1f, 3.0f};
+    follower->scaling = {0.5f, 0.5f, 2.0f};
     follower->color = {1.0f, 0.0f, 0.0f};
 }
 
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+
+	glTranslatef(0.0f, 0.0f, -75.0f);
+
 	hand->draw();
-//	follower->draw();
+	follower->draw();
+
+	glPopMatrix();
 	glutSwapBuffers();
 }
 
@@ -50,9 +58,9 @@ void reshape(int width, int height) {
 }
 
 vec2 forward_kinematic(float angle1, float angle2, float angle3) {
-	float l1 = 6.75f;
-	float l2 = 6.75f;
-	float l3 = 6.75f;
+	float l1 = 10.0f;
+	float l2 = 10.0f;
+	float l3 = 10.0f;
 	return vec2 {
 		l1 * std::cosf(angle1) + l2 * std::cosf(angle1 + angle2) + l3 * std::cosf(angle1 + angle2 + angle3),
 		l1 * std::sinf(angle1) + l2 * std::sinf(angle1 + angle2) + l3 * std::sinf(angle1 + angle2 + angle3)
@@ -64,8 +72,31 @@ void idle() {
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
+    static float rotation = 0.0f;
+    static bool rotation_turn = true;
+    static float min_rotation = -45.0f;
+    static float max_rotation = 45.0f;
+    static float rotation_speed = 90.0f;
 
-    animate_one_plane_hand(hand, dt);
+    hand->shapes[0]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->shapes[2]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->shapes[4]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+
+    if (rotation < min_rotation) {
+        rotation_turn = false;
+    } else if (rotation > max_rotation) {
+        rotation_turn = true;
+    }
+
+    if (rotation_turn) {
+        rotation -= rotation_speed * dt;
+    } else {
+        rotation += rotation_speed * dt;
+    }
+
+    float rad_rotation = (rotation) * (PI / 180);
+    vec2 coordinates = forward_kinematic(0.0f + rad_rotation, 0.0f + rad_rotation, 0.0f + rad_rotation);
+    follower->translation = {coordinates[0], coordinates[1], 0.0f};
 
 	glutPostRedisplay();
 }
