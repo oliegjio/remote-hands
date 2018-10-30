@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cstdio>
 
+#include "nested_group.h"
 #include "nested_shape.h"
 #include "hands.h"
 
@@ -24,7 +25,7 @@ nested_shape *hand;
 shape *follower = shape::make_cube();
 
 void setup() {
-    hand = make_one_plane_hand();
+    hand = make_one_plane_hand(0.0f, -10.0f, -65.0f);
 
     follower->scaling = {3.0f, 0.1f, 3.0f};
     follower->color = {1.0f, 0.0f, 0.0f};
@@ -63,42 +64,7 @@ void idle() {
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-	static float rotation = 0.0f;
-	static bool rotation_turn = true;
-	static float min_rotation = -45.0f;
-	static float max_rotation = 0.0f;
-	static float rotation_speed = 90.0f;
-
-	hand->at(0)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-	hand->at(0)->translation = {0.0f, 2.0f, 0.0f};
-	hand->at(0)->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-
-	hand->at(1)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-	hand->at(1)->translation = {0.0f, 2.0f, 0.0f};
-	hand->at(1)->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-
-	hand->at(2)->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-	hand->at(2)->translation = {0.0f, 2.0f, 0.0f};
-	hand->at(2)->group->shapes[1]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-
-	if (rotation < min_rotation) {
-		rotation_turn = false;
-	} else if (rotation > max_rotation) {
-		rotation_turn = true;
-	}
-
-	if (rotation_turn) {
-		rotation -= rotation_speed * dt;
-	} else {
-		rotation += rotation_speed * dt;
-	}
-
-	float rad_rotation = (rotation + 45.0f) * (PI / 180);
-    vec2 coordinates = forward_kinematic(rad_rotation, rad_rotation, rad_rotation);
-	coordinates.print();
-	std::cout << std::endl;
-	follower->rotation = {rotation, 0.0f, 0.0f, 1.0f};
-	follower->translation = {coordinates[0], coordinates[1] - 8.0f, -65.0f};
+    animate_one_plane_hand(hand, dt);
 
 	glutPostRedisplay();
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nested_shape.h"
+#include "nested_group.h"
 
 class manipulator {
 public:
@@ -8,6 +8,6 @@ public:
     void add_limb();
 
 private:
-    nested_shape *shape;
+    nested_group *shape;
 };
 
