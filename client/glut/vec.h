@@ -28,6 +28,7 @@ public:
 	vec<N> operator*(const vec<N> &other) const;
 
 	vec<N> &operator+=(const vec<N> &other);
+    vec<N> &operator-=(const vec<N> &other);
 	vec<N> &operator*=(const vec<N> &other);
 	vec<N> &operator/=(const vec<N> &other);
 
@@ -95,6 +96,14 @@ vec<N> &vec<N>::operator+=(const vec<N> &other) {
 		data[i] += other.data[i];
 	}
 	return *this;
+}
+
+template<size_t N>
+vec<N> &vec<N>::operator-=(const vec<N> &other) {
+    for (size_t i = 0; i < N; i++) {
+        data[i] -= other.data[i];
+    }
+    return *this;
 }
 
 template<size_t N>

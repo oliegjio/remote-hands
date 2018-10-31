@@ -25,9 +25,11 @@ nested_shape *hand;
 shape *follower = shape::make_cube();
 vec2 position = {30.0f, 0.0f};
 
+vec4 camera_rotation = {0.0f, 0.0f, 1.0f, 0.0f};
+vec3 camera_position = {0.0f, 0.0f, -100.0f};
+
 void setup() {
     hand = make_4dof_hand();
-//    hand->rotation = {-90.0f, 0.0f, 0.0f, 1.0f};
 
     follower->scaling = {0.5f, 0.5f, 3.0f};
     follower->color = {1.0f, 0.0f, 0.0f};
@@ -38,7 +40,8 @@ void display() {
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
-	glTranslatef(0.0f, 0.0f, -75.0f);
+	glTranslatef(camera_position[0], camera_position[1], camera_position[2]);
+    glRotatef(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
 
 	hand->draw();
 	follower->draw();
@@ -58,7 +61,7 @@ void reshape(int width, int height) {
 	glutPostRedisplay();
 }
 
-vec2 forward_kinematic(float angle1, float angle2, float angle3) {
+vec2 forward_kinematic_planar_hand(float angle1, float angle2, float angle3) {
 	float l1 = 10.0f;
 	float l2 = 10.0f;
 	float l3 = 10.0f;
@@ -68,18 +71,50 @@ vec2 forward_kinematic(float angle1, float angle2, float angle3) {
 	};
 }
 
+vec3 forward_kinematic_4dof_hand(float angle1, float angle2, float angle3, float angle4) {
+    float l1 = 10.0f;
+    float l2 = 10.0f;
+    float l3 = 10.0f;
+    float l4 = 10.0f;
+    return vec3 {
+        cosf(angle1) * (l2 * cosf(angle2) + l3 * cosf(angle2 + angle3)) + l4 * cosf(angle1) * cosf(angle2 + angle3 + angle4),
+        sinf(angle1) * (l2 * cosf(angle2) + l3 * cosf(angle2 + angle3)) + l4 * sinf(angle1) * cosf(angle2 + angle3 + angle4),
+        l1 + l2 * sinf(angle2) + l3 * sinf(angle2 + angle3) + l4 * sinf(angle2 + angle3 + angle4)
+    };
+}
+
 void idle() {
 	current_time = clock();
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-    animate_4dof_hand(hand, dt);
+    static float rotation = 0.0f;
+    static bool rotation_turn = true;
+    static float min_rotation = -45.0f;
+    static float max_rotation = 0.0f;
+    static float rotation_speed = 90.0f;
 
-//    hand->shapes[0]->rotation = {rotation_1 * (180 / PI), 0.0f, 0.0f, 1.0f};
-//    hand->shapes[2]->rotation = {rotation_2 * (180 / PI), 0.0f, 0.0f, 1.0f};
-//    hand->shapes[4]->rotation = {rotation_3 * (180 / PI), 0.0f, 0.0f, 1.0f};
+    hand->shapes[0]->rotation = {rotation, 0.0f, 1.0f, 0.0f};
+    hand->shapes[2]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->shapes[4]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
+    hand->shapes[6]->rotation = {rotation, 0.0f, 0.0f, 1.0f};
 
-    follower->translation = {position[0], position[1], 0};
+    if (rotation < min_rotation) {
+        rotation_turn = false;
+    } else if (rotation > max_rotation) {
+        rotation_turn = true;
+    }
+
+    if (rotation_turn) {
+        rotation -= rotation_speed * dt;
+    } else {
+        rotation += rotation_speed * dt;
+    }
+
+    float rad_rotation = rotation * (PI / 180);
+    vec3 position = forward_kinematic_4dof_hand(rad_rotation, rad_rotation, rad_rotation, rad_rotation);
+
+    follower->translation = {position[0], position[2], -position[1]};
 
 	glutPostRedisplay();
 }
@@ -93,6 +128,29 @@ void passive_motion(int x, int y) {
     float nx = smooth_map(x, 0, WIN_WIDTH, -range, range);
     float ny = -smooth_map(y, 0, WIN_HEIGHT, -range, range);
     position = {nx, ny};
+}
+
+void special(int key, int x, int y) {
+    switch (key) {
+        case GLUT_KEY_F1:
+            camera_rotation = {0.0f, 0.0f, 1.0f, 0.0f};
+            camera_position = {0.0f, 0.0f, -100.0f};
+            break;
+        case GLUT_KEY_RIGHT:
+            camera_rotation += {22.5f, 0.0f, 0.0f, 0.0f};
+            break;
+        case GLUT_KEY_LEFT:
+            camera_rotation -= {22.5f, 0.0f, 0.0f, 0.0f};
+            break;
+        case GLUT_KEY_UP:
+            camera_position += {0.0f, 0.0f, 5.0f};
+            break;
+        case GLUT_KEY_DOWN:
+            camera_position -= {0.0f, 0.0f, 5.0f};
+            break;
+    }
+
+    glutPostRedisplay();
 }
 
 int main(int argc, char **argv) {
@@ -121,6 +179,7 @@ int main(int argc, char **argv) {
 	glutDisplayFunc(display);
 	glutIdleFunc(idle);
     glutPassiveMotionFunc(passive_motion);
+    glutSpecialFunc(special);
     glutReshapeFunc(reshape);
 
 	glutMainLoop();
