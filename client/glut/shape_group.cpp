@@ -1,5 +1,7 @@
 #include "shape_group.h"
 
+#include "matrix.h"
+
 void shape_group::draw() const {
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -9,13 +11,13 @@ void shape_group::draw() const {
     glScalef(scaling[0], scaling[1], scaling[2]);
 
     for (auto shape : shapes) {
-        shape.draw();
+        shape->draw();
     }
 
     glPopMatrix();
 }
 
-shape_group::shape_group(std::initializer_list<shape> arguments) {
+shape_group::shape_group(std::initializer_list<shape*> arguments) {
     for (auto it = arguments.begin(); it != arguments.end(); ++it) {
         shapes.push_back(*it);
     }

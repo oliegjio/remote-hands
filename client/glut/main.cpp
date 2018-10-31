@@ -8,93 +8,122 @@
 #include <iostream>
 #include <cstdio>
 
-#include "shape.h"
-#include "shape_group.h"
+#include "nested_group.h"
 #include "nested_shape.h"
-#include "matrix.h"
+#include "hands.h"
 
 #define WIN_WIDTH 1000
 #define WIN_HEIGHT 800
 
+#define PI 3.14159265f
+
 clock_t current_time = clock();
 clock_t last_time = current_time;
-float dt = 0;
+float dt = 0.0f;
 
-auto hand = new nested_shape;
-std::vector<shape_group> groups;
+nested_shape *hand;
+shape *follower = shape::make_cube();
+vec2 position = {30.0f, 0.0f};
 
-void setup()
-{
-    vec3 scale {1.0f, 3.0f, 1.0f};
+void setup() {
+    hand = make_one_plane_hand();
+    hand->rotation = {-90.0f, 0.0f, 0.0f, 1.0f};
 
-	auto limb1 = shape::make_cube();
-	limb1->translation = vec3 {0.0f, -5.0f, -40.0f};
-	limb1->scaling = scale;
-	limb1->rotation = vec4 {-90.0f, 0.0f, 0.0f, 1.0f};
-	limb1->color = vec3 {1.0f, 0.0f, 0.0f};
-
-	auto limb2 = shape::make_cube();
-	limb2->translation = vec3 {2.0f, 0.0f, -40.0f};
-	limb2->scaling = scale;
-	limb2->color = vec3 {0.0f, 1.0f, 0.0f};
-
-	auto limb3 = shape::make_cube();
-	limb3->translation = vec3 {0.0f, 5.0f, -40.0f};
-	limb3->scaling = scale;
-	limb3->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
-	limb3->color = vec3 {0.0f, 0.0f, 1.0f};
-
-	auto limb4 = shape::make_cube();
-	limb4->translation = vec3 {-8.0f, 5.0f, -40.0f};
-	limb4->scaling = scale;
-	limb4->rotation = vec4 {90.0f, 0.0f, 0.0f, 1.0f};
-	limb4->color = vec3 {0.0f, 1.0f, 1.0f};
-
-    shape_group group1 {*limb1};
-    shape_group group2 {*limb2};
-    shape_group group3 {*limb3};
-    shape_group group4 {*limb4};
-
-    groups = std::vector<shape_group> {group1, group2, group3, group4};
-    hand = new nested_shape(groups);
+    follower->scaling = {0.5f, 0.5f, 3.0f};
+    follower->color = {1.0f, 0.0f, 0.0f};
 }
 
-void display()
-{
+void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	hand->draw();
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
 
+	glTranslatef(0.0f, 0.0f, -75.0f);
+
+	hand->draw();
+	follower->draw();
+
+	glPopMatrix();
 	glutSwapBuffers();
 }
 
-void reshape(int width, int height)
-{
+void reshape(int width, int height) {
 	glViewport(0, 0, width, height);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(45.0f, (GLfloat) width / (GLfloat) height, 0.1f, 100.0f);
+	gluPerspective(45.0f, (GLfloat) width / (GLfloat) height, 0.1f, 500.0f);
 	glMatrixMode(GL_MODELVIEW);
 
 	glutPostRedisplay();
 }
 
-void idle()
-{
+vec2 forward_kinematic(float angle1, float angle2, float angle3) {
+	float l1 = 10.0f;
+	float l2 = 10.0f;
+	float l3 = 10.0f;
+	return vec2 {
+		l1 * cosf(angle1) + l2 * cosf(angle1 + angle2) + l3 * cosf(angle1 + angle2 + angle3),
+		l1 * sinf(angle1) + l2 * sinf(angle1 + angle2) + l3 * sinf(angle1 + angle2 + angle3)
+	};
+}
+
+void idle() {
 	current_time = clock();
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-//    hand->rotation += {10.f * dt, 0.0f, 0.0f, 1.0f};
-//    hand->child->group.rotation += {10.0f * dt, 0.0f, 0.0f, 1.0f};
-//    hand->child->child->group.rotation += {10.0f * dt, 0.0f, 0.0f, 1.0f};
+    static float rotation_1 = 0.0f;
+    static float rotation_2 = 0.0f;
+    static float rotation_3 = 0.0f;
+    static float phi = rotation_1 + rotation_2 + rotation_3;
+
+    float l1, l2, l3;
+    l1 = l2 = l3 = 10.0f;
+
+    float cosine = (powf(position[0], 2.0f) + powf(position[1], 2.0f) - powf(l1, 2.0f) - powf(l2, 2.0f)) / (2 * l1 * l2);
+    float sine = sqrtf(fabsf(1 - powf(cosf(rotation_2), 2.0f)));
+    float k1 = l1 + l2 * cosf(rotation_2);
+    float k2 = l2 * sinf(rotation_2);
+    float xn = position[0] - l3 * cosf(phi);
+    float yn = position[1] - l3 * sinf(phi);
+
+    float new_rotation_1 = atan2f(k1 * yn - k2 * xn, k1 * xn - k2 * yn);
+    float new_rotation_2 = atan2f(sine, cosine);
+    float new_rotation_3 = phi - (rotation_1 + rotation_2);
+
+    std::cout
+        << new_rotation_1 * (180 / PI) << "  "
+        << new_rotation_2 * (180 / PI) << "  "
+        << new_rotation_3 * (180 / PI) << "  "
+        << phi * (180 / PI) << std::endl;
+
+    rotation_1 = new_rotation_1;
+    rotation_2 = new_rotation_2;
+    rotation_3 = new_rotation_3;
+    phi = new_rotation_1 + new_rotation_2 + new_rotation_3;
+
+    hand->shapes[0]->rotation = {rotation_1 * (180 / PI), 0.0f, 0.0f, 1.0f};
+    hand->shapes[2]->rotation = {rotation_2 * (180 / PI), 0.0f, 0.0f, 1.0f};
+    hand->shapes[4]->rotation = {rotation_3 * (180 / PI), 0.0f, 0.0f, 1.0f};
+
+    follower->translation = {position[0], position[1], 0};
 
 	glutPostRedisplay();
 }
 
-int main(int argc, char **argv)
-{
+float smooth_map(float x, float in_min, float in_max, float out_min, float out_max) {
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+void passive_motion(int x, int y) {
+    float range = 30.0f;
+    float nx = smooth_map(x, 0, WIN_WIDTH, -range, range);
+    float ny = -smooth_map(y, 0, WIN_HEIGHT, -range, range);
+    position = {nx, ny};
+}
+
+int main(int argc, char **argv) {
 	setup();
 
 	glutInit(&argc, argv);
@@ -119,7 +148,8 @@ int main(int argc, char **argv)
 
 	glutDisplayFunc(display);
 	glutIdleFunc(idle);
-	glutReshapeFunc(reshape);
+    glutPassiveMotionFunc(passive_motion);
+    glutReshapeFunc(reshape);
 
 	glutMainLoop();
 

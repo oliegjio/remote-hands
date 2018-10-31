@@ -1,14 +1,20 @@
 #pragma once
 
-#include "shape_group.h"
+#include "shape.h"
 
-class nested_shape {
-public:
+struct nested_shape {
     nested_shape() {};
-    nested_shape(std::vector<shape_group> groups);
+    nested_shape(std::initializer_list<shape*> arguments);
 
     void draw() const;
 
-    shape_group group;
-    nested_shape *child;
+    vec4 rotation {0.0f, 0.0f, 0.0f, 0.0f};
+    vec3 translation {0.0f, 0.0f, 0.0f};
+    vec3 scaling {1.0f, 1.0f, 1.0f};
+
+    std::vector<shape*> shapes;
+
+private:
+    void draw_recursive(std::vector<shape*> shapes) const;
 };
+

@@ -11,15 +11,14 @@
 #include "vec.h"
 
 template<size_t R, size_t C>
-class matrix {
-public:
+struct matrix {
+    matrix() {};
     matrix(const GLfloat *data);
 
     void print() const;
 
     vec<R> operator*(const vec<C> &other) const;
 
-private:
     size_t rows = R;
     size_t columns = C;
 
@@ -41,7 +40,7 @@ vec<R> matrix<R, C>::operator*(const vec<C> &other) const {
     vec<R> result;
     for (size_t i = 0; i < R; i++) {
         for (size_t j = 0; j < C; j++) {
-            result[i] += data[j + i * columns] * other[j];
+            result[i] += data[i + j * columns] * other[j];
         }
     }
     return result;

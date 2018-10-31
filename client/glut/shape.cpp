@@ -45,37 +45,21 @@ shape *shape::make_cube()
     return cube;
 }
 
-void shape::draw() const
-{
+void shape::draw() const {
 	glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
 
     glTranslatef(translation[0], translation[1], translation[2]);
     glRotatef(rotation[0], rotation[1], rotation[2], rotation[3]);
-	glScalef(scaling[0], scaling[1], scaling[2]);
-
-	float data[16];
-	glGetFloatv(GL_MODELVIEW_MATRIX, data);
-	matrix4 transformation(data);
-	vec4 result = transformation * basis_x;
-	result.print();
-//	basis_x = result;
+    glScalef(scaling[0], scaling[1], scaling[2]);
 
     glColor3f(color[0], color[1], color[2]);
     glBegin(draw_mode);
-    for (const auto & vertex : vertices)
+    for (const auto &vertex : vertices)
     {
         glVertex3f(vertex[0], vertex[1], vertex[2]);
     }
     glEnd();
 
     glPopMatrix();
-}
-
-void shape::print() const
-{
-	for (const auto & vec : vertices)
-	{
-		vec.print();
-	}
 }

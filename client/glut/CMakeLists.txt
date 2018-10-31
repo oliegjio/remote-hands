@@ -8,8 +8,12 @@ set (MY_FILES
         "shape.h" "shape.cpp"
         "vec.h"
         "shape_group.cpp" "shape_group.h"
-        "nested_shape.cpp" "nested_shape.h"
-        "matrix.h")
+        "nested_group.cpp" "nested_group.h"
+        "matrix.h"
+        "hands.h"
+        "manipulator.cpp" "manipulator.h"
+        "limb.cpp" "limb.h"
+        "nested_shape.cpp" "nested_shape.h")
 
 if (WIN32)
     include_directories("include")

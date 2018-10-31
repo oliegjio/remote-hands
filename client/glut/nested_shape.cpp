@@ -1,30 +1,38 @@
 #include "nested_shape.h"
 
 void nested_shape::draw() const {
-    group.draw();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
 
-    if (child != nullptr) {
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
+    glTranslatef(translation[0], translation[1], translation[2]);
+    glRotatef(rotation[0], rotation[1], rotation[2], rotation[3]);
+    glScalef(scaling[0], scaling[1], scaling[2]);
 
-        glTranslatef(group.translation[0], group.translation[1], group.translation[2]);
-        glRotatef(group.rotation[0], group.rotation[1], group.rotation[2], group.rotation[3]);
-        glScalef(group.scaling[0], group.scaling[1], group.scaling[2]);
+    draw_recursive(shapes);
 
-        child->draw();
+    glPopMatrix();
+}
 
-        glPopMatrix();
+nested_shape::nested_shape(std::initializer_list<shape *> arguments) {
+    for (auto it = arguments.begin(); it != arguments.end(); ++it) {
+        shapes.push_back(*it);
     }
 }
 
-nested_shape::nested_shape(std::vector<shape_group> groups) {
-    if (groups.size() == 1) {
-        group = groups.at(0);
-        child = nullptr;
-    } else {
-        group = groups.at(0);
-        groups.erase(groups.begin());
-        child = new nested_shape(groups);
-    }
-}
+void nested_shape::draw_recursive(std::vector<shape*> shapes) const {
+    if (shapes.size() == 0) return;
 
+    shapes[0]->draw();
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+
+    glTranslatef(shapes[0]->translation[0], shapes[0]->translation[1], shapes[0]->translation[2]);
+    glRotatef(shapes[0]->rotation[0], shapes[0]->rotation[1], shapes[0]->rotation[2], shapes[0]->rotation[3]);
+    glTranslatef(-shapes[0]->translation[0], -shapes[0]->translation[1], -shapes[0]->translation[2]);
+
+    shapes.erase(shapes.begin());
+    draw_recursive(shapes);
+
+    glPopMatrix();
+}
