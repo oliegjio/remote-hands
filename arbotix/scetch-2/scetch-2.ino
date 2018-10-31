@@ -8,13 +8,13 @@ void setup () {
 void loop () {
   while (Serial.read() < 0);
   Serial.println("hello");
-  ax12SetRegister2(2, 32, 500);
-  ax12SetRegister2(2, 30, 50); 
+  ax12SetRegister2(1, 32, 500);
+  ax12SetRegister2(1, 30, 50); 
   delay(1000);
-  while (ax12GetRegister(2, 36, 2) != 1023) {
-    Serial.println(ax12GetRegister(2, 36, 2));
+  while (ax12GetRegister(1, 36, 2) != 1023) {
+    Serial.println(ax12GetRegister(1, 36, 2));
   }
-  ax12SetRegister2(2, 32, 0);
+  ax12SetRegister2(1, 32, 0);
   Serial.println("Good work");
   delay(10000);
 }
