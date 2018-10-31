@@ -188,8 +188,8 @@ template<size_t N>
 float vec<N>::length() const {
     float len = 0;
     for (size_t i = 0; i < N; i++) {
-        len += std::pow(data[i], 2.0f);
+        len += powf(data[i], 2.0f);
     }
 
-    return std::sqrt(len);
+    return sqrtf(len);
 }

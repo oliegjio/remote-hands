@@ -82,22 +82,26 @@ void idle() {
     l1 = l2 = l3 = 10.0f;
 
     float cosine = (powf(position[0], 2.0f) + powf(position[1], 2.0f) - powf(l1, 2.0f) - powf(l2, 2.0f)) / (2 * l1 * l2);
-    float sine = sqrtf(fabsf(1 - powf(cosine, 2.0f)));
-    float k1 = l1 + l2 * cosine;
-    float k2 = l2 * sine;
+    float sine = sqrtf(fabsf(1 - powf(cosf(rotation_2), 2.0f)));
+    float k1 = l1 + l2 * cosf(rotation_2);
+    float k2 = l2 * sinf(rotation_2);
     float xn = position[0] - l3 * cosf(phi);
     float yn = position[1] - l3 * sinf(phi);
 
     float new_rotation_1 = atan2f(k1 * yn - k2 * xn, k1 * xn - k2 * yn);
     float new_rotation_2 = atan2f(sine, cosine);
-    float new_rotation_3 = phi - (new_rotation_1 + new_rotation_2);
+    float new_rotation_3 = phi - (rotation_1 + rotation_2);
 
-//    std::cout << new_rotation_1 * (180 / PI) << "  " << new_rotation_2 * (180 / PI) << "  " << new_rotation_3 * (180 / PI) << std::endl;
+    std::cout
+        << new_rotation_1 * (180 / PI) << "  "
+        << new_rotation_2 * (180 / PI) << "  "
+        << new_rotation_3 * (180 / PI) << "  "
+        << phi * (180 / PI) << std::endl;
 
     rotation_1 = new_rotation_1;
     rotation_2 = new_rotation_2;
     rotation_3 = new_rotation_3;
-    phi = rotation_1 + rotation_2 + rotation_3;
+    phi = new_rotation_1 + new_rotation_2 + new_rotation_3;
 
     hand->shapes[0]->rotation = {rotation_1 * (180 / PI), 0.0f, 0.0f, 1.0f};
     hand->shapes[2]->rotation = {rotation_2 * (180 / PI), 0.0f, 0.0f, 1.0f};
@@ -112,7 +116,7 @@ float smooth_map(float x, float in_min, float in_max, float out_min, float out_m
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-void motion(int x, int y) {
+void passive_motion(int x, int y) {
     float range = 30.0f;
     float nx = smooth_map(x, 0, WIN_WIDTH, -range, range);
     float ny = -smooth_map(y, 0, WIN_HEIGHT, -range, range);
@@ -144,7 +148,7 @@ int main(int argc, char **argv) {
 
 	glutDisplayFunc(display);
 	glutIdleFunc(idle);
-    glutMotionFunc(motion);
+    glutPassiveMotionFunc(passive_motion);
     glutReshapeFunc(reshape);
 
 	glutMainLoop();
