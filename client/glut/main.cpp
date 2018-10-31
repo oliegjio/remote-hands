@@ -26,8 +26,8 @@ shape *follower = shape::make_cube();
 vec2 position = {30.0f, 0.0f};
 
 void setup() {
-    hand = make_one_plane_hand();
-    hand->rotation = {-90.0f, 0.0f, 0.0f, 1.0f};
+    hand = make_4dof_hand();
+//    hand->rotation = {-90.0f, 0.0f, 0.0f, 1.0f};
 
     follower->scaling = {0.5f, 0.5f, 3.0f};
     follower->color = {1.0f, 0.0f, 0.0f};
@@ -73,39 +73,11 @@ void idle() {
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-    static float rotation_1 = 0.0f;
-    static float rotation_2 = 0.0f;
-    static float rotation_3 = 0.0f;
-    static float phi = rotation_1 + rotation_2 + rotation_3;
+    animate_4dof_hand(hand, dt);
 
-    float l1, l2, l3;
-    l1 = l2 = l3 = 10.0f;
-
-    float cosine = (powf(position[0], 2.0f) + powf(position[1], 2.0f) - powf(l1, 2.0f) - powf(l2, 2.0f)) / (2 * l1 * l2);
-    float sine = sqrtf(fabsf(1 - powf(cosf(rotation_2), 2.0f)));
-    float k1 = l1 + l2 * cosf(rotation_2);
-    float k2 = l2 * sinf(rotation_2);
-    float xn = position[0] - l3 * cosf(phi);
-    float yn = position[1] - l3 * sinf(phi);
-
-    float new_rotation_1 = atan2f(k1 * yn - k2 * xn, k1 * xn - k2 * yn);
-    float new_rotation_2 = atan2f(sine, cosine);
-    float new_rotation_3 = phi - (rotation_1 + rotation_2);
-
-    std::cout
-        << new_rotation_1 * (180 / PI) << "  "
-        << new_rotation_2 * (180 / PI) << "  "
-        << new_rotation_3 * (180 / PI) << "  "
-        << phi * (180 / PI) << std::endl;
-
-    rotation_1 = new_rotation_1;
-    rotation_2 = new_rotation_2;
-    rotation_3 = new_rotation_3;
-    phi = new_rotation_1 + new_rotation_2 + new_rotation_3;
-
-    hand->shapes[0]->rotation = {rotation_1 * (180 / PI), 0.0f, 0.0f, 1.0f};
-    hand->shapes[2]->rotation = {rotation_2 * (180 / PI), 0.0f, 0.0f, 1.0f};
-    hand->shapes[4]->rotation = {rotation_3 * (180 / PI), 0.0f, 0.0f, 1.0f};
+//    hand->shapes[0]->rotation = {rotation_1 * (180 / PI), 0.0f, 0.0f, 1.0f};
+//    hand->shapes[2]->rotation = {rotation_2 * (180 / PI), 0.0f, 0.0f, 1.0f};
+//    hand->shapes[4]->rotation = {rotation_3 * (180 / PI), 0.0f, 0.0f, 1.0f};
 
     follower->translation = {position[0], position[1], 0};
 
