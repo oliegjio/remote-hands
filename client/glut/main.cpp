@@ -11,6 +11,7 @@
 #include "nested_group.h"
 #include "nested_shape.h"
 #include "hands.h"
+#include "kinematics.h"
 
 #define WIN_WIDTH 1000
 #define WIN_HEIGHT 800
@@ -23,13 +24,13 @@ float dt = 0.0f;
 
 nested_shape *hand;
 shape *follower = shape::make_cube();
-vec2 position = {30.0f, 0.0f};
+vec2 position = {0.0f, 0.0f};
 
 vec4 camera_rotation = {0.0f, 0.0f, 1.0f, 0.0f};
 vec3 camera_position = {0.0f, 0.0f, -100.0f};
 
 void setup() {
-    hand = make_4dof_hand();
+    hand = make_planar_hand();
 
     follower->scaling = {0.5f, 0.5f, 3.0f};
     follower->color = {1.0f, 0.0f, 0.0f};
@@ -61,81 +62,12 @@ void reshape(int width, int height) {
 	glutPostRedisplay();
 }
 
-vec2 forward_kinematic_planar_hand(float angle1, float angle2, float angle3) {
-	float l1 = 10.0f;
-	float l2 = 10.0f;
-	float l3 = 10.0f;
-	return vec2 {
-		l1 * cosf(angle1) + l2 * cosf(angle1 + angle2) + l3 * cosf(angle1 + angle2 + angle3),
-		l1 * sinf(angle1) + l2 * sinf(angle1 + angle2) + l3 * sinf(angle1 + angle2 + angle3)
-	};
-}
-
-vec3 forward_kinematic_4dof_hand(float angle1, float angle2, float angle3, float angle4) {
-    float l1 = 10.0f;
-    float l2 = 10.0f;
-    float l3 = 10.0f;
-    float l4 = 10.0f;
-    return vec3 {
-        cosf(angle1) * (l2 * cosf(angle2) + l3 * cosf(angle2 + angle3)) + l4 * cosf(angle1) * cosf(angle2 + angle3 + angle4),
-        sinf(angle1) * (l2 * cosf(angle2) + l3 * cosf(angle2 + angle3)) + l4 * sinf(angle1) * cosf(angle2 + angle3 + angle4),
-        l1 + l2 * sinf(angle2) + l3 * sinf(angle2 + angle3) + l4 * sinf(angle2 + angle3 + angle4)
-    };
-}
-
-vec4 inverse_kinematics_4dof_hand(float x, float y, float z, float angle1, float angle2, float angle3, float angle4, float phi) {
-    float l1 = 10.0f;
-    float l2 = 10.0f;
-    float l3 = 10.0f;
-    float l4 = 10.0f;
-    float a = l3 * sinf(angle3);
-    float b = l2 + l3 * cosf(angle3);
-    float c = z - l1 - l4 * sinf(phi);
-    float r = sqrtf(powf(a, 2.0f) + powf(b, 2.0f));
-    float A = x - l4 * cosf(angle1) * cosf(phi);
-    float B = y - l4 * sinf(angle1) * cosf(phi);
-    float C = z - l1 - l4 * sinf(phi);
-
-    float r1 = atanf(x / y);
-    float r2 = atan2f(c, fabsf(sqrtf(powf(r, 2.0f) - powf(c, 2.0f)))) - atan2f(a, b);
-    float r3 = acosf((powf(A, 2.0f) + powf(B, 2.0f) + powf(C, 2.0f) - powf(l2, 2.0f) - powf(l3, 2.0f)) / (2 * l2 * l3));
-    float r4 = phi - r2 - r3;
-
-    return vec4 {r1, r2, r3, r4};
-}
-
 void idle() {
 	current_time = clock();
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-	position = {20.0f, 20.0f};
-
-//    static float rotation = 0.0f;
-//    static bool rotation_turn = true;
-//    static float min_rotation = -45.0f;
-//    static float max_rotation = 0.0f;
-//    static float rotation_speed = 90.0f;
-    float angle1 = 0.0f;
-    float angle2 = 0.0f + (PI / 4.0f);
-    float angle3 = 0.0f;
-    float angle4 = 0.0f;
-    float phi = angle2 + angle3 + angle4;
-
-    vec4 angles = inverse_kinematics_4dof_hand(position[0], position[1], 0.0f, angle1, angle2, angle3, angle4, phi);
-
-//    angle1 = angles[0];
-//    angle2 = angles[1];
-//    angle3 = angles[2];
-//    angle4 = angles[3];
-//    phi = angles[1] + angles[2] + angles[3];
-
-    hand->shapes[0]->rotation = {angles[0] * (180 / PI), 0.0f, 1.0f, 0.0f};
-    hand->shapes[2]->rotation = {angles[1] * (180 / PI), 0.0f, 0.0f, 1.0f};
-    hand->shapes[4]->rotation = {angles[2] * (180 / PI), 0.0f, 0.0f, 1.0f};
-    hand->shapes[6]->rotation = {angles[3] * (180 / PI), 0.0f, 0.0f, 1.0f};
-
-    follower->translation = {position[0], position[1], 0.0f};
+    animate_inverse_kinematics_planar_hand(hand, follower, position);
 
 	glutPostRedisplay();
 }
@@ -148,7 +80,7 @@ void passive_motion(int x, int y) {
     float range = 30.0f;
     float nx = smooth_map(x, 0, WIN_WIDTH, -range, range);
     float ny = -smooth_map(y, 0, WIN_HEIGHT, -range, range);
-//    position = {nx, ny};
+    position = {nx, ny};
 }
 
 void special(int key, int x, int y) {

@@ -4,31 +4,31 @@
 #include "nested_shape.h"
 
 nested_shape *make_planar_hand() {
-    vec3 limb_scale {0.5f, 5.0f, 0.5f};
+    vec3 limb_scale {5.0f, 0.5f, 0.5f};
 
     auto rotor1 = shape::make_cube();
-    rotor1->color = vec3 {0.0f, limb_scale[1] * 0.0f, 1.0f};
+    rotor1->color = vec3 {0.0f, 0.0f, 1.0f};
 
     auto limb1 = shape::make_cube();
-    limb1->translation = {0.0f, limb_scale[1] * 1.0f, 0.0f};
+    limb1->translation = {limb_scale[0] * 1.0f, 0.0f, 0.0f};
     limb1->scaling = limb_scale;
     limb1->color = vec3 {0.0f, 1.0f, 0.0f};
 
     auto rotor2 = shape::make_cube();
-    rotor2->translation = {0.0f, limb_scale[1] * 2.0f, 0.0f};
+    rotor2->translation = {limb_scale[0] * 2.0f, 0.0f, 0.0f};
     rotor2->color = vec3 {0.0f, 1.0f, 1.0f};
 
     auto limb2 = shape::make_cube();
-    limb2->translation = {00.0f, limb_scale[1] * 3.0f, 0.0f};
+    limb2->translation = {limb_scale[0] * 3.0f, 0.0f, 0.0f};
     limb2->scaling = limb_scale;
     limb2->color = vec3 {0.0f, 0.0f, 1.0f};
 
     auto rotor3 = shape::make_cube();
-    rotor3->translation = {0.0f, limb_scale[1] * 4.0f, 0.0f};
+    rotor3->translation = {limb_scale[0] * 4.0f, 0.0f, 0.0f};
     rotor3->color = vec3 {1.0f, 1.0f, 0.0f};
 
     auto limb3 = shape::make_cube();
-    limb3->translation = {0.0f, limb_scale[1] * 5.0f, 0.0f};
+    limb3->translation = {limb_scale[0] * 5.0f, 0.0f, 0.0f};
     limb3->scaling = limb_scale;
     limb3->color = vec3 {0.0f, 1.0f, 1.0f};
 

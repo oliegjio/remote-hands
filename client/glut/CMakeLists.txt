@@ -13,7 +13,8 @@ set (MY_FILES
         "hands.h"
         "manipulator.cpp" "manipulator.h"
         "limb.cpp" "limb.h"
-        "nested_shape.cpp" "nested_shape.h")
+        "nested_shape.cpp" "nested_shape.h"
+        "kinematics.h")
 
 if (WIN32)
     include_directories("include")
