@@ -68,6 +68,7 @@ void idle() {
 	last_time = current_time;
 
     animate_inverse_kinematics_planar_hand(hand, follower, position);
+//    animate_forward_kinematics_planar_hand(hand, follower, dt);
 
 	glutPostRedisplay();
 }
@@ -77,7 +78,7 @@ float smooth_map(float x, float in_min, float in_max, float out_min, float out_m
 }
 
 void passive_motion(int x, int y) {
-    float range = 30.0f;
+    float range = 40.0f;
     float nx = smooth_map(x, 0, WIN_WIDTH, -range, range);
     float ny = -smooth_map(y, 0, WIN_HEIGHT, -range, range);
     position = {nx, ny};
