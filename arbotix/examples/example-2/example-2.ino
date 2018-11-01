@@ -1,13 +1,21 @@
-#include "ax12.h"
-#include "BioloidController.h"
+#include <AX12A.h>
 
-void setup () {
+#define DirectionPin  (10u)
+#define BaudRate    (1000000ul)
+#define ID    (4u)
+#define ID2   (1u)
+
+void setup()
+{
   Serial.begin(9600);
+ ax12a.begin(BaudRate, DirectionPin, &Serial2);
+ //ax12a1.begin(BaudRate, DirectionPin, &Serial2);
+ ax12a.setEndless(ID, ON);
 }
 
-void loop () {
-  Serial.println("hello"); 
-  ax12SetRegister2(254, 32, 150); //broadcast move speed
-  ax12SetRegister2(254, 30, 50);  //broadcast move
-  delay(1000);
+void loop()
+{
+  Serial.println("Hello");
+  while(Serial.read() < 0);
+  ax12a.moveSpeed(254, 512, 100);
 }
