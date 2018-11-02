@@ -67,7 +67,7 @@ void idle() {
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-	position = {25.0f * (PI / 4.0f), 25.0f * (PI / 4.0f)};
+//	position = {25.0f * (PI / 4.0f), 25.0f * (PI / 4.0f)};
 //    position = {10.0f * 0.78539f, 15.0f * 0.78539f};
     animate_inverse_kinematics_planar_hand(hand, follower, position);
 //    animate_forward_kinematics_planar_hand(hand, follower, dt);
