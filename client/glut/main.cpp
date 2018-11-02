@@ -29,6 +29,9 @@ vec2 position = {0.0f, 0.0f};
 vec4 camera_rotation = {0.0f, 0.0f, 1.0f, 0.0f};
 vec3 camera_position = {0.0f, 0.0f, -100.0f};
 
+size_t window_width = WIN_WIDTH;
+size_t window_height = WIN_HEIGHT;
+
 void setup() {
     hand = make_planar_hand();
 
@@ -53,6 +56,8 @@ void display() {
 
 void reshape(int width, int height) {
 	glViewport(0, 0, width, height);
+	window_width = width;
+	window_height = height;
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -67,10 +72,7 @@ void idle() {
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-//	position = {25.0f * (PI / 4.0f), 25.0f * (PI / 4.0f)};
-//    position = {10.0f * 0.78539f, 15.0f * 0.78539f};
     animate_inverse_kinematics_planar_hand(hand, follower, position);
-//    animate_forward_kinematics_planar_hand(hand, follower, dt);
 
 	glutPostRedisplay();
 }
@@ -80,9 +82,9 @@ float smooth_map(float x, float in_min, float in_max, float out_min, float out_m
 }
 
 void passive_motion(int x, int y) {
-    float range = 40.0f;
-    float nx = smooth_map(x, 0, WIN_WIDTH, -range, range);
-    float ny = -smooth_map(y, 0, WIN_HEIGHT, -range, range);
+    float range = 30.0f;
+    float nx = smooth_map(x, 0, window_width, -range, range);
+    float ny = -smooth_map(y, 0, window_height, -range, range);
     position = {nx, ny};
 }
 
