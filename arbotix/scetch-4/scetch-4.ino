@@ -1,3 +1,5 @@
+//Arduino v1.0.6
+
 #include "ax12.h"
 #include "BioloidController.h"
 
