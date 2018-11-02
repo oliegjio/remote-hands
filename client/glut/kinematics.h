@@ -68,7 +68,7 @@ vec3 inverse_kinematics_planar_hand(float x, float y, float angle1, float angle2
 
     float r1 = alpha - gamma;
     float r2 = PI - beta;
-    float r3 = phi - r1 - r2;
+    float r3 = phi - angle1 - angle2;
     return vec3 {r1, r2, r3};
 }
 
@@ -91,7 +91,7 @@ void animate_inverse_kinematics_planar_hand(nested_shape *hand, shape *follower,
     hand->shapes[2]->rotation = {angles[1], 0.0f, 0.0f, 1.0f};
     hand->shapes[4]->rotation = {angles[2], 0.0f, 0.0f, 1.0f};
 
-    follower->translation = {position[0], position[1], 0.0f};
+    follower->translation = {position[1], position[0], 0.0f};
 }
 
 vec3 forward_kinematics_4dof_hand(float angle1, float angle2, float angle3, float angle4, float l1, float l2,
