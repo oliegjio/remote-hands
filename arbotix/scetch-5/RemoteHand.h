@@ -3,6 +3,8 @@
 
 #include "ax12.h"
 
+#define MAX_ANGLE            110
+
 #define AX_GOAL_POSITION_L   30
 #define AX_GOAL_POSITION_H   31
 #define AX_MOVING_SPEED_L    32
@@ -13,8 +15,8 @@
 
 class RemoteHand {
 private:
-	void correct_speed(int id, int _speed, int _position);
-        int wait_time(int _speed, int _position);
+        void correct_angle(int & _angle);
+        int angle2pos(int _angle);
 public:
 	void setID(unsigned char id, unsigned char new_id);
 	void move(unsigned char id, int _position);
