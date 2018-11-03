@@ -63,3 +63,4 @@ void shape::draw() const {
 
     glPopMatrix();
 }
+

@@ -24,16 +24,16 @@ float dt = 0.0f;
 
 nested_shape *hand;
 shape *follower = shape::make_cube();
-vec2 position = {0.0f, 0.0f};
+vec3 position = {0.0f, 0.0f, 0.0f};
 
-vec4 camera_rotation = {0.0f, 0.0f, 1.0f, 0.0f};
+vec4 camera_rotation = {0.0f, 0.0f, 0.0f, 1.0f};
 vec3 camera_position = {0.0f, 0.0f, -100.0f};
 
 size_t window_width = WIN_WIDTH;
 size_t window_height = WIN_HEIGHT;
 
 void setup() {
-    hand = make_planar_hand();
+    hand = make_4dof_hand();
 
     follower->scaling = {0.5f, 0.5f, 3.0f};
     follower->color = {1.0f, 0.0f, 0.0f};
@@ -45,6 +45,8 @@ void display() {
 	glPushMatrix();
 
 	glTranslatef(camera_position[0], camera_position[1], camera_position[2]);
+    glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+//    glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
     glRotatef(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
 
 	hand->draw();
@@ -72,7 +74,9 @@ void idle() {
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-    animate_inverse_kinematics_planar_hand(hand, follower, position);
+//	animate_4dof_hand(hand, dt);
+//    animate_inverse_kinematics_planar_hand(hand, follower, position);
+    animate_inverse_kinematics_4dof_hand(hand, follower, position);
 
 	glutPostRedisplay();
 }
@@ -85,7 +89,7 @@ void passive_motion(int x, int y) {
     float range = 30.0f;
     float nx = smooth_map(x, 0, window_width, -range, range);
     float ny = -smooth_map(y, 0, window_height, -range, range);
-    position = {nx, ny};
+    position = {nx, 0.0f, ny};
 }
 
 void special(int key, int x, int y) {
@@ -93,6 +97,12 @@ void special(int key, int x, int y) {
         case GLUT_KEY_F1:
             camera_rotation = {0.0f, 0.0f, 1.0f, 0.0f};
             camera_position = {0.0f, 0.0f, -100.0f};
+            break;
+        case GLUT_KEY_F2:
+            position += {0.0f, 3.0f, 0.0f};
+            break;
+        case GLUT_KEY_F3:
+            position -= {0.0f, 3.0f, 0.0f};
             break;
         case GLUT_KEY_RIGHT:
             camera_rotation += {22.5f, 0.0f, 0.0f, 0.0f};
@@ -121,15 +131,9 @@ int main(int argc, char **argv) {
 	glutCreateWindow("Remote Hands");
 
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_COLOR_MATERIAL);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
 	glDepthFunc(GL_LESS);
 	glShadeModel(GL_SMOOTH);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-	const float light_position[4] = { 0.0f, 0.0f, 10.0f, 1.0f };
-	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
 	glClearDepth(1.0f);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

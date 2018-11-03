@@ -45,8 +45,8 @@ void animate_forward_kinematics_planar_hand(nested_shape *hand, shape *follower,
 
 }
 
-vec3 inverse_kinematics_planar_hand(float x, float y, float angle1, float angle2, float angle3, float phi,
-        float l1, float l2, float l3) {
+vec3 inverse_kinematics_planar_hand(float x, float y, float l1, float l2, float l3) {
+    float phi = atan2f(y, x);
     float xw = x - l3 * cosf(phi);
     float yw = y - l3 * sinf(phi);
     float r = powf(xw, 2.0f) + powf(yw, 2.0f);
@@ -61,16 +61,11 @@ vec3 inverse_kinematics_planar_hand(float x, float y, float angle1, float angle2
 }
 
 void animate_inverse_kinematics_planar_hand(nested_shape *hand, shape *follower, vec2 position) {
-    static float angle1 = 0.0f;
-    static float angle2 = 0.0f;
-    static float angle3 = 0.0f;
-    float phi = atan2f(position[1], position[0]);
     float l = 10.0f;
 
-    vec3 angles = inverse_kinematics_planar_hand(position[0], position[1], angle1, angle2, angle3, phi, l, l, l);
+    vec3 angles = inverse_kinematics_planar_hand(position[0], position[1], l, l, l);
 
     angles *= (180.0f / PI);
-
     hand->shapes[0]->rotation = {angles[0], 0.0f, 0.0f, 1.0f};
     hand->shapes[2]->rotation = {angles[1], 0.0f, 0.0f, 1.0f};
     hand->shapes[4]->rotation = {angles[2], 0.0f, 0.0f, 1.0f};
@@ -87,8 +82,11 @@ vec3 forward_kinematics_4dof_hand(float angle1, float angle2, float angle3, floa
     };
 }
 
-vec4 inverse_kinematics_4dof_hand(float x, float y, float z, float angle1, float angle2, float angle3, float angle4,
-        float phi, float l1, float l2, float l3, float l4) {
+vec4 inverse_kinematics_4dof_hand(float x, float y, float z, float angle1, float angle3, float l1,
+        float l2, float l3, float l4) {
+    float len = sqrtf(powf(x, 2.0f) + powf(y, 2.0f));
+    float phi = atan2f(z, len);
+
     float a = l3 * sinf(angle3);
     float b = l2 + l3 * cosf(angle3);
     float c = z - l1 - l4 * sinf(phi);
@@ -97,10 +95,29 @@ vec4 inverse_kinematics_4dof_hand(float x, float y, float z, float angle1, float
     float B = y - l4 * sinf(angle1) * cosf(phi);
     float C = z - l1 - l4 * sinf(phi);
 
-    float r1 = atanf(x / y);
-    float r2 = atan2f(c, fabsf(sqrtf(powf(r, 2.0f) - powf(c, 2.0f)))) - atan2f(a, b);
-    float r3 = acosf((powf(A, 2.0f) + powf(B, 2.0f) + powf(C, 2.0f) - powf(l2, 2.0f) - powf(l3, 2.0f)) / (2 * l2 * l3));
+    float r1 = atan2f(y, x);
+    float r2 = atan2f(c, sqrtf(powf(r, 2.0f) - powf(c, 2.0f))) - atan2f(a, b);
+    float r3 = acosf((powf(A, 2.0f) + powf(B, 2.0f) + powf(C, 2.0f) - powf(l2, 2.0f) - powf(l3, 2.0f)) / (2.0f * l2 * l3));
     float r4 = phi - r2 - r3;
 
     return vec4 {r1, r2, r3, r4};
+}
+
+void animate_inverse_kinematics_4dof_hand(nested_shape *hand, shape *follower, vec3 position) {
+    static float angle1 = 0.0f;
+    static float angle2 = 0.0f;
+    float l = 10.0f;
+
+    vec4 angles = inverse_kinematics_4dof_hand(position[0], position[1], position[2], angle1, angle2, l, l, l, l);
+
+//    angle1 = angles[0];
+//    angle2 = angles[1];
+
+    angles *= (180.0f / PI);
+    hand->shapes[0]->rotation = {angles[0], 0.0f, 0.0f, 1.0f};
+    hand->shapes[2]->rotation = {angles[1], 0.0f, 1.0f, 0.0f};
+    hand->shapes[4]->rotation = {angles[2], 0.0f, 1.0f, 0.0f};
+    hand->shapes[6]->rotation = {angles[3], 0.0f, 1.0f, 0.0f};
+
+    follower->translation = {position[0], position[1], position[2]};
 }
