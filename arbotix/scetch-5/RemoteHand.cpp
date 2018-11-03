@@ -24,14 +24,11 @@ void RemoteHand::move(unsigned char id, int _position) {
   	long long int Speed_L = 150;
   	long long int Speed_H = Speed_L >> 8;
 
-  	while (ax12GetRegister(id, AX_PRESENT_POSITION, 2) > Position_L + 1 || 
-               ax12GetRegister(id, AX_PRESENT_POSITION, 2) < Position_L - 1) {
-                ax12SetRegister2(id, AX_MOVING_SPEED_L, Speed_L);
-  	        ax12SetRegister2(id, AX_MOVING_SPEED_H, Speed_H);
+        ax12SetRegister2(id, AX_MOVING_SPEED_L, Speed_L);
+        ax12SetRegister2(id, AX_MOVING_SPEED_H, Speed_H);
   
-  	        ax12SetRegister2(id, AX_GOAL_POSITION_L, Position_L);
-  	        ax12SetRegister2(id, AX_GOAL_POSITION_H, Position_H); 
-        }
+        ax12SetRegister2(id, AX_GOAL_POSITION_L, Position_L);
+        ax12SetRegister2(id, AX_GOAL_POSITION_H, Position_H); 
         delay(500);
 }
 
@@ -44,14 +41,11 @@ void RemoteHand::moveSpeed(unsigned char id, int _position, int _speed) {
   	Speed_H = _speed >> 8;
   	Speed_L = _speed;
 
-        while (ax12GetRegister(id, AX_PRESENT_POSITION, 2) > Position_L + 1 || 
-               ax12GetRegister(id, AX_PRESENT_POSITION, 2) < Position_L - 1) {
-                ax12SetRegister2(id, AX_MOVING_SPEED_L, Speed_L);
-  	        ax12SetRegister2(id, AX_MOVING_SPEED_H, Speed_H);
+        ax12SetRegister2(id, AX_MOVING_SPEED_L, Speed_L);
+        ax12SetRegister2(id, AX_MOVING_SPEED_H, Speed_H);
   
-  	        ax12SetRegister2(id, AX_GOAL_POSITION_L, Position_L);
-  	        ax12SetRegister2(id, AX_GOAL_POSITION_H, Position_H); 
-        }
+        ax12SetRegister2(id, AX_GOAL_POSITION_L, Position_L);
+        ax12SetRegister2(id, AX_GOAL_POSITION_H, Position_H);
         delay(500);
 }
 
@@ -62,16 +56,12 @@ void RemoteHand::startPosition(unsigned char id) {
         long long int Speed_L = 100;
   	long long int Speed_H = Speed_L >> 8;
 
-        while (ax12GetRegister(id, AX_PRESENT_POSITION, 2) > Position_L + 1 || 
-               ax12GetRegister(id, AX_PRESENT_POSITION, 2) < Position_L - 1) {
-                ax12SetRegister2(id, AX_MOVING_SPEED_L, Speed_L);
-  	        ax12SetRegister2(id, AX_MOVING_SPEED_H, Speed_H);
+        ax12SetRegister2(id, AX_MOVING_SPEED_L, Speed_L);
+        ax12SetRegister2(id, AX_MOVING_SPEED_H, Speed_H);
   
-  	        ax12SetRegister2(id, AX_GOAL_POSITION_L, Position_L);
-  	        ax12SetRegister2(id, AX_GOAL_POSITION_H, Position_H); 
-        }	
-  
-        delay(500);
+        ax12SetRegister2(id, AX_GOAL_POSITION_L, Position_L);
+        ax12SetRegister2(id, AX_GOAL_POSITION_H, Position_H);
+        delay(500);	
 }
 
 int RemoteHand::getPosition(unsigned char id) {

@@ -1,5 +1,7 @@
 //Arduino v1.0.6
 
+//Arbotix RIP T_T 03.11.2018
+
 #include "ax12.h"
 #include "RemoteHand.h"
 
@@ -12,20 +14,16 @@ void start_program() {
     d.startPosition(i); 
     delay(100); 
   }
-  delay(3000);
 }
 
 void setup () {
-  Serial.begin(9600);       
+  Serial.begin(9600);
+  pinMode(15, OUTPUT);  
 }
 
 void loop () {
+  digitalWrite(15, HIGH);
   start_program();
   Serial.println("hello");
-  while (Serial.read() < 0);
-  d.move(Broadcast, 30);
-  d.move(2, -20);
-  d.move(3, 40);
-  d.move(4, 10);
   Serial.println("Good work");
 }
