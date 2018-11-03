@@ -29,15 +29,16 @@ void turnAngle(unsigned char id, int angle, int _speed) {
 
 void loop() {
   Serial.println("Calibrate");
-  //while (Serial.read() < 0);
-  turnAngle(1, 20, 100);
-  delay(750);
-  turnAngle(1, 40, 100);
-  delay(750);
-  turnAngle(1, 0, 200);
-  delay(1000);
-  turnAngle(1, 20, 100);
-  delay(750);
-  turnAngle(1, 40, 200);
-  delay(750);
+  while (Serial.read() < 0);
+  for (unsigned char j = 1; j <= 4; ++j) {
+    //Serial.println(j);
+    for (int i = 0; i <= 100; i += 100) {
+      turnAngle(j, i, 300);
+      delay(2000);
+    }
+    turnAngle(j, -100, 300);
+    delay(2000);
+    turnAngle(j, 0, 300);
+    delay(2000);
+  }
 }
