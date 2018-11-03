@@ -1,7 +1,7 @@
 //Arduino v1.0.6
 
 #include "ax12.h"
-#include "BioloidController.h"
+//#include "RemoteHand.h"
 
 #define Broadcast 254
 
@@ -17,10 +17,17 @@ int movePosition(unsigned char id, int Position) {
 
 void setup () {
   Serial.begin(9600);
+
+        
 }
 
 void loop () {
+  ax12SetRegister(1, 47, 1);
+  ax12SetRegister(2, 47, 1);
+  ax12SetRegister(3, 47, 1);
+  ax12SetRegister(4, 47, 1);
   Serial.println("hello");
+  PlayTone(1, 1000);
   while (Serial.read() < 0);
   for (int j = 1; j <= 4; ++j) {
          for (int i = 300; i < 700; i += 100) {
