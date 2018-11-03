@@ -24,7 +24,8 @@ void RemoteHand::move(unsigned char id, int _position) {
   	long long int Speed_L = 150;
   	long long int Speed_H = Speed_L >> 8;
 
-  	while (ax12GetRegister(id, AX_PRESENT_POSITION, 2) != Position_L) {
+  	while (ax12GetRegister(id, AX_PRESENT_POSITION, 2) > Position_L + 1 || 
+               ax12GetRegister(id, AX_PRESENT_POSITION, 2) < Position_L - 1) {
                 ax12SetRegister2(id, AX_MOVING_SPEED_L, Speed_L);
   	        ax12SetRegister2(id, AX_MOVING_SPEED_H, Speed_H);
   
@@ -34,7 +35,7 @@ void RemoteHand::move(unsigned char id, int _position) {
         delay(500);
 }
 
-void RemoteHand::moveSpeed(unsigned char id, int _speed, int _position) {
+void RemoteHand::moveSpeed(unsigned char id, int _position, int _speed) {
         _position = angle2pos(_position);
 	long long int Position_H, Position_L, Speed_H, Speed_L;
   	Position_H = _position >> 8;
@@ -43,7 +44,8 @@ void RemoteHand::moveSpeed(unsigned char id, int _speed, int _position) {
   	Speed_H = _speed >> 8;
   	Speed_L = _speed;
 
-        while (ax12GetRegister(id, AX_PRESENT_POSITION, 2) != Position_L) {
+        while (ax12GetRegister(id, AX_PRESENT_POSITION, 2) > Position_L + 1 || 
+               ax12GetRegister(id, AX_PRESENT_POSITION, 2) < Position_L - 1) {
                 ax12SetRegister2(id, AX_MOVING_SPEED_L, Speed_L);
   	        ax12SetRegister2(id, AX_MOVING_SPEED_H, Speed_H);
   
@@ -60,7 +62,8 @@ void RemoteHand::startPosition(unsigned char id) {
         long long int Speed_L = 100;
   	long long int Speed_H = Speed_L >> 8;
 
-        while (ax12GetRegister(id, AX_PRESENT_POSITION, 2) != Position_L) {
+        while (ax12GetRegister(id, AX_PRESENT_POSITION, 2) > Position_L + 1 || 
+               ax12GetRegister(id, AX_PRESENT_POSITION, 2) < Position_L - 1) {
                 ax12SetRegister2(id, AX_MOVING_SPEED_L, Speed_L);
   	        ax12SetRegister2(id, AX_MOVING_SPEED_H, Speed_H);
   

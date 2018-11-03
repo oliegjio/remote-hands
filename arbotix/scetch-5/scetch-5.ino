@@ -9,8 +9,7 @@ RemoteHand d;
 
 void start_program() {
   for (int i = 1; i <= 4; ++i) {
-    d.startPosition(i);
-    //d.lockMotor(i); 
+    d.startPosition(i); 
     delay(100); 
   }
   delay(3000);
@@ -24,9 +23,9 @@ void loop () {
   start_program();
   Serial.println("hello");
   while (Serial.read() < 0);
-  d.moveSpeed(4, 100, -90);
-  delay(3000);
-  d.moveSpeed(4, 100, 90);
+  d.move(Broadcast, 30);
+  d.move(2, -20);
+  d.move(3, 40);
+  d.move(4, 10);
   Serial.println("Good work");
-  delay(10000);
 }
