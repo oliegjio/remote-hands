@@ -5,7 +5,7 @@
 #define Broadcast     (254u)
 #define MAX_ANGLE     (110)
 
-int Cur_angle[4] = {};
+int Cur_angle[4] = {0, 0, 0, 0};
 
 void correct_position(int & pos) {
   pos = (pos < -MAX_ANGLE) ? -MAX_ANGLE : pos;
@@ -25,20 +25,17 @@ void turnAngle(unsigned char id, int angle, int _speed) {
   correct_position(angle);
   Cur_angle[id - 1] = angle;
   ax12a.moveSpeed(id, static_cast <int> (512 + angle * 3.45), _speed);
+  delay(500);
+}
+
+void start_position(int start_angle = 0) {
+  for (int i = 1; i <= 4; ++i)
+    turnAngle(i, start_angle, 100); 
 }
 
 void loop() {
   Serial.println("Calibrate");
+  start_position();
   while (Serial.read() < 0);
-  for (unsigned char j = 1; j <= 4; ++j) {
-    //Serial.println(j);
-    for (int i = 0; i <= 100; i += 100) {
-      turnAngle(j, i, 300);
-      delay(2000);
-    }
-    turnAngle(j, -100, 300);
-    delay(2000);
-    turnAngle(j, 0, 300);
-    delay(2000);
-  }
+  // to do
 }
