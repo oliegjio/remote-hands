@@ -4,8 +4,11 @@
 #include "nested_shape.h"
 
 nested_group *make_planar_arm() {
-    vector3 limb_scale {5.0f, 0.5f, 0.5f};
-    vector3 translation {5.0f, 0.0f, 0.0f};
+    float limb_length = 10.0f;
+    float limb_thickness = 0.5;
+
+    vector3 limb_scale {limb_length / 2.0f, limb_thickness, limb_thickness};
+    vector3 translation {limb_length / 2.0f, 0.0f, 0.0f};
 
     auto rotor1 = shape::make_cube();
     auto group1 = new shape_group {rotor1};
