@@ -8,7 +8,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "vec.h"
+#include "vector.h"
 
 template<size_t R, size_t C>
 struct matrix {
@@ -17,7 +17,7 @@ struct matrix {
 
     void print() const;
 
-    vec<R> operator*(const vec<C> &other) const;
+    vector<R> operator*(const vector<C> &other) const;
 
     size_t rows = R;
     size_t columns = C;
@@ -36,8 +36,8 @@ matrix<R, C>::matrix(const GLfloat *data) {
 }
 
 template<size_t R, size_t C>
-vec<R> matrix<R, C>::operator*(const vec<C> &other) const {
-    vec<R> result;
+vector<R> matrix<R, C>::operator*(const vector<C> &other) const {
+    vector<R> result;
     for (size_t i = 0; i < R; i++) {
         for (size_t j = 0; j < C; j++) {
             result[i] += data[i + j * columns] * other[j];

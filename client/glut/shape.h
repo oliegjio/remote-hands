@@ -4,8 +4,9 @@
 	#include <windows.h>
 #endif
 #include <GL/glut.h>
+#include <vector>
 
-#include "vec.h"
+#include "vector.h"
 
 struct shape {
     shape() {};
@@ -13,13 +14,13 @@ struct shape {
 
 	void draw() const;
 
-	vec4 rotation {0.0f, 0.0f, 0.0f, 0.0f};
-	vec3 translation {0.0f, 0.0f, 0.0f};
-	vec3 scaling {1.0f, 1.0f, 1.0f};
+	vector4 rotation {0.0f, 0.0f, 0.0f, 0.0f};
+	vector3 translation {0.0f, 0.0f, 0.0f};
+	vector3 scaling {1.0f, 1.0f, 1.0f};
 
-	vec3 color {0.0f, 0.0f, 0.0f};
+	vector3 color {0.0f, 0.0f, 0.0f};
 
-    std::vector<vec3> vertices;
+    std::vector<vector3> vertices;
 
     GLenum draw_mode = GL_TRIANGLES;
 };
