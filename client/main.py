@@ -1,5 +1,7 @@
 import socket
 import math
+import numpy as np
+from pyquaternion import Quaternion
 
 
 sock = socket.socket()
@@ -48,13 +50,28 @@ def read_lines_forever(connection):
 
 
 def main():
+    # TODO: What measure units are used for rotation?
+    rotation_x = 0
+    rotation_y = 0
+    rotation_z = 0
+
     while True:
-        """ Message format: `<r1> <r2> <r3> <t1> <t2> <t3> <b>`. """
+        """ Message format: `<r1> <r2> <r3> <t1> <t2> <t3>`. """
 
         connection, address = sock.accept()
         line = read_lines_forever(connection)
 
         data = list(map(lambda x: float(x), line.split(b' ')))
+
+        if len(data) != 6:
+            continue
+
+        rotation_x += data[0]
+        rotation_y += data[1]
+        rotation_z += data[2]
+        translation_x = data[3]
+        translation_y = data[4]
+        translation_z = data[5]
 
         radians = solve(data[0], data[1], 10, 10, 10)
         degrees = list(map(lambda x: x * (180 / math.pi), radians))
