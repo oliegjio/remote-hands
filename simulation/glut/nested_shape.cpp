@@ -29,7 +29,7 @@ void nested_shape::draw_recursive(std::vector<shape*> shapes) const {
 
     glTranslatef(shapes[0]->translation[0], shapes[0]->translation[1], shapes[0]->translation[2]);
     glRotatef(shapes[0]->rotation[0], shapes[0]->rotation[1], shapes[0]->rotation[2], shapes[0]->rotation[3]);
-    glTranslatef(-shapes[0]->translation[0], -shapes[0]->translation[1], -shapes[0]->translation[2]);
+    glScalef(shapes[0]->scaling[0], shapes[0]->scaling[1], shapes[0]->scaling[2]);
 
     shapes.erase(shapes.begin());
     draw_recursive(shapes);

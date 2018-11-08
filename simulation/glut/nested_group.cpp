@@ -29,7 +29,6 @@ void nested_group::draw_recursive(std::vector<shape_group*> groups) const {
 
     glTranslatef(groups[0]->translation[0], groups[0]->translation[1], groups[0]->translation[2]);
     glRotatef(groups[0]->rotation[0], groups[0]->rotation[1], groups[0]->rotation[2], groups[0]->rotation[3]);
-    glTranslatef(-groups[0]->translation[0], -groups[0]->translation[1], -groups[0]->translation[2]);
     glScalef(groups[0]->scaling[0], groups[0]->scaling[1], groups[0]->scaling[2]);
 
     groups.erase(groups.begin());

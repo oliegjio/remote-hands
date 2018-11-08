@@ -8,32 +8,30 @@
 #include <iostream>
 #include <cstdio>
 
+#include "kinematics_animations.h"
 #include "nested_group.h"
-#include "nested_shape.h"
-#include "hands.h"
-#include "kinematics.h"
+#include "arms.h"
+#include "mathematics.h"
 
 #define WIN_WIDTH 1000
 #define WIN_HEIGHT 800
-
-#define PI 3.14159265f
 
 clock_t current_time = clock();
 clock_t last_time = current_time;
 float dt = 0.0f;
 
-nested_shape *hand;
+nested_group *arm;
 shape *follower = shape::make_cube();
-vec3 position = {0.0f, 0.0f, 0.0f};
+vector3 position = {0.0f, 0.0f, 0.0f};
 
-vec4 camera_rotation = {0.0f, 0.0f, 0.0f, 1.0f};
-vec3 camera_position = {0.0f, 0.0f, -100.0f};
+vector4 camera_rotation = {0.0f, 0.0f, 0.0f, 1.0f};
+vector3 camera_position = {0.0f, 0.0f, -100.0f};
 
 size_t window_width = WIN_WIDTH;
 size_t window_height = WIN_HEIGHT;
 
 void setup() {
-    hand = make_4dof_hand();
+    arm = make_planar_arm();
 
     follower->scaling = {0.5f, 0.5f, 3.0f};
     follower->color = {1.0f, 0.0f, 0.0f};
@@ -45,11 +43,9 @@ void display() {
 	glPushMatrix();
 
 	glTranslatef(camera_position[0], camera_position[1], camera_position[2]);
-    glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
-//    glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
     glRotatef(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
 
-	hand->draw();
+	arm->draw();
 	follower->draw();
 
 	glPopMatrix();
@@ -74,22 +70,17 @@ void idle() {
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-//	animate_4dof_hand(hand, dt);
-//    animate_inverse_kinematics_planar_hand(hand, follower, position);
-    animate_inverse_kinematics_4dof_hand(hand, follower, position);
+    animate_inverse_kinematics_planar_arm(arm, follower, position);
+    follower->translation = position;
 
 	glutPostRedisplay();
-}
-
-float smooth_map(float x, float in_min, float in_max, float out_min, float out_max) {
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 void passive_motion(int x, int y) {
     float range = 30.0f;
     float nx = smooth_map(x, 0, window_width, -range, range);
     float ny = -smooth_map(y, 0, window_height, -range, range);
-    position = {nx, 0.0f, ny};
+    position = {nx, ny, 0.0f};
 }
 
 void special(int key, int x, int y) {

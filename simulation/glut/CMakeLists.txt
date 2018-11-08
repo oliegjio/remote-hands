@@ -6,15 +6,15 @@ project (${MY_NAME})
 set (MY_FILES
         "main.cpp"
         "shape.h" "shape.cpp"
-        "vec.h"
+        "vector.h"
         "shape_group.cpp" "shape_group.h"
         "nested_group.cpp" "nested_group.h"
         "matrix.h"
-        "hands.h"
-        "manipulator.cpp" "manipulator.h"
-        "limb.cpp" "limb.h"
+        "arms.h"
         "nested_shape.cpp" "nested_shape.h"
-        "kinematics.h")
+        "forward_kinematics.h"
+        "inverse_kinematics.h"
+        "mathematics.cpp" "mathematics.h" kinematics_animations.h arms_animations.h)
 
 if (WIN32)
     include_directories("include")
