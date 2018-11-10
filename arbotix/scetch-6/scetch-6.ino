@@ -1,3 +1,5 @@
+// Arduino IDE v 1.8.7
+
 #include <AX12A.h>
 
 #define DirectionPin  (10u)
