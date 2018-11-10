@@ -10,7 +10,7 @@ sock.listen(1)
 
 
 def solve(x, y, l1, l2, l3):
-    """ Solve kinematic equations for 3 DOF planar arm. """
+    """ Solve inverse kinematics equations for 3 DOF planar arm. """
 
     phi = math.atan2(y, x)
     xw = x - l3 * math.cos(phi)
@@ -50,11 +50,6 @@ def read_lines_forever(connection):
 
 
 def main():
-    # TODO: What measure units are used for rotation?
-    rotation_x = 0
-    rotation_y = 0
-    rotation_z = 0
-
     while True:
         """ Message format: `<r1> <r2> <r3> <t1> <t2> <t3>`. """
 
@@ -66,9 +61,9 @@ def main():
         if len(data) != 6:
             continue
 
-        rotation_x += data[0]
-        rotation_y += data[1]
-        rotation_z += data[2]
+        rotation_x = data[0]
+        rotation_y = data[1]
+        rotation_z = data[2]
         translation_x = data[3]
         translation_y = data[4]
         translation_z = data[5]
