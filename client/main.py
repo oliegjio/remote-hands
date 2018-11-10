@@ -1,7 +1,6 @@
 import socket
 import math
 import numpy as np
-from pyquaternion import Quaternion
 
 
 sock = socket.socket()
@@ -10,7 +9,19 @@ sock.listen(1)
 
 
 def solve(x, y, l1, l2, l3):
-    """ Solve inverse kinematics equations for 3 DOF planar arm. """
+    """
+    Solve inverse kinematics equations for 3 DOF planar arm.
+
+    Args:
+        x (float): Target X position.
+        y (float): Target Y position.
+        l1 (float): Length of the first limb.
+        l2 (float): Length of the second limb.
+        l3 (float): Length of the third limb.
+
+    Returns:
+        list: List of angles (in radians) for manipulator joins.
+    """
 
     phi = math.atan2(y, x)
     xw = x - l3 * math.cos(phi)
@@ -27,7 +38,40 @@ def solve(x, y, l1, l2, l3):
     return [r1, r2, r3]
 
 
+def rotation_3d(axis, theta):
+    """
+    Return the rotation matrix associated with counterclockwise rotation about
+    the given axis by theta radians in 3D space.
+
+    Args:
+        axis (list): 3D array. Axis of rotation.
+        theta (float): Angle of rotation in radians.
+
+    Returns:
+        list: 3x3 rotation matrix.
+    """
+    axis = np.asarray(axis)
+    axis = axis / math.sqrt(np.dot(axis, axis))
+    a = math.cos(theta / 2.0)
+    b, c, d = -axis * math.sin(theta / 2)
+    aa, bb, cc, dd = a * a, b * b, c * c, d * d
+    bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
+    return np.array([[aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+                     [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+                     [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
+
+
 def read_lines_forever(connection):
+    """
+    Reads all incoming data until connection is closed. Returns data after finished.
+
+    Args:
+        connection: Socket's connection object.
+
+    Returns:
+        str: Accepted data string.
+    """
+
     buffer = b''
 
     pre, separator, post = buffer.partition(b'\n')
@@ -49,24 +93,42 @@ def read_lines_forever(connection):
             return data
 
 
+def handle_incoming_line(data):
+    """
+    Splits data string, received from the server, to list of value.
+
+    Args:
+        data: Data string in format:
+        `<rotation_x> <rotation_y> <rotation_z> <translation_x> <translation_y> <translation_z>`.
+
+    Returns:
+        list: List of rotations and translations.
+    """
+
+    return list(map(lambda x: float(x), data.split(b' ')))
+
 def main():
     while True:
-        """ Message format: `<r1> <r2> <r3> <t1> <t2> <t3>`. """
+        """  """
 
         connection, address = sock.accept()
         line = read_lines_forever(connection)
 
-        data = list(map(lambda x: float(x), line.split(b' ')))
+        data = handle_incoming_line(line)
 
         if len(data) != 6:
             continue
 
-        rotation_x = data[0]
-        rotation_y = data[1]
-        rotation_z = data[2]
-        translation_x = data[3]
-        translation_y = data[4]
-        translation_z = data[5]
+        rotation = [data[0], data[1], data[2]]
+        translation = [data[3], data[4], data[5]]
+
+        axis_x = [1, 0, 0]
+        axis_y = [0, 1, 0]
+        axis_z = [0, 0, 1]
+
+        translation = rotation_3d(axis_x, rotation[0]).dot(translation)
+        translation = rotation_3d(axis_y, rotation[1]).dot(translation)
+        translation = rotation_3d(axis_z, rotation[2]).dot(translation)
 
         radians = solve(data[0], data[1], 10, 10, 10)
         degrees = list(map(lambda x: x * (180 / math.pi), radians))
