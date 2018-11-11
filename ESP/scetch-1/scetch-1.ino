@@ -3,29 +3,54 @@
 
 MPU6050 mpu;
 
-const char* ssid = "ssid name";
-const char* password = "ssid password";
- 
-int ledPin = D5;
-WiFiServer server(80);
+WiFiClient client;
+const char *ssid = "vadya_forester";
+const char *password = "vadya2001";
+
+void connectToServer(const char *ssid, const char *password) {
+  WiFi.begin(ssid, password);
+  Serial.print("Connecting");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println();
+  Serial.print("Connected complite, IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+//9250
  
 void setup() {
   Serial.begin(115200);
-  delay(10);
- 
- 
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW);
- 
-  // Connect to WiFi network
   Serial.println();
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
+  connectToServer(ssid, password);
+
+  while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G)) {
+    Serial.println("Nie mozna znalezc MPU6050 - sprawdz polaczenie!");
+    delay(500);
+  }
+  
+  mpu.calibrateGyro();
  
-  WiFi.begin(ssid, password);
+  mpu.setThreshold(3);
 }
 
 void loop() {
-  Serial.println("fuck");
+  Vector rawGyro = mpu.readRawGyro();
+  Vector normGyro = mpu.readNormalizeGyro();
+ 
+  Serial.print(" Xraw = ");
+  Serial.print(rawGyro.XAxis);
+  Serial.print(" Yraw = ");
+  Serial.print(rawGyro.YAxis);
+  Serial.print(" Zraw = ");
+  Serial.println(rawGyro.ZAxis);
+ 
+  Serial.print(" Xnorm = ");
+  Serial.print(normGyro.XAxis);
+  Serial.print(" Ynorm = ");
+  Serial.print(normGyro.YAxis);
+  Serial.print(" Znorm = ");
+  Serial.println(normGyro.ZAxis);
 }
