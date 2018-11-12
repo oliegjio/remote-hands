@@ -1,7 +1,9 @@
 import socket
 import math
 import numpy as np
+import time
 import serial
+from graphics import GraphicsThread
 
 
 sock = socket.socket()
@@ -109,10 +111,33 @@ def handle_incoming_line(data):
 
     return list(map(lambda x: float(x), data.split(b' ')))
 
-def main():
-    while True:
-        """  """
 
+def timer(dt, f):
+    """
+    Calls function `f` every `dt` milliseconds.
+
+    Args:
+        dt: Time in Milliseconds
+        f: Function to be called.
+    """
+
+    now = int(round(time.time() * 1000))
+    past = now
+    while True:
+        now = int(round(time.time() * 1000))
+        if now > past + dt:
+            past = now
+            f()
+
+
+counter = 0
+
+
+def main():
+    graphics = GraphicsThread()
+    graphics.start()
+
+    while True:
         connection, address = sock.accept()
         line = read_lines(connection)
 
@@ -131,6 +156,8 @@ def main():
         translation = rotation_3d(axis_x, rotation[0]).dot(translation)
         translation = rotation_3d(axis_y, rotation[1]).dot(translation)
         translation = rotation_3d(axis_z, rotation[2]).dot(translation)
+
+        graphics.main_window.draw_rectangle(translation[0], translation[1])
 
         radians = solve(translation[0], translation[1], 10, 10, 10)
         degrees = list(map(lambda x: x * (180 / math.pi), radians))
