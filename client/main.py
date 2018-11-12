@@ -1,11 +1,15 @@
 import socket
 import math
 import numpy as np
+import time
+import serial
+from graphics import GraphicsThread
 
 
 sock = socket.socket()
 sock.bind(('localhost', 8000))
 sock.listen(1)
+serial_port = serial.Serial('/dev/ttyUSB0', 9600)
 
 
 def solve(x, y, l1, l2, l3):
@@ -61,7 +65,7 @@ def rotation_3d(axis, theta):
                      [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
 
 
-def read_lines_forever(connection):
+def read_lines(connection):
     """
     Reads all incoming data until connection is closed. Returns data after finished.
 
@@ -107,12 +111,35 @@ def handle_incoming_line(data):
 
     return list(map(lambda x: float(x), data.split(b' ')))
 
-def main():
-    while True:
-        """  """
 
+def timer(dt, f):
+    """
+    Calls function `f` every `dt` milliseconds.
+
+    Args:
+        dt: Time in Milliseconds
+        f: Function to be called.
+    """
+
+    now = int(round(time.time() * 1000))
+    past = now
+    while True:
+        now = int(round(time.time() * 1000))
+        if now > past + dt:
+            past = now
+            f()
+
+
+counter = 0
+
+
+def main():
+    graphics = GraphicsThread()
+    graphics.start()
+
+    while True:
         connection, address = sock.accept()
-        line = read_lines_forever(connection)
+        line = read_lines(connection)
 
         data = handle_incoming_line(line)
 
@@ -130,10 +157,13 @@ def main():
         translation = rotation_3d(axis_y, rotation[1]).dot(translation)
         translation = rotation_3d(axis_z, rotation[2]).dot(translation)
 
-        radians = solve(data[0], data[1], 10, 10, 10)
-        degrees = list(map(lambda x: x * (180 / math.pi), radians))
+        graphics.main_window.draw_rectangle(translation[0], translation[1])
 
-        print(degrees)
+        radians = solve(translation[0], translation[1], 10, 10, 10)
+        degrees = list(map(lambda x: x * (180 / math.pi), radians))
+        data_string = ' '.join(list(map(lambda x: str(x), degrees)))
+
+        serial_port.write(data_string)
 
 
 if __name__ == '__main__':
