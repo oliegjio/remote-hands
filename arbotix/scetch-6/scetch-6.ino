@@ -1,6 +1,7 @@
 // Arduino IDE v 1.8.7
 
-#include <AX12A.h>
+#include "AX12A.h"
+#include "HalfDuplexSerial.h"
 
 #define DirectionPin  (10u)
 #define BaudRate      (1000000ul)
