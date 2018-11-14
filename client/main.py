@@ -3,8 +3,9 @@ import math
 import numpy as np
 
 
-sock = socket.socket()
-sock.bind(('localhost', 8000))
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+sock.bind(('10.42.0.1', 7247))
 sock.listen(1)
 
 
@@ -61,7 +62,7 @@ def rotation_3d(axis, theta):
                      [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
 
 
-def read_lines_forever(connection):
+def receive(connection):
     """
     Reads all incoming data until connection is closed. Returns data after finished.
 
@@ -74,17 +75,18 @@ def read_lines_forever(connection):
 
     buffer = b''
 
-    pre, separator, post = buffer.partition(b'\n')
+    pre, separator, post = buffer.partition(b'\r\n')
     if separator:
         buffer = post
         return pre + separator
 
     while True:
         data = connection.recv(1024)
+
         if not data:
             return None
 
-        pre, separator, post = data.partition(b'\n')
+        pre, separator, post = data.partition(b'\r\n')
         if not separator:
             buffer += data
         else:
@@ -93,47 +95,46 @@ def read_lines_forever(connection):
             return data
 
 
-def handle_incoming_line(data):
-    """
-    Splits data string, received from the server, to list of value.
+def debug_lists(lists):
+    for l in lists:
+        r = list(map(lambda x: round(x, 2), l))
+        print(r)
+    print()
 
-    Args:
-        data: Data string in format:
-        `<rotation_x> <rotation_y> <rotation_z> <translation_x> <translation_y> <translation_z>`.
-
-    Returns:
-        list: List of rotations and translations.
-    """
-
-    return list(map(lambda x: float(x), data.split(b' ')))
 
 def main():
+    connection, address = sock.accept()
+
     while True:
-        """  """
+        try:
+            data = receive(connection)
+        except OSError:
+            connection, address = sock.accept()
 
-        connection, address = sock.accept()
-        line = read_lines_forever(connection)
+        # Splits line, received from the server, to the list of value:
+        transforms = list(map(lambda x: float(x), data.split(b' ')))
+        # This values are: rotations (x, y, z) in degrees, translations (x, y, z).
 
-        data = handle_incoming_line(line)
-
-        if len(data) != 6:
+        if len(transforms) != 6:
             continue
 
-        rotation = [data[0], data[1], data[2]]
-        translation = [data[3], data[4], data[5]]
+        translations = [transforms[0], transforms[1], transforms[2]]
+        rotations = [transforms[3], transforms[4], transforms[5]]
+        rotations = list(map(lambda x: x * (math.pi / 180), rotations))  # Convert degrees to radians.
 
         axis_x = [1, 0, 0]
         axis_y = [0, 1, 0]
         axis_z = [0, 0, 1]
 
-        translation = rotation_3d(axis_x, rotation[0]).dot(translation)
-        translation = rotation_3d(axis_y, rotation[1]).dot(translation)
-        translation = rotation_3d(axis_z, rotation[2]).dot(translation)
+        # Transform local translations to global ones:
+        translations = rotation_3d(axis_x, rotations[0]).dot(translations)
+        translations = rotation_3d(axis_y, rotations[1]).dot(translations)
+        translations = rotation_3d(axis_z, rotations[2]).dot(translations)
 
-        radians = solve(data[0], data[1], 10, 10, 10)
-        degrees = list(map(lambda x: x * (180 / math.pi), radians))
+        # Solve kinematics (angles in radians):
+        angles = solve(transforms[0], transforms[1], 10, 10, 10)
 
-        print(degrees)
+        debug_lists([rotations, translations, angles])
 
 
 if __name__ == '__main__':
