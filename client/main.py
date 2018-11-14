@@ -1,12 +1,16 @@
 import socket
 import math
 import numpy as np
+import time
+import serial
+from graphics import GraphicsThread
 
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.bind(('10.42.0.1', 7247))
 sock.listen(1)
+serial_port = serial.Serial('/dev/ttyUSB0', 9600)
 
 
 def solve(x, y, l1, l2, l3):
@@ -82,7 +86,6 @@ def receive(connection):
 
     while True:
         data = connection.recv(1024)
-
         if not data:
             return None
 
@@ -102,7 +105,28 @@ def debug_lists(lists):
     print()
 
 
+def timer(dt, f):
+    """
+    Calls function `f` every `dt` milliseconds.
+
+    Args:
+        dt: Time in Milliseconds
+        f: Function to be called.
+    """
+
+    now = int(round(time.time() * 1000))
+    past = now
+    while True:
+        now = int(round(time.time() * 1000))
+        if now > past + dt:
+            past = now
+            f()
+
+
 def main():
+    graphics = GraphicsThread()
+    graphics.start()
+
     connection, address = sock.accept()
 
     while True:
@@ -132,9 +156,13 @@ def main():
         translations = rotation_3d(axis_z, rotations[2]).dot(translations)
 
         # Solve kinematics (angles in radians):
-        angles = solve(transforms[0], transforms[1], 10, 10, 10)
+        angles = solve(translations[0], translations[1], 10, 10, 10)
 
         debug_lists([rotations, translations, angles])
+        graphics.main_window.draw_rectangle(translations[0], translations[1])
+
+        output = ' '.join(list(map(lambda x: str(x), angles)))
+        serial_port.write(output)
 
 
 if __name__ == '__main__':

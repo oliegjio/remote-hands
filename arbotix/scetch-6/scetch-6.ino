@@ -1,6 +1,7 @@
 // Arduino IDE v 1.8.7
 
-#include <AX12A.h>
+#include "AX12A.h"
+#include "HalfDuplexSerial.h"
 
 #define DirectionPin  (10u)
 #define BaudRate      (1000000ul)
@@ -16,7 +17,7 @@ void correct_position(int & pos) {
 
 void setup() {
   Serial.begin(9600);
-  ax12a.begin(BaudRate, DirectionPin, &Serial2);
+  ax12a.begin(BaudRate, DirectionPin, &Serial1);
   ax12a.setEndless(1, OFF);
   ax12a.setEndless(2, OFF);
   ax12a.setEndless(3, OFF);
@@ -36,8 +37,11 @@ void start_position(int start_angle = 0) {
 }
 
 void loop() {
+  Serial.println(ax12a.readPosition(2));
   Serial.println("Calibrate");
   start_position();
   while (Serial.read() < 0);
+  Serial.println(ax12a.readPosition(2));
+  
   // to do
 }
