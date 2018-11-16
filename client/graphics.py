@@ -39,16 +39,13 @@ class Graphics:
         self.root = None
         self.window = None
 
-        self.start()
-
     def start(self):
         self.thread.start()
-        time.sleep(1)
 
     def stop(self):
+        self.root.quit()
         self.root.destroy()
         self.thread.join()
-        time.sleep(1)
 
     def thread_function(self):
         self.root = tkinter.Tk()

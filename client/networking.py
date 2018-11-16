@@ -13,11 +13,12 @@ class Networking:
 
         self.connection, self.client_address = self.sock.accept()
 
-    def __close__(self):
+    def __del__(self):
         self.sock.close()
 
     def receive(self):
         buffer = b''
+        data = b''
 
         while True:
             try:

@@ -14,6 +14,7 @@ def rotation_3d(axis, theta):
     Returns:
         list: 3x3 rotation matrix.
     """
+    
     axis = np.asarray(axis)
     axis = axis / math.sqrt(np.dot(axis, axis))
     a = math.cos(theta / 2.0)
