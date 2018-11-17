@@ -1,12 +1,15 @@
+
 // Arduino IDE v 1.8.7
 
 #include "AX12A.h"
-#include "HalfDuplexSerial.h"
+#include "SoftHalfDuplexSerial.h"
 
 #define DirectionPin  (10u)
 #define BaudRate      (1000000ul)
 #define Broadcast     (254u)
 #define MAX_ANGLE     (110)
+
+halfDuplexSerial hds;
 
 int Cur_angle[4] = {0, 0, 0, 0};
 
@@ -17,6 +20,7 @@ void correct_position(int & pos) {
 
 void setup() {
   Serial.begin(9600);
+  hds.begin(BaudRate);
   ax12a.begin(BaudRate, DirectionPin, &Serial1);
   ax12a.setEndless(1, OFF);
   ax12a.setEndless(2, OFF);

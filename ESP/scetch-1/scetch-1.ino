@@ -7,69 +7,84 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 
-#define port     7247
-#define I2C_PORT 0x73
+#define port       7247
+//m#define I2C_PORT 0x71
+#define I2C_PORT   0x73
 
 WiFiClient client;
+
+
+
+#define TO_DEG 57.29577951308232087679815481410517033f
+#define KF     0.1
+
+float angle_ax = 0;
+float angle_ay = 0;
+float angle_az = 0;
+float angle_gx = 0;
+float angle_gy = 0;
+float angle_gz = 0;
+
+
 
 const char *ssid  = "mint-pc";
 const char *password = "fFK5ieoY";
 const String id = "1";
 
-// I2C at 0x68
-
 MPU9250 myIMU;
+
+float ax, ay, az;
+float gx, gy, gz;
+float mx, my, mz;
 
 // Forward functions
 String getValues();
 void calibration();
 void connect(const char *ssid, const char *password);
+void script_1();
+float clamp(float value, float min_value, float max_value);
+void script_2();
+
+float correct(float value) {
+    return (( -2 < value && value < 2 ) ? 0 : value);
+}
 
 void setup() {
     Wire.begin();
     Serial.begin(38400);
-    
+ 
     calibration();
 
     // setup Wifi
-    connect(ssid, password);
+    //connect(ssid, password);
     Serial.println('>' + id);
 }
 
 void loop() {
-    if (myIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01) {
-        myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
-        myIMU.getAres();
-    
-        // Now we'll calculate the accleration value into actual g's
-        // This depends on scale being set
-        myIMU.ax = (float)myIMU.accelCount[0]*myIMU.aRes; // - accelBias[0];
-        myIMU.ay = (float)myIMU.accelCount[1]*myIMU.aRes; // - accelBias[1];
-        myIMU.az = (float)myIMU.accelCount[2]*myIMU.aRes; // - accelBias[2];
-    
-        myIMU.readGyroData(myIMU.gyroCount);  // Read the x/y/z adc values
-        myIMU.getGres();
-    
-        // Calculate the gyro value into actual degrees per second
-        // This depends on scale being set
-        myIMU.gx = (float)myIMU.gyroCount[0]*myIMU.gRes;
-        myIMU.gy = (float)myIMU.gyroCount[1]*myIMU.gRes;
-        myIMU.gz = (float)myIMU.gyroCount[2]*myIMU.gRes;
-    
-        Serial.println(getValues());
-        client.println(getValues());
-    }
-    delay(100);
+    //script_1();
+    script_2();
 }
+
+////////////////////////////////////////////////////////////////
+/////             Desctiption functions                    /////
+////////////////////////////////////////////////////////////////
 
 String getValues() {
     String data = String(myIMU.ax) + ' ';
     data += String(myIMU.ay) + ' ';
     data += String(myIMU.az) + ' ';
 
-    data += String(myIMU.gx) + ' ';
-    data += String(myIMU.gy) + ' ';
-    data += String(myIMU.gz);
+    data += '|';
+
+    data += String(correct(gx)) + ' ';
+    data += String(correct(gy)) + ' ';
+    data += String(correct(gz)) + ' ';
+
+    data += '|';
+
+    data += String(myIMU.mx) + ' ';
+    data += String(myIMU.my) + ' ';
+    data += String(myIMU.mz);
 
     return data;
 }
@@ -138,13 +153,111 @@ void connect(const char *ssid, const char *password) {
     Serial.println(ssid);
     Serial.println(WiFi.localIP());
 
-    if (!client.connect(IPAddress(10,42,0,1), port)) {
+    while (!client.connect(IPAddress(10,42,0,1), port)) {
         Serial.println("connection failed");
-        delay(5000);
-        return;
+        delay(2000);
     }
 
     Serial.println();
     Serial.println("Connected to the Server");
     delay(3000);
+}
+
+void script_1() {
+    unsigned long time_now = millis();
+    ax = 0; ay = 0; az = 0;
+    gx = 0; gy = 0; gz = 0;
+    mx = 0; my = 0; mz = 0;
+    while (millis() - time_now < 25) {
+        if (myIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01) {
+          
+            myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
+            myIMU.getAres();
+        
+            // Now we'll calculate the accleration value into actual g's
+            // This depends on scale being set
+            myIMU.ax = (float)myIMU.accelCount[0]*myIMU.aRes; // - accelBias[0];
+            myIMU.ay = (float)myIMU.accelCount[1]*myIMU.aRes; // - accelBias[1];
+            myIMU.az = (float)myIMU.accelCount[2]*myIMU.aRes; // - accelBias[2];
+            
+            myIMU.readGyroData(myIMU.gyroCount);  // Read the x/y/z adc values
+            myIMU.getGres();
+        
+            // Calculate the gyro value into actual degrees per second
+            // This depends on scale being set
+            myIMU.gx = (float)myIMU.gyroCount[0]*myIMU.gRes;
+            myIMU.gy = (float)myIMU.gyroCount[1]*myIMU.gRes;
+            myIMU.gz = (float)myIMU.gyroCount[2]*myIMU.gRes;
+
+            myIMU.readMagData(myIMU.magCount);
+            myIMU.getMres();
+
+            myIMU.mx = (float)myIMU.magCount[0]*myIMU.mRes;
+            myIMU.my = (float)myIMU.magCount[1]*myIMU.mRes;
+            myIMU.mz = (float)myIMU.magCount[2]*myIMU.mRes;
+
+            gx += correct(myIMU.gx); gy += correct(myIMU.gy); gz += correct(myIMU.gz);
+        }
+    }
+   
+    Serial.println(getValues());
+    //client.println(getValues());
+}
+
+
+
+float clamp(float value, float min_value, float max_value) {
+    value = ( value > max_value ) ? max_value : value;
+    value = ( value < min_value ) ? min_value : value;
+    return value;
+}
+
+void script_2() {
+    unsigned long time_now = millis();
+    while (millis() - time_now < 1000) {
+        if (myIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01) {
+          
+            myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
+            myIMU.getAres();
+        
+            // Now we'll calculate the accleration value into actual g's
+            // This depends on scale being set
+            myIMU.ax = (float)myIMU.accelCount[0]*myIMU.aRes; // - accelBias[0];
+            myIMU.ay = (float)myIMU.accelCount[1]*myIMU.aRes; // - accelBias[1];
+            myIMU.az = (float)myIMU.accelCount[2]*myIMU.aRes; // - accelBias[2];
+            
+            myIMU.readGyroData(myIMU.gyroCount);  // Read the x/y/z adc values
+            myIMU.getGres();
+        
+            // Calculate the gyro value into actual degrees per second
+            // This depends on scale being set
+            myIMU.gx = (float)myIMU.gyroCount[0]*myIMU.gRes;
+            myIMU.gy = (float)myIMU.gyroCount[1]*myIMU.gRes;
+            myIMU.gz = (float)myIMU.gyroCount[2]*myIMU.gRes;
+
+            gx = myIMU.gx / 16.4;
+            ay = clamp(myIMU.ay, -1.0, 1.0);
+
+            angle_ax = 90 - TO_DEG * acos(ay);
+            angle_gx = angle_gx + gx * 25 / 1000.0;
+            angle_gx = angle_gx * (1 - KF) + angle_ax * KF;
+
+            gy = myIMU.gy / 16.4;
+            ax = clamp(myIMU.ax, -1.0, 1.0);
+            
+            angle_ay = 90 - TO_DEG * acos(ax);
+            angle_gy = angle_gy + gy * 25 / 1000.0;
+            angle_gy = angle_gy * (1 - KF) + angle_ay * KF;
+
+            gz = myIMU.gz / 16.4;
+            az = clamp(myIMU.az, -1.0, 1.0);
+
+            angle_az = 90 - TO_DEG * acos(ay);
+            angle_gz = angle_gz + gz * 25 / 1000.0;
+            angle_gz = angle_gz * (1 - KF) + angle_az * KF;
+        }
+    }
+    /*Serial.print(angle_gx); Serial.print(' ');*/
+    /*Serial.print(angle_gy); Serial.print(' ');*/
+    Serial.print(angle_gz); Serial.println(' ');
 }
