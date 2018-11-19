@@ -18,9 +18,9 @@ def main():
     graphics = Graphics(800, 600)
     graphics.start()
     networking = Networking('10.42.0.1', 7247)
+    networking.start()
 
     translations = [0, 0, 0]
-    rotations = [0, 0, 0]
 
     while True:
         data = networking.receive()
@@ -30,38 +30,17 @@ def main():
 
         # Splits line, received from the server, to the list of value:
         transforms = list(map(lambda x: float(x), data.split(b' ')))
-        # This values are: rotations (x, y, z) in degrees, translations (x, y, z).
+        # This values are: quaternion (w, x, y, z), translations (x, y, z).
 
-        if len(transforms) != 6:
+        if len(transforms) != 7:
             continue
 
-        new_translations = [transforms[0], transforms[1], transforms[2]]
-        new_rotations = [transforms[3], transforms[4], transforms[5]]
-        new_rotations = list(map(lambda x: x * (math.pi / 180), new_rotations))  # Convert degrees to radians.
+        new_quaternion = [transforms[0], transforms[1], transforms[2], transforms[3]]
+        new_translations = [transforms[4], transforms[5], transforms[6]]
 
-        for i in range(3):
-            rotations[i] += new_rotations[i]
+        q = Quaternion(*new_quaternion)
 
-        axis_x = [1, 0, 0]
-        axis_y = [0, 1, 0]
-        axis_z = [0, 0, 1]
-
-        qx = Quaternion(axis=axis_x, angle=rotations[0])
-        qy = Quaternion(axis=axis_y, angle=rotations[1])
-        qz = Quaternion(axis=axis_z, angle=rotations[2])
-
-        qq = qx * qy * qz
-
-        new_translations = qq.rotate(new_translations)
-
-        # x y z
-        # z x y
-        # z y x
-
-        # Transform local translations to global ones:
-        # new_translations = rotation_3d(axis_y, rotations[0]).dot(new_translations)
-        # new_translations = rotation_3d(axis_z, rotations[1]).dot(new_translations)
-        # new_translations = rotation_3d(axis_x, rotations[2]).dot(new_translations)
+        new_translations = q.inverse.rotate(new_translations)
 
         # Save translations:
         for i in range(3):
@@ -73,7 +52,7 @@ def main():
         except ValueError:
             pass
 
-        debug_lists([new_rotations, new_translations, angles])
+        debug_lists([new_quaternion, new_translations, angles])
         graphics.window.clear_canvas()
         graphics.window.draw_square(translations[0], translations[1])
 
