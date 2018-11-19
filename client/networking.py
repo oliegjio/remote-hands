@@ -6,6 +6,18 @@ class Networking:
         self.address = address
         self.port = port
 
+        self.started = False
+
+        self.sock = None
+        self.connection = None
+        self.client_address = None
+
+    def __del__(self):
+        self.sock.close()
+
+    def start(self):
+        self.started = True
+
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind((self.address, self.port))
@@ -13,10 +25,14 @@ class Networking:
 
         self.connection, self.client_address = self.sock.accept()
 
-    def __del__(self):
+    def stop(self):
+        self.started = False
         self.sock.close()
 
     def receive(self):
+        if not self.started:
+            return None
+
         buffer = b''
         data = b''
 
