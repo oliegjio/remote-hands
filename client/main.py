@@ -40,7 +40,9 @@ def main():
 
         q = Quaternion(*new_quaternion)
 
-        new_translations = q.inverse.rotate(new_translations)
+        # new_translations = q.inverse.rotate(new_translations)
+        new_translations = q.rotate(new_translations)
+        new_translations[2] -= 1
 
         # Save translations:
         for i in range(3):
@@ -54,7 +56,7 @@ def main():
 
         debug_lists([new_quaternion, new_translations, angles])
         graphics.window.clear_canvas()
-        graphics.window.draw_square(translations[0], translations[1])
+        graphics.window.draw_square(translations[0] * 5, translations[1] * 5)
 
 
 if __name__ == '__main__':
