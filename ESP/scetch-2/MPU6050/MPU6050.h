@@ -43,7 +43,11 @@ THE SOFTWARE.
 // also: http://forum.arduino.cc/index.php?&topic=141571.msg1062899#msg1062899s
 
 #ifdef __AVR__
+#ifndef ESP8266
 #include <avr/pgmspace.h>
+#else
+#include <pgmspace.h>
+#endif
 #else
 //#define PROGMEM /* empty */
 //#define pgm_read_byte(x) (*(x))
@@ -435,7 +439,7 @@ THE SOFTWARE.
 
 class MPU6050 {
     public:
-        MPU6050(uint8_t address=MPU6050_DEFAULT_ADDRESS);
+        MPU6050();
 
         void initialize();
         bool testConnection();

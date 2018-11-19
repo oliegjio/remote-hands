@@ -33,7 +33,7 @@ THE SOFTWARE.
 #ifndef _MPU6050_6AXIS_MOTIONAPPS20_H_
 #define _MPU6050_6AXIS_MOTIONAPPS20_H_
 
-#include "I2Cdev.h"
+#include "../I2Cdev/I2Cdev.h"
 #include "helper_3dmath.h"
 
 // MotionApps 2.0 DMP implementation, built using the MPU-6050EVB evaluation board
@@ -44,7 +44,11 @@ THE SOFTWARE.
 // Tom Carpenter's conditional PROGMEM code
 // http://forum.arduino.cc/index.php?topic=129407.0
 #ifdef __AVR__
-    #include <avr/pgmspace.h>
+#ifndef ESP8266
+#include <avr/pgmspace.h>
+#else
+#include <pgmspace.h>
+#endif
 #else
     // Teensy 3.0 library conditional PROGMEM code from Paul Stoffregen
     #ifndef __PGMSPACE_H_

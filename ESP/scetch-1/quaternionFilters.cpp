@@ -231,4 +231,4 @@ void MahonyQuaternionUpdate(float ax, float ay, float az, float gx, float gy, fl
   q[3] = q4 * norm;
 }
 
-const float * getQ () { return q; }
+float * getQ () { return q; }

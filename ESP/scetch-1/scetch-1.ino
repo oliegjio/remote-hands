@@ -44,6 +44,8 @@ void connect(const char *ssid, const char *password);
 void script_1();
 float clamp(float value, float min_value, float max_value);
 void script_2();
+void script_3();
+void script_4();
 
 float correct(float value) {
     return (( -2 < value && value < 2 ) ? 0 : value);
@@ -62,10 +64,11 @@ void setup() {
 
 void loop() {
     //script_1();
-    script_2();
+    //script_2();
+    script_3();
 }
 
-////////////////////////////////////////////////////////////////
+///////////////////////////// ///////////////////////////////////
 /////             Desctiption functions                    /////
 ////////////////////////////////////////////////////////////////
 
@@ -168,7 +171,7 @@ void script_1() {
     ax = 0; ay = 0; az = 0;
     gx = 0; gy = 0; gz = 0;
     mx = 0; my = 0; mz = 0;
-    while (millis() - time_now < 25) {
+    while (millis() - time_now < 1000) {
         if (myIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01) {
           
             myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
@@ -217,20 +220,16 @@ void script_2() {
     while (millis() - time_now < 1000) {
         if (myIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01) {
           
-            myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
+            myIMU.readAccelData(myIMU.accelCount);
             myIMU.getAres();
-        
-            // Now we'll calculate the accleration value into actual g's
-            // This depends on scale being set
+
             myIMU.ax = (float)myIMU.accelCount[0]*myIMU.aRes; // - accelBias[0];
             myIMU.ay = (float)myIMU.accelCount[1]*myIMU.aRes; // - accelBias[1];
             myIMU.az = (float)myIMU.accelCount[2]*myIMU.aRes; // - accelBias[2];
             
-            myIMU.readGyroData(myIMU.gyroCount);  // Read the x/y/z adc values
+            myIMU.readGyroData(myIMU.gyroCount);
             myIMU.getGres();
-        
-            // Calculate the gyro value into actual degrees per second
-            // This depends on scale being set
+  
             myIMU.gx = (float)myIMU.gyroCount[0]*myIMU.gRes;
             myIMU.gy = (float)myIMU.gyroCount[1]*myIMU.gRes;
             myIMU.gz = (float)myIMU.gyroCount[2]*myIMU.gRes;
@@ -252,12 +251,90 @@ void script_2() {
             gz = myIMU.gz / 16.4;
             az = clamp(myIMU.az, -1.0, 1.0);
 
-            angle_az = 90 - TO_DEG * acos(ay);
+            angle_az = 90 - TO_DEG * acos(az);
             angle_gz = angle_gz + gz * 25 / 1000.0;
             angle_gz = angle_gz * (1 - KF) + angle_az * KF;
         }
     }
-    /*Serial.print(angle_gx); Serial.print(' ');*/
+    Serial.println(angle_gx); Serial.print(' ');
     /*Serial.print(angle_gy); Serial.print(' ');*/
-    Serial.print(angle_gz); Serial.println(' ');
+    /*Serial.print(angle_gz); Serial.println(' ');*/
+}
+
+void script_3() {
+    float* q = new float[4];
+    unsigned long time_now = millis();
+    while (millis() - time_now < 25) {
+        if (myIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01) {
+          
+            myIMU.readAccelData(myIMU.accelCount);
+            myIMU.getAres();
+
+            myIMU.ax = (float)myIMU.accelCount[0]*myIMU.aRes; // - accelBias[0];
+            myIMU.ay = (float)myIMU.accelCount[1]*myIMU.aRes; // - accelBias[1];
+            myIMU.az = (float)myIMU.accelCount[2]*myIMU.aRes; // - accelBias[2];
+            
+            myIMU.readGyroData(myIMU.gyroCount);
+            myIMU.getGres();
+  
+            myIMU.gx = (float)myIMU.gyroCount[0]*myIMU.gRes;
+            myIMU.gy = (float)myIMU.gyroCount[1]*myIMU.gRes;
+            myIMU.gz = (float)myIMU.gyroCount[2]*myIMU.gRes;
+
+            myIMU.readMagData(myIMU.magCount);
+            myIMU.getMres();
+
+            myIMU.mx = (float)myIMU.magCount[0]*myIMU.mRes;
+            myIMU.my = (float)myIMU.magCount[1]*myIMU.mRes;
+            myIMU.mz = (float)myIMU.magCount[2]*myIMU.mRes;
+
+            MadgwickQuaternionUpdate(myIMU.ax, myIMU.ay, myIMU.az, 
+                                     myIMU.gx, myIMU.gy, myIMU.gz,
+                                     myIMU.mx, myIMU.my, myIMU.mz, 0.025);
+            q = getQ();
+        }
+    }
+    Serial.print(q[0]); Serial.print(' ');
+    Serial.print(q[1]); Serial.print(' ');
+    Serial.print(q[2]); Serial.print(' ');
+    Serial.print(q[3]); Serial.println(' ');
+}
+
+void script_4() {
+    float* q = new float[4];
+    unsigned long time_now = millis();
+    while (millis() - time_now < 25) {
+        if (myIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01) {
+          
+            myIMU.readAccelData(myIMU.accelCount);
+            myIMU.getAres();
+
+            myIMU.ax = (float)myIMU.accelCount[0]*myIMU.aRes; // - accelBias[0];
+            myIMU.ay = (float)myIMU.accelCount[1]*myIMU.aRes; // - accelBias[1];
+            myIMU.az = (float)myIMU.accelCount[2]*myIMU.aRes; // - accelBias[2];
+            
+            myIMU.readGyroData(myIMU.gyroCount);
+            myIMU.getGres();
+  
+            myIMU.gx = (float)myIMU.gyroCount[0]*myIMU.gRes;
+            myIMU.gy = (float)myIMU.gyroCount[1]*myIMU.gRes;
+            myIMU.gz = (float)myIMU.gyroCount[2]*myIMU.gRes;
+
+            myIMU.readMagData(myIMU.magCount);
+            myIMU.getMres();
+
+            myIMU.mx = (float)myIMU.magCount[0]*myIMU.mRes;
+            myIMU.my = (float)myIMU.magCount[1]*myIMU.mRes;
+            myIMU.mz = (float)myIMU.magCount[2]*myIMU.mRes;
+
+            MahonyQuaternionUpdate(myIMU.ax, myIMU.ay, myIMU.az, 
+                                     myIMU.gx, myIMU.gy, myIMU.gz,
+                                     myIMU.mx, myIMU.my, myIMU.mz, 0.025);
+            q = getQ();
+        }
+    }
+    Serial.print(q[0]); Serial.print(' ');
+    Serial.print(q[1]); Serial.print(' ');
+    Serial.print(q[2]); Serial.print(' ');
+    Serial.print(q[3]); Serial.println(' ');
 }

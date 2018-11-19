@@ -42,7 +42,11 @@ THE SOFTWARE.
 // Tom Carpenter's conditional PROGMEM code
 // http://forum.arduino.cc/index.php?topic=129407.0
 #ifdef __AVR__
-    #include <avr/pgmspace.h>
+#ifndef ESP8266
+#include <avr/pgmspace.h>
+#else
+#include <pgmspace.h>
+#endif
 #else
     // Teensy 3.0 library conditional PROGMEM code from Paul Stoffregen
     #ifndef __PGMSPACE_H_

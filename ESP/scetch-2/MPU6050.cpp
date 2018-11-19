@@ -42,7 +42,7 @@ THE SOFTWARE.
  * @see MPU6050_ADDRESS_AD0_LOW
  * @see MPU6050_ADDRESS_AD0_HIGH
  */
-MPU6050::MPU6050():devAddr(0x69) {
+MPU6050::MPU6050():devAddr(0x73) {
 }
 
 /** Power on and prepare for general usage.
