@@ -1,8 +1,8 @@
 import time
 
 
-def debug_lists(lists):
-    for l in lists:
+def debug_lists(*args):
+    for l in args:
         r = list(map(lambda x: round(x, 2), l))
         print(r)
     print()
