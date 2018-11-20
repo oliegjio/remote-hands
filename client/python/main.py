@@ -1,4 +1,4 @@
-# import serial
+import serial
 from graphics import *
 from kinematics import *
 from mathematics import *
@@ -15,12 +15,13 @@ serial_port.write(output)
 
 
 def main():
+    serial_port = serial.Serial('/dev/ttyUSB1', 9600)
     graphics = Graphics(800, 600)
     graphics.start()
     networking = Networking('10.42.0.1', 7247)
     networking.start()
 
-    translations = [0, 0, 0]
+    translation = [0, 0, 0]
 
     while True:
         data = networking.receive()
@@ -35,28 +36,36 @@ def main():
         if len(transforms) != 7:
             continue
 
-        new_quaternion = [transforms[0], transforms[1], transforms[2], transforms[3]]
-        new_translations = [transforms[4], transforms[5], transforms[6]]
+        quaternion = [transforms[0], transforms[1], transforms[2], transforms[3]]
+        acceleration = [transforms[4], transforms[5], transforms[6]]
 
-        q = Quaternion(*new_quaternion)
+        q = Quaternion(*quaternion)
 
         # new_translations = q.inverse.rotate(new_translations)
-        new_translations = q.rotate(new_translations)
-        new_translations[2] -= 1
+        acceleration = q.rotate(acceleration)
+        acceleration[2] -= 1
+
+        for i, t in enumerate(acceleration):
+            if t <= 0.1:
+                acceleration[i] = 0
 
         # Save translations:
         for i in range(3):
-            translations[i] += new_translations[i]
+            translation[i] += acceleration[i]
 
         # Solve kinematics (angles in radians):
         try:
-            angles = solve_3dof(translations[0], translations[1], 10, 10, 10)
+            angles = solve_3dof(translation[0], translation[1], 10, 10, 10)
         except ValueError:
             pass
 
-        debug_lists([new_quaternion, new_translations, angles])
+        debug_lists([quaternion, acceleration, angles])
+
         graphics.window.clear_canvas()
-        graphics.window.draw_square(translations[0] * 5, translations[1] * 5)
+        graphics.window.draw_square(translation[0] * 5, translation[1] * 5)
+
+        output = ' '.join(list(map(lambda x: str(x * (180 / math.pi)), angles))) + '\n'
+        serial_port.write(output)
 
 
 if __name__ == '__main__':
