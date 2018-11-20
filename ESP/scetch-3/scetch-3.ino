@@ -23,6 +23,8 @@ void connect(const char *ssid, const char *password);
 void setup() {
     Wire.begin();
     Serial.begin(115200);
+
+    connect(ssid, password);
     
     if (imu.begin() != INV_SUCCESS) {
         while (1) {
@@ -41,7 +43,7 @@ void loop() {
               imu.updateAccel();
               imu.computeEulerAngles();
               Serial.println(getData());
-              //client.println(getData());
+              client.println(getData());
          }
     }
 }
@@ -73,7 +75,7 @@ String getData() {
 
     data += String(ax) + ' ';
     data += String(ay) + ' ';
-    data += String(az) + ' ';
+    data += String(az);
 
     return data;
 }
