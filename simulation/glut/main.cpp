@@ -7,6 +7,7 @@
 #include <ctime>
 #include <iostream>
 #include <cstdio>
+#include <sys/socket.h>
 
 #include "kinematics_animations.h"
 #include "nested_group.h"
