@@ -19,7 +19,7 @@ Supported Platforms:
 #include "MPU9250_RegisterMap.h"
 
 extern "C" {
-#include "util/inv_mpu.h"
+#include "inv_mpu.h"
 }
 
 static unsigned char mpu9250_orientation;
