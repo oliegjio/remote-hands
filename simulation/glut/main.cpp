@@ -13,6 +13,8 @@
 #include "nested_group.h"
 #include "arms.h"
 #include "mathematics.h"
+#include "server.h"
+#include "utils.h"
 
 #define WIN_WIDTH 1000
 #define WIN_HEIGHT 800
@@ -31,11 +33,15 @@ vector3 camera_position = {0.0f, 0.0f, -100.0f};
 size_t window_width = WIN_WIDTH;
 size_t window_height = WIN_HEIGHT;
 
+server *net = new server(5677);
+
 void setup() {
     arm = make_planar_arm();
 
     follower->scaling = {0.5f, 0.5f, 3.0f};
     follower->color = {1.0f, 0.0f, 0.0f};
+
+    net->start();
 }
 
 void display() {
@@ -71,8 +77,21 @@ void idle() {
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-    animate_inverse_kinematics_planar_arm(arm, follower, position);
-    follower->translation = position;
+//    animate_inverse_kinematics_planar_arm(arm, follower, position);
+//    follower->translation = position;
+
+    std::string message = net->receive(); // Receive angles from Python backend.
+    trim(message);
+    std::vector<std::string> parts = split_by_spaces(message);
+
+    std::vector<GLfloat> angles;
+    for (size_t i = 0; i < parts.size(); i++) {
+        angles.push_back(std::stof(parts[i]));
+    }
+
+    arm->groups[0]->rotation = {angles[0], 0.0f, 0.0f, 1.0f};
+    arm->groups[2]->rotation = {angles[1], 0.0f, 0.0f, 1.0f};
+    arm->groups[4]->rotation = {angles[2], 0.0f, 0.0f, 1.0f};
 
 	glutPostRedisplay();
 }

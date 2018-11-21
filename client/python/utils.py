@@ -8,6 +8,10 @@ def debug_lists(*args):
     print()
 
 
+def millis():
+    return int(round(time.time() * 1000))
+
+
 def timer(dt, f):
     """
     Calls function `f` every `dt` milliseconds.
@@ -17,10 +21,10 @@ def timer(dt, f):
         f: Function to be called.
     """
 
-    now = int(round(time.time() * 1000))
+    now = millis()
     past = now
     while True:
-        now = int(round(time.time() * 1000))
+        now = millis()
         if now > past + dt:
             past = now
             f()

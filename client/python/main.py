@@ -1,15 +1,10 @@
 import serial
-from graphics import *
-from kinematics import *
-from mathematics import *
-from networking import *
-from utils import *
+import math
+from kinematics import solve_3dof_kinematics
+from server import Server
+from client import Client
 from pyquaternion import Quaternion
 import time
-
-
-def millis():
-    return int(round(time.time() * 1000))
 
 
 def handle_data(data):
@@ -86,9 +81,13 @@ def handle_output(angles):
 
 
 def main():
+    # localhost = '10.42.0.1'
+    localhost = '127.0.0.1'
     serial_port = serial.Serial('/dev/ttyUSB1', 9600)  # Connect to manipulator controller.
-    networking = Networking('10.42.0.1', 7247)  # Connect to bracer controller.
-    networking.start()
+    server = Server(localhost, 7247)  # Connect to bracer controller.
+    server.start()
+    client = Client(localhost, 5677)
+    client.start()
     # graphics = Graphics(800, 600)
     # graphics.start()
 
@@ -97,7 +96,7 @@ def main():
     time.sleep(10)  # Wait until gyroscope calibration finished.
 
     while True:
-        data = networking.receive()
+        data = server.receive()
 
         try:
             quaternion, acceleration = handle_data(data)
@@ -118,7 +117,8 @@ def main():
         # graphics.window.animate_square(translation[0], translation[1])
 
         output = handle_output(angles)
-        serial_port.write(output)
+        client.send(output)
+        # serial_port.write(output)
 
 
 if __name__ == '__main__':
