@@ -1,7 +1,7 @@
 import math
 
 
-def solve_3dof(x, y, l1, l2, l3):
+def solve_3dof_kinematics(x, y, l1, l2, l3):
     """
     Solve inverse kinematics equations for 3 DOF planar arm.
 
@@ -14,6 +14,9 @@ def solve_3dof(x, y, l1, l2, l3):
 
     Returns:
         list: List of angles (in radians) for manipulator joins.
+
+    Raises:
+        ValueError: If could not solve kinematics equations for given input.
     """
 
     phi = math.atan2(y, x)
