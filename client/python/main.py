@@ -2,7 +2,6 @@ import serial
 from graphics import *
 from kinematics import *
 from mathematics import *
-import base64
 from networking import *
 from utils import *
 from pyquaternion import Quaternion
