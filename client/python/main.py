@@ -16,7 +16,7 @@ def handle_data(data):
         raise ValueError("Data is empty")
 
     try:
-        transforms = list(map(lambda x: float(x), data.split(b' ')))
+        transforms = list(map(lambda x: float(x), data.strip().split(b' ')))
     except ValueError:
         raise ValueError("Error splitting data or converting values to float")
 
@@ -46,7 +46,8 @@ def main():
             print(error)
             continue
 
-        output = str(' '.join(angles) + ' \n').encode(encoding='ascii')
+        output = str(' '.join(list(map(lambda x: str(x), angles))) + ' \n').encode(encoding='ascii')
+        print(output)
         serial_port.write(output)
 
 
