@@ -12,6 +12,17 @@ def millis():
     return int(round(time.time() * 1000))
 
 
+def clamp(n, minimum, maximum):
+    """ Constrain value between `minimum` and `maximum`. """
+    return max(min(maximum, n), minimum)
+
+
+def reset_in_range(value, other_value, start, end):
+    if start < value < end:
+        return other_value
+    return value
+
+
 def timer(dt, f):
     """
     Calls function `f` every `dt` milliseconds.

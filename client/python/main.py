@@ -3,6 +3,7 @@ import math
 from kinematics import solve_3dof_kinematics
 from server import Server
 from client import Client
+from utils import reset_in_range, clamp
 from pyquaternion import Quaternion
 import time
 
@@ -33,39 +34,46 @@ def handle_data(data):
     return quaternion, acceleration
 
 
-def clamp(n, minimum, maximum):
-    """ Constrain value between `minimum` and `maximum`. """
-    return max(min(maximum, n), minimum)
-
-
 def handle_transforms(quaternion, acceleration):
     new_quaternion = Quaternion(*quaternion)
     new_acceleration = new_quaternion.rotate(acceleration)  # Rotate acceleration to global basis.
-    new_acceleration[2] -= 1  # Subtract gravity vector.
+    new_acceleration[2] -= 1  # Subtract gravity vector.)
 
-    for i, t in enumerate(new_acceleration):
-        # Restrict acceleration values:
-        bound = 0.25
-        new_acceleration[i] = clamp(t, bound, -bound)
+    for index, value in enumerate(new_acceleration):
+        # if value > 0.5:
+        #     new_acceleration[index] = 1
+        # elif value < -0.5:
+        #     new_acceleration[index] = -1
+        # else:
+        #     new_acceleration[index] = 0
+
+        # Ignore values below...
+        # lower_bound = 0.1
+        # value = reset_in_range(value, 0, -lower_bound, lower_bound)
+
+        # Set upper bound to acceleration:
+        # upper_bound = 0.5
+        # new_acceleration[index] = clamp(value, -upper_bound, upper_bound)
 
         # Scale acceleration:
-        new_acceleration[i] *= 10
+        new_acceleration[index] *= 10
 
     return new_quaternion, new_acceleration
 
 
-def handle_translation(translation, acceleration):
+def update_translation(translation, acceleration):
     new_translation = list(translation)
 
     for i, t in enumerate(new_translation):
         new_translation[i] += acceleration[i]
-        new_translation[i] = clamp(new_translation[i], -180, 180)  # Restring end effector position to a square.
+        bound = 27
+        new_translation[i] = clamp(new_translation[i], -bound, bound)  # Restring end effector position to a square.
 
     return new_translation
 
 
 def handle_output(angles):
-    """ Convert list of angles to output string for serial port. """
+    """ Convert list of angles to output string for serial port. Returns a list of 3 angles in degrees. """
 
     radians = list(map(lambda x: x * (180 / math.pi), angles))  # Convert degrees to radians.
 
@@ -81,9 +89,9 @@ def handle_output(angles):
 
 
 def main():
-    # localhost = '10.42.0.1'
-    localhost = '127.0.0.1'
-    serial_port = serial.Serial('/dev/ttyUSB1', 9600)  # Connect to manipulator controller.
+    localhost = '10.42.0.1'
+    # localhost = '127.0.0.1'
+    # serial_port = serial.Serial('/dev/ttyUSB1', 9600)  # Connect to manipulator controller.
     server = Server(localhost, 7247)  # Connect to bracer controller.
     server.start()
     client = Client(localhost, 5677)
@@ -91,9 +99,9 @@ def main():
     # graphics = Graphics(800, 600)
     # graphics.start()
 
-    translation = [50, 50, 0]  # Origin point of end effector.
+    translation = [15, 15, 15]  # Origin point of end effector.
 
-    time.sleep(10)  # Wait until gyroscope calibration finished.
+    time.sleep(20)  # Wait until gyroscope calibration finished.
 
     while True:
         data = server.receive()
@@ -106,18 +114,23 @@ def main():
 
         quaternion, acceleration = handle_transforms(quaternion, acceleration)
 
-        translation = handle_translation(translation, acceleration)
+        translation = update_translation(translation, acceleration)
 
         try:
-            angles = solve_3dof_kinematics(translation[0], translation[1], 94.7, 71.2, 46)
+            print(translation)
+            # angles = solve_3dof_kinematics(translation[0], translation[1], 94.7, 71.2, 46)
+            angles = solve_3dof_kinematics(translation[1], translation[2], 10, 10, 10)
         except ValueError as error:
-            print("Kinematics Error: ", error)
+            print(error)
             continue
 
         # graphics.window.animate_square(translation[0], translation[1])
 
         output = handle_output(angles)
-        client.send(output)
+        try:
+            client.send(output)
+        except OSError:
+            continue
         # serial_port.write(output)
 
 
