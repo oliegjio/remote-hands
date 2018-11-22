@@ -66,7 +66,7 @@ void idle() {
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-    std::string message = net->receive(); // Receive angles from Python backend.
+    std::string message = net->receive(); // Receive angles (in degrees) from Python backend.
     trim(message);
     std::vector<std::string> parts = split_by_spaces(message);
     parts.resize(3);
