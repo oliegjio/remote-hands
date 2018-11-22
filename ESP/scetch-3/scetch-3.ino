@@ -59,7 +59,7 @@ float clamp(float value, float min_value, float max_value) {
 }
 
 String getData() {
-    float q0 = imu.calcQuat(imu.qw);
+    /*float q0 = imu.calcQuat(imu.qw);
     float q1 = imu.calcQuat(imu.qx);
     float q2 = imu.calcQuat(imu.qy);
     float q3 = imu.calcQuat(imu.qz);
@@ -75,7 +75,11 @@ String getData() {
 
     data += String(ax) + ' ';
     data += String(ay) + ' ';
-    data += String(az);
+    data += String(az);*/
+
+    String data = String(imu.pitch) + ' ';
+    data += String(imu.roll) + ' ';
+    data += String(imu.yaw);
 
     return data;
 }

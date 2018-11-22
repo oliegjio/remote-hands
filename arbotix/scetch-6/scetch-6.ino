@@ -28,7 +28,6 @@ void setup() {
 
 void turnAngle(unsigned char id, int angle, int _speed) {
     correct_position(angle);
-    id += 1;
     Cur_angle[id - 1] = angle;
     ax12a.moveSpeed(id, static_cast <int> (512 + angle * 3.45), _speed);
 }
