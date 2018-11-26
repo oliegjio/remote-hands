@@ -2,6 +2,10 @@ import math
 import numpy as np
 
 
+def smooth_map(x, in_min, in_max, out_min, out_max):
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
+
 def rotation_3d(axis, theta):
     """
     Return the rotation matrix associated with counterclockwise rotation about
