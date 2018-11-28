@@ -5,16 +5,18 @@
 #include <vector>
 #include <cmath>
 #include <ctime>
+#include <unistd.h>
 #include <iostream>
 #include <cstdio>
 #include <sys/socket.h>
+#include <functional>
 
-#include "kinematics_animations.h"
+#include "inverse_kinematics.h"
 #include "nested_group.h"
 #include "arms.h"
 #include "mathematics.h"
 #include "server.h"
-#include "utils.h"
+#include "quaternion.h"
 
 #define WIN_WIDTH 1000
 #define WIN_HEIGHT 800
@@ -22,15 +24,23 @@
 float dt = 0.0f;
 
 nested_group *arm;
+shape *cube;
 
 vector4 camera_rotation = {0.0f, 0.0f, 0.0f, 1.0f};
 vector3 camera_position = {0.0f, 0.0f, -100.0f};
 
-server *net = new server(5677);
+unsigned int port = 7247;
+server *net = new server(port);
 
 void setup() {
     arm = make_planar_arm();
-    net->start();
+    cube = shape::make_cube();
+    cube->color = {1.0f, 0.0f, 0.0f};
+
+    net->start(); // Create server. Bracer controller will connect to this server.
+    std::cout << "New connection." << std::endl;
+    std::cout << "Waiting for gyroscope calibration." << std::endl;
+    usleep(13 * 1000000);
 }
 
 void display() {
@@ -42,6 +52,7 @@ void display() {
     glRotatef(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
 
 	arm->draw();
+	cube->draw();
 
 	glPopMatrix();
 	glutSwapBuffers();
@@ -58,6 +69,8 @@ void reshape(int width, int height) {
 	glutPostRedisplay();
 }
 
+vector3 effector_position {0.0f, 0.0f, 0.0f};
+
 void idle() {
     static clock_t current_time = clock();
     static clock_t last_time = current_time;
@@ -66,20 +79,44 @@ void idle() {
 	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
 	last_time = current_time;
 
-    std::string message = net->receive(); // Receive angles (in degrees) from Python backend.
-    trim(message);
-    std::vector<std::string> parts = split_by_spaces(message);
-    parts.resize(3);
+	// Receive {q1, q2, q3, q4, a1, a2, a3} vector from bracer controller.
+    std::vector<std::string> data = net->receive_vector(7, 1024);
 
-    std::vector<GLfloat> angles;
-    for (size_t i = 0; i < parts.size(); i++) {
+    std::vector<GLfloat> floats;
+    for (size_t i = 0; i < data.size(); i++) { // Convert this vector to vector of floats.
         try {
-            angles.push_back(std::stof(parts[i]));
+            floats.push_back(std::stof(data[i]));
         } catch (std::invalid_argument e) {
             glutPostRedisplay();
             return;
         }
     }
+
+    quaternion q = quaternion(floats[0], floats[1], floats[2], floats[3]);
+    auto acceleration = vector3 {floats[4], floats[5], floats[6]};
+    acceleration = q * acceleration; // Rotate acceleration.
+    acceleration -= vector3 {0.0f, 0.0f, 1.0f}; // Subtract gravity.
+
+//    for (size_t i = 0; i < 3; i++) {
+//        if (fabsf(acceleration[i]) < 0.1f) {
+//            acceleration[i] = 0.0f;
+//        }
+//    }
+
+    effector_position += acceleration * 5.0f;
+
+    effector_position = effector_position.map(std::bind(clamp, std::placeholders::_1, -19.0f, 19.0f));
+
+    cube->translation = effector_position;
+    cube->translation[2] = 0.0f;
+
+    std::cout << "ACCELERATION"; acceleration.print(); std::cout << std::endl;
+    std::cout << "POSITION"; effector_position.print(); std::cout << std::endl;
+
+    auto angles = inverse_kinematics_planar_arm(effector_position[0], effector_position[1], 10.0f, 10.0f, 10.0f);
+    angles = angles.map(radians_to_degrees);
+
+    std::cout << "ANGLES"; angles.print(); std::cout << std::endl;
 
     arm->groups[0]->rotation = {angles[0], 0.0f, 0.0f, 1.0f};
     arm->groups[2]->rotation = {angles[1], 0.0f, 0.0f, 1.0f};

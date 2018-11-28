@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <cmath>
+#include <functional>
 
 template <size_t N>
 class vector {
@@ -19,16 +20,20 @@ public:
 	void print() const;
 	void normalize();
 	float length() const;
+	vector<N> map(std::function<float(float)> f) const;
 
 	vector<N> &operator=(const vector<N> &other);
 
 	vector<N> operator+(const vector<N> &other) const;
+	vector<N> operator-(const vector<N> &other) const;
 	vector<N> operator*(const vector<N> &other) const;
 
 	vector<N> &operator+=(const vector<N> &other);
     vector<N> &operator-=(const vector<N> &other);
 	vector<N> &operator*=(const vector<N> &other);
 	vector<N> &operator/=(const vector<N> &other);
+
+    vector<N> operator*(const float &number) const;
 
 	vector<N> &operator/=(const GLfloat &number);
 
@@ -77,6 +82,15 @@ vector<N> vector<N>::operator+(const vector<N> &other) const {
 		result = data[i] + other.data[i];
 	}
 	return result;
+}
+
+template<size_t N>
+vector<N> vector<N>::operator-(const vector<N> &other) const {
+    vector<N> result;
+    for (size_t i = 0; i < N; i++) {
+        result = data[i] - other.data[i];
+    }
+    return result;
 }
 
 template<size_t N>
@@ -194,3 +208,23 @@ float vector<N>::length() const {
     }
     return sqrtf(len);
 }
+
+template<size_t N>
+vector<N> vector<N>::map(std::function<float(float)> f) const {
+    vector<N> result;
+    for (size_t i = 0; i < N; i++) {
+        result[i] = f(data[i]);
+    }
+    return result;
+}
+
+template<size_t N>
+vector<N> vector<N>::operator*(const float &number) const {
+    vector<N> result;
+    for (size_t i = 0; i < N; i++) {
+        result[i] = data[i] * number;
+    }
+    return result;
+}
+
+

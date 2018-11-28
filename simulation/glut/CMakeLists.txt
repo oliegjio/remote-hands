@@ -5,20 +5,22 @@ project (${MY_NAME})
 
 set (MY_FILES
         "main.cpp"
-        "shape.h" "shape.cpp"
         "vector.h"
+        "matrix.h"
+        "mathematics.cpp" "mathematics.h"
+        "shape.h" "shape.cpp"
+        "nested_shape.cpp" "nested_shape.h"
         "shape_group.cpp" "shape_group.h"
         "nested_group.cpp" "nested_group.h"
-        "matrix.h"
         "arms.h"
-        "nested_shape.cpp" "nested_shape.h"
+        "arms_animations.h"
         "forward_kinematics.h"
         "inverse_kinematics.h"
-        "mathematics.cpp" "mathematics.h"
-        "kinematics_animations.h"
-        "arms_animations.h"
+        "inverse_kinematics_animations.h"
+        "forward_kinematics_animations.h"
         "server.cpp" "server.h"
-        "utils.h")
+        "string_utils.h"
+        "quaternion.cpp" "quaternion.h")
 
 if (WIN32)
     include_directories("include")
