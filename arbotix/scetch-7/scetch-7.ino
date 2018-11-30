@@ -17,8 +17,7 @@ void correct_position(int & pos) {
 }
 
 void setup() {
-    Serial.begin(9600);
-    Serial3.begin(9600);
+    Serial.begin(115200);
     ax12a.begin(BaudRate, DirectionPin, &Serial1);
     ax12a.setEndless(1, OFF);
     ax12a.setEndless(2, OFF);
@@ -28,7 +27,6 @@ void setup() {
 
 void turnAngle(unsigned char id, int angle, int _speed) {
     correct_position(angle);
-    id += 1;
     Cur_angle[id - 1] = angle;
     ax12a.moveSpeed(id, static_cast <int> (512 + angle * 3.45), _speed);
 }
@@ -51,24 +49,13 @@ void convert_data(String data) {
     }
 }
 
-// 40.6 mm 
-// 71.2 mm
-// 94.7 mm
-
 void loop() {
     //Serial.println("Calibrate");
-    //start_position();
-    while (1) {
-        if (Serial.available() > 0) {
-            String data = Serial.readStringUntil('\n');
-            //Serial3.println(data);
-            convert_data(data);
-            for (int i = 0; i < 3; ++i) {
-                Serial3.print(input_data[i]); Serial3.print(' ');
-            }
-            Serial3.println();
-            for (unsigned char iter = 1; iter <= 3; ++iter)
-                turnAngle(iter, input_data[iter - 1], 200);
-        }
-    }
+    start_position();
+    delay(1000);
+    turnAngle(1, 45, 100);
+    turnAngle(2, 45, 100);
+    turnAngle(3, 45, 100);
+    turnAngle(4, 45, 100);
+    delay(1000);
 }

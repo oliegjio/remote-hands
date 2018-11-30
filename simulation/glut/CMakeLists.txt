@@ -14,7 +14,11 @@ set (MY_FILES
         "nested_shape.cpp" "nested_shape.h"
         "forward_kinematics.h"
         "inverse_kinematics.h"
-        "mathematics.cpp" "mathematics.h" kinematics_animations.h arms_animations.h)
+        "mathematics.cpp" "mathematics.h"
+        "kinematics_animations.h"
+        "arms_animations.h"
+        "server.cpp" "server.h"
+        "utils.h")
 
 if (WIN32)
     include_directories("include")

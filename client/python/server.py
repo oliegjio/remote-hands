@@ -1,7 +1,7 @@
 import socket
 
 
-class Networking:
+class Server:
     def __init__(self, address, port):
         self.address = address
         self.port = port

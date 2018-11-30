@@ -1,7 +1,8 @@
 import math
+from utils import clamp
 
 
-def solve_3dof(x, y, l1, l2, l3):
+def solve_3dof_kinematics(x, y, l1, l2, l3):
     """
     Solve inverse kinematics equations for 3 DOF planar arm.
 
@@ -14,14 +15,17 @@ def solve_3dof(x, y, l1, l2, l3):
 
     Returns:
         list: List of angles (in radians) for manipulator joins.
+
+    Raises:
+        ValueError: If could not solve kinematics equations for given input.
     """
 
     phi = math.atan2(y, x)
-    xw = x - l3 * math.cos(phi)
-    yw = y - l3 * math.sin(phi)
+    xw = x - l3 * math.cos(clamp(phi, -1, 1))
+    yw = y - l3 * math.sin(clamp(phi, -1, 1))
     r = xw ** 2 + yw ** 2
-    beta = math.acos((l1 ** 2 + l2 ** 2 - r) / (2 * l1 * l2))
-    gamma = math.acos((r + l1 ** 2 - l2 ** 2) / (2 * (r ** 0.5) * l1))
+    beta = math.acos(clamp((l1 ** 2 + l2 ** 2 - r) / (2 * l1 * l2), -1, 1))
+    gamma = math.acos(clamp((r + l1 ** 2 - l2 ** 2) / (2 * (r ** 0.5) * l1), -1, 1))
     alpha = math.atan2(yw, xw)
 
     r1 = alpha - gamma

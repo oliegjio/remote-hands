@@ -29,6 +29,10 @@ class MainWindow(tkinter.Frame):
 
         self.canvas.create_rectangle(first_x, first_y, second_x, second_y, fill='red')
 
+    def animate_square(self, x, y, size=10):
+        self.clear_canvas()
+        self.draw_square(x, y, size)
+
 
 class Graphics:
     def __init__(self, window_width, window_height):

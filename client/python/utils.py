@@ -1,11 +1,26 @@
 import time
 
 
-def debug_lists(lists):
-    for l in lists:
+def debug_lists(*args):
+    for l in args:
         r = list(map(lambda x: round(x, 2), l))
         print(r)
     print()
+
+
+def millis():
+    return int(round(time.time() * 1000))
+
+
+def clamp(n, minimum, maximum):
+    """ Constrain value between `minimum` and `maximum`. """
+    return max(min(maximum, n), minimum)
+
+
+def reset_in_range(value, other_value, start, end):
+    if start < value < end:
+        return other_value
+    return value
 
 
 def timer(dt, f):
@@ -17,10 +32,10 @@ def timer(dt, f):
         f: Function to be called.
     """
 
-    now = int(round(time.time() * 1000))
+    now = millis()
     past = now
     while True:
-        now = int(round(time.time() * 1000))
+        now = millis()
         if now > past + dt:
             past = now
             f()
