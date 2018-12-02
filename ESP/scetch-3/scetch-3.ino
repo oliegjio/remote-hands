@@ -13,7 +13,10 @@ const char *password = "fFK5ieoY";
 
 #define port   7247
 #define ip     IPAddress(10,42,0,1)
-#define BUTTON 14
+#define BUTTON 16
+
+int last1 = 0;
+int last2 = 0;
 
 //Forward functions
 float clamp(float value, float min_value, float max_value);
@@ -38,20 +41,23 @@ void setup() {
 
   imu.dmpBegin(DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_GYRO_CAL, 10);
 
-  //pinMode(BUTTON, INPUT);
+  pinMode(BUTTON, INPUT);
 
   Serial.println("Start loop");
 }
 
 void loop() {
-  //Serial.println("fuck");
-//  if ( imu.fifoAvailable() ) {
-//    if ( imu.dmpUpdateFifo() == INV_SUCCESS) {
+  //Serial.println(imu.fifoAvailable());
+  if ( imu.fifoAvailable() ) {
+    if ( imu.dmpUpdateFifo() == INV_SUCCESS) {
       imu.computeEulerAngles();
+      imu.dmpUpdateFifo();
       Serial.println(getData());
       //client.println(getData());
-//    }
-//  }
+    }
+  }
+  if (checkButton() == HIGH)
+    Serial.println("Hello");
 }
 
 ///////////////////////////// ///////////////////////////////////
@@ -65,36 +71,33 @@ float clamp(float value, float min_value, float max_value) {
 }
 
 String getData() {
+  String data = "";
   float q0 = imu.calcQuat(imu.qw);
   float q1 = imu.calcQuat(imu.qx);
   float q2 = imu.calcQuat(imu.qy);
   float q3 = imu.calcQuat(imu.qz);
 
-  String data = String(q0) + ' ';
+  /*data += String(q0) + ' ';
   data += String(q1) + ' ';
   data += String(q2) + ' ';
-  data += String(q3) + ' ';
+  data += String(q3) + ' ';*/
 
-  float sum_ax      = 0;
-  float sum_ay      = 0;
-  float sum_az      = 0;
-  float count       = 0;
-  unsigned time_now = millis();
+  float sum_ax = 0;
+  float sum_ay = 0;
+  float sum_az = 0;
 
 //  Accel
-
-  while (millis() - time_now < 10) {
+  for (unsigned i = 0; i < 3; ++i) {
     imu.updateAccel();
-    sum_ax += clamp(imu.calcGyro(imu.ax), -360.0, 360.0);
-    sum_ay += clamp(imu.calcGyro(imu.ay), -1.0, 1.0);
-    sum_az += clamp(imu.calcGyro(imu.az), -1.0, 1.0);
-    count += 1;
+    sum_ax += clamp(imu.calcAccel(imu.ax), -1.0, 1.0);
+    sum_ay += clamp(imu.calcAccel(imu.ay), -1.0, 1.0);
+    sum_az += clamp(imu.calcAccel(imu.az), -1.0, 1.0);
   }
 
-  float ax = sum_ax / count;
-  float ay = sum_ay / count;
-  float az = sum_az / count;
-
+  float ax = sum_ax / 3;
+  float ay = sum_ay / 3;
+  float az = sum_az / 3;
+  
   data += String(ax) + ' ';
   data += String(ay) + ' ';
   data += String(az);
