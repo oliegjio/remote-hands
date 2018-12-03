@@ -4,11 +4,11 @@
 #include "nested_shape.h"
 
 nested_group *make_planar_arm() {
-    float limb_length = 10.0f;
-    float limb_thickness = 0.5;
+    const float limb_length = 10.0f;
+    const float limb_thickness = 0.5;
 
-    vector3 limb_scale {limb_length / 2.0f, limb_thickness, limb_thickness};
-    vector3 translation {limb_length / 2.0f, 0.0f, 0.0f};
+    const vector3 limb_scale {limb_length / 2.0f, limb_thickness, limb_thickness};
+    const vector3 translation {limb_length / 2.0f, 0.0f, 0.0f};
 
     auto rotor1 = shape::make_cube();
     auto group1 = new shape_group {rotor1};
@@ -46,42 +46,58 @@ nested_group *make_planar_arm() {
     return arm;
 }
 
-nested_shape *make_4dof_arm() {
+nested_group *make_4dof_arm() {
+    const float limb_length = 10.0f;
+    const float limb_thickness = 0.5;
+
+    const vector3 vertical_limb_scale {limb_thickness, limb_thickness, limb_length / 2.0f};
+    const vector3 horizontal_limb_scale {limb_length / 2.0f, limb_thickness, limb_thickness};
+    const vector3 vertical_translation {0.0f, 0.0f, limb_length / 2.0f};
+    const vector3 horizontal_translation {limb_length / 2.0f, 0.0f, 0.0f};
+
     auto rotor1 = shape::make_cube();
     rotor1->color = vector3 {0.0f, 0.0f, 1.0f};
+    auto group1 = new shape_group {rotor1};
 
     auto limb1 = shape::make_cube();
-    limb1->translation = {0.0f, 0.0f, 5.0f};
-    limb1->scaling = {0.5f, 0.5f, 5.0f};
+    limb1->scaling = vertical_limb_scale;
     limb1->color = vector3 {0.0f, 1.0f, 0.0f};
+    auto group2 = new shape_group {limb1};
+    group2->translation = vertical_translation;
 
     auto rotor2 = shape::make_cube();
-    rotor2->translation = {0.0f, 0.0f, 10.0f};
     rotor2->color = vector3 {0.0f, 1.0f, 1.0f};
+    auto group3 = new shape_group {rotor2};
+    group3->translation = vertical_translation;
 
     auto limb2 = shape::make_cube();
-    limb2->translation = {5.0f, 0.0f, 10.0f};
-    limb2->scaling = {5.0f, 0.5f, 0.5f};
+    limb2->scaling = horizontal_limb_scale;
     limb2->color = vector3 {0.0f, 0.0f, 1.0f};
+    auto group4 = new shape_group {limb2};
+    group4->translation = horizontal_translation;
 
     auto rotor3 = shape::make_cube();
-    rotor3->translation = {10.0f, 0.0f, 10.0f};
     rotor3->color = vector3 {1.0f, 1.0f, 0.0f};
+    auto group5 = new shape_group {rotor3};
+    group5->translation = horizontal_translation;
 
     auto limb3 = shape::make_cube();
-    limb3->translation = {15.0f, 0.0f, 10.0f};
-    limb3->scaling = {5.0f, 0.5f, 0.5f};
+    limb3->scaling = horizontal_limb_scale;
     limb3->color = vector3 {0.0f, 1.0f, 1.0f};
+    auto group6 = new shape_group {limb3};
+    group6->translation = horizontal_translation;
 
     auto rotor4 = shape::make_cube();
-    rotor4->translation = {20.0f, 0.0f, 10.0f};
     rotor4->color = vector3 {1.0f, 0.0f, 0.5f};
+    auto group7 = new shape_group {rotor4};
+    group7->translation = horizontal_translation;
 
     auto limb4 = shape::make_cube();
-    limb4->translation = {25.0f, 0.0f, 10.0f};
-    limb4->scaling = {5.0f, 0.5f, 0.5f};
+    limb4->scaling = horizontal_limb_scale;
     limb4->color = vector3 {1.0f, 1.0f, 0.0f};
+    auto group8 = new shape_group {limb4};
+    group8->translation = horizontal_translation;
 
-    auto hand = new nested_shape {rotor1, limb1, rotor2, limb2, rotor3, limb3, rotor4, limb4};
+    auto hand = new nested_group {group1, group2, group3, group4, group5, group6, group7, group8};
     return hand;
 }

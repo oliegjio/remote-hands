@@ -20,21 +20,9 @@ set (MY_FILES
         "forward_kinematics_animations.h"
         "server.cpp" "server.h"
         "string_utils.h"
-        "quaternion.cpp" "quaternion.h")
-
-if (WIN32)
-    include_directories("include")
-    link_directories("lib")
-endif (WIN32)
+        "quaternion.cpp" "quaternion.h"
+        "serial.cpp" "serial.h" std_vector_utils.h)
 
 add_executable (${MY_NAME} ${MY_FILES})
 
-if (WIN32)
-    target_link_libraries (${MY_NAME} "freeglut")
-    add_custom_command (TARGET ${MY_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy "${PROJECT_SOURCE_DIR}/dll/freeglut.dll" ${CMAKE_BINARY_DIR})
-endif (WIN32)
-
-if (UNIX)
-    target_link_libraries (${MY_NAME} "GL" "GLU" "glut")
-endif (UNIX)
+target_link_libraries (${MY_NAME} "GL" "GLU" "glut")

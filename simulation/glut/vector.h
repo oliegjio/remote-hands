@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cmath>
 #include <functional>
+#include <vector>
 
 template <size_t N>
 class vector {
@@ -19,8 +20,8 @@ public:
 
 	void print() const;
 	void normalize();
-	float length() const;
-	vector<N> map(std::function<float(float)> f) const;
+	GLfloat length() const;
+	vector<N> map(std::function<GLfloat(GLfloat)> f) const;
 
 	vector<N> &operator=(const vector<N> &other);
 
@@ -33,7 +34,7 @@ public:
 	vector<N> &operator*=(const vector<N> &other);
 	vector<N> &operator/=(const vector<N> &other);
 
-    vector<N> operator*(const float &number) const;
+    vector<N> operator*(const GLfloat &number) const;
 
 	vector<N> &operator/=(const GLfloat &number);
 
@@ -41,6 +42,8 @@ public:
 
 	GLfloat operator[](const size_t &i) const;
 	GLfloat &operator[](const size_t &i);
+
+	std::vector<GLfloat> to_std_vector();
 
 private:
     GLfloat data[N];
@@ -223,6 +226,15 @@ vector<N> vector<N>::operator*(const float &number) const {
     vector<N> result;
     for (size_t i = 0; i < N; i++) {
         result[i] = data[i] * number;
+    }
+    return result;
+}
+
+template<size_t N>
+std::vector<GLfloat> vector<N>::to_std_vector() {
+    std::vector<GLfloat> result;
+    for (size_t i = 0; i < N; i++) {
+        result.push_back(data[i]);
     }
     return result;
 }
