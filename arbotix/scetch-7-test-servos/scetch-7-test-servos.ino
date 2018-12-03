@@ -8,6 +8,8 @@
 #define Broadcast     (254u)
 #define MAX_ANGLE     (110)
 
+AX12A ax12a2;
+
 int Cur_angle[4] = {0, 0, 0, 0};
 long input_data[3] = {0, 0, 0};
 
@@ -17,7 +19,8 @@ void correct_position(int & pos) {
 }
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
+    Serial3.begin(9600);
     ax12a.begin(BaudRate, DirectionPin, &Serial1);
     ax12a.setEndless(1, OFF);
     ax12a.setEndless(2, OFF);
@@ -36,26 +39,31 @@ void start_position(int start_angle = 0) {
       turnAngle(i, start_angle, 100); 
 }
 
-
-void convert_data(String data) {
-    String tmp = "";
-    for (int iter = 0, j = 0; iter < data.length(); ++iter) {
-        if (data[iter] == ' ') {
-            input_data[j] = tmp.toInt();
-            tmp = ""; ++j;
-        } else {
-            tmp += data[iter];
-        }
-    }
-}
+// 40.6 mm 
+// 71.2 mm
+// 94.7 mm
 
 void loop() {
-    //Serial.println("Calibrate");
     start_position();
-    delay(1000);
-    turnAngle(1, 45, 100);
-    turnAngle(2, 45, 100);
-    turnAngle(3, 45, 100);
-    turnAngle(4, 45, 100);
-    delay(1000);
+    for (unsigned i = 0; i < 10; ++i) {
+        Serial.println(1);
+        turnAngle(1, 90, 100);
+        delay(1500);
+        turnAngle(1, 0, 100);
+        delay(1500);
+    }
+    for (unsigned i = 0; i < 10; ++i) {
+        Serial.println(2);
+        turnAngle(2, 90, 100);
+        delay(1500);
+        turnAngle(2, 0, 100);
+        delay(1500);
+    }
+    for (unsigned i = 1; i <= 10; ++i) {
+        Serial.println(3);
+        turnAngle(3, -90, 100);
+        delay(1500);
+        turnAngle(3, 0, 100);
+        delay(1500);
+    }
 }

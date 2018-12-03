@@ -8,6 +8,8 @@
 #define Broadcast     (254u)
 #define MAX_ANGLE     (110)
 
+AX12A ax12a2;
+
 int Cur_angle[4] = {0, 0, 0, 0};
 long input_data[3] = {0, 0, 0};
 
@@ -28,7 +30,6 @@ void setup() {
 
 void turnAngle(unsigned char id, int angle, int _speed) {
     correct_position(angle);
-    id += 1;
     Cur_angle[id - 1] = angle;
     ax12a.moveSpeed(id, static_cast <int> (512 + angle * 3.45), _speed);
 }
@@ -56,8 +57,8 @@ void convert_data(String data) {
 // 94.7 mm
 
 void loop() {
-    //Serial.println("Calibrate");
-    //start_position();
+    Serial.println("Calibrate");
+    start_position();
     while (1) {
         if (Serial.available() > 0) {
             String data = Serial.readStringUntil('\n');
