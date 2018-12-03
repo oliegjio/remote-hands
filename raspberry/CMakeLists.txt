@@ -21,7 +21,8 @@ set (MY_FILES
         "server.cpp" "server.h"
         "string_utils.h"
         "quaternion.cpp" "quaternion.h"
-        "serial.cpp" "serial.h" std_vector_utils.h)
+        "serial.cpp" "serial.h"
+        "std_vector_utils.h")
 
 add_executable (${MY_NAME} ${MY_FILES})
 

@@ -7,3 +7,4 @@
 ### Dependencies:
 - OpenGL.
 - GLUT.
+- GLU.

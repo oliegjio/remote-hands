@@ -14,9 +14,7 @@
 #include <algorithm>
 
 #include "inverse_kinematics.h"
-#include "nested_group.h"
 #include "arms.h"
-#include "mathematics.h"
 #include "server.h"
 #include "quaternion.h"
 #include "serial.h"
@@ -26,38 +24,31 @@
 #define WIN_WIDTH 1000
 #define WIN_HEIGHT 800
 
-float dt = 0.0f;
+float dt = 0.0f; // Time between frames.
 
 nested_group *arm;// Manipulator.
 shape *cube; // Expected end effector position.
 
+vector3 effector_position {0.0f, 0.0f, 0.0f}; // Manipulator end effector position;
+
 vector4 camera_rotation = {-90.0f, 1.0f, 0.0f, 0.0f};
 vector3 camera_position = {0.0f, 0.0f, -100.0f};
 
-unsigned int port = 7247;
-server *net = new server(port); // Wi-Fi connection to bracer controller.
-serial *usb = new serial("/dev/ttyUSB1"); // USB to manipulator controller.
-
-void setup() {
-    arm = make_planar_arm();
-
-    cube = shape::make_cube();
-    cube->color = {1.0f, 0.0f, 0.0f};
-
-    net->start(); // Create server. Bracer controller will connect to this server.
-    std::cout << "New connection." << std::endl;
-    std::cout << "Waiting for gyroscope calibration." << std::endl;
-    usleep(13 * 1000000);
-}
+unsigned int server_port;
+const char *tty;
+server *net; // Wi-Fi connection to bracer controller.
+serial *usb; // USB to manipulator controller.
 
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
+	// Apply camera transforms:
 	glTranslatef(camera_position[0], camera_position[1], camera_position[2]);
     glRotatef(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
 
+    // Draw scene objects:
 	arm->draw();
 	cube->draw();
 
@@ -68,6 +59,7 @@ void display() {
 void reshape(int width, int height) {
 	glViewport(0, 0, width, height);
 
+	// Make perspective projection:
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPerspective(45.0f, (GLfloat) width / (GLfloat) height, 0.1f, 500.0f);
@@ -75,8 +67,6 @@ void reshape(int width, int height) {
 
 	glutPostRedisplay();
 }
-
-vector3 effector_position {0.0f, 0.0f, 0.0f};
 
 void idle() {
     // Calculate delta time:
@@ -101,12 +91,15 @@ void idle() {
     effector_position += acceleration * 5.0f;
     effector_position = effector_position.map([](const GLfloat &x) -> GLfloat { return clamp(x, -19.0f, 19.0f); });
 
+    // Move cube to expected end effector position:
     cube->translation = effector_position;
     cube->translation[2] = 0.0f;
 
+    // Calculate inverse kinematics:
     auto angles = inverse_kinematics_planar_arm(effector_position[0], effector_position[1], 10.0f, 10.0f, 10.0f);
     angles = angles.map(radians_to_degrees);
 
+    // Set calculated angles to manipulator simulation:
     arm->groups[0]->rotation = {angles[0], 0.0f, 0.0f, 1.0f};
     arm->groups[2]->rotation = {angles[1], 0.0f, 0.0f, 1.0f};
     arm->groups[4]->rotation = {angles[2], 0.0f, 0.0f, 1.0f};
@@ -147,33 +140,54 @@ void special(int key, int x, int y) {
             camera_rotation -= {0.0f, 10.0f, 0.0f, 0.0f};
             break;
     }
-
     glutPostRedisplay();
 }
 
 int main(int argc, char **argv) {
-	setup();
+    /**
+     * SETUP:
+     */
 
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-	glutInitWindowPosition(0, 0);
-	glutInitWindowSize(WIN_WIDTH, WIN_HEIGHT);
-	glutCreateWindow("Remote Hands");
+    server_port = 7247;
+    tty = "/dev/ttyUSB1";
 
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glShadeModel(GL_SMOOTH);
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+    net = new server(server_port);
+    usb = new serial(tty);
 
-	glClearDepth(1.0f);
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    arm = make_planar_arm();
 
-	glutDisplayFunc(display);
-	glutIdleFunc(idle);
+    cube = shape::make_cube();
+    cube->color = {1.0f, 0.0f, 0.0f};
+
+    net->start(); // Create server. Bracer controller will connect to this server.
+    std::cout << "New connection." << std::endl;
+    std::cout << "Waiting for gyroscope calibration." << std::endl;
+    usleep(13 * 1000000);
+
+    /**
+     * GLUT SETUP:
+     */
+
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+    glutInitWindowPosition(0, 0);
+    glutInitWindowSize(WIN_WIDTH, WIN_HEIGHT);
+    glutCreateWindow("Remote Hands");
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glShadeModel(GL_SMOOTH);
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+    glClearDepth(1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    glutDisplayFunc(display);
+    glutIdleFunc(idle);
     glutSpecialFunc(special);
     glutReshapeFunc(reshape);
 
-	glutMainLoop();
+    glutMainLoop();
 
     return 0;
 }

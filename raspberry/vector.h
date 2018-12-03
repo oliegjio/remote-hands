@@ -10,7 +10,7 @@
 #include <functional>
 #include <vector>
 
-template <size_t N>
+template<size_t N>
 class vector {
 public:
 	vector();
@@ -53,21 +53,21 @@ typedef vector<2> vector2;
 typedef vector<3> vector3;
 typedef vector<4> vector4;
 
-template <size_t N>
+template<size_t N>
 vector<N>::vector() {
 	for (size_t i = 0; i < N; i++) {
 		data[i] = 0.0f;
 	}
 }
 
-template <size_t N>
+template<size_t N>
 vector<N>::vector(const GLfloat &number) {
 	for (size_t i = 0; i < N; i++) {
 		data[i] = number;
 	}
 }
 
-template <size_t N>
+template<size_t N>
 vector<N>::vector(std::initializer_list<GLfloat> arguments) {
 	if (arguments.size() != N) {
 		std::runtime_error("ERROR: Initializer list for `vector` class received wrong number of arguments!");
@@ -165,7 +165,7 @@ GLfloat &vector<N>::operator[](const size_t &i) {
 	return data[i];
 }
 
-template <size_t N>
+template<size_t N>
 void vector<N>::print() const {
 	std::cout << " (";
 	for (size_t i = 0; i < N; i++) {

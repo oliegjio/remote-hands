@@ -3,8 +3,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#include "string_utils.h"
-
 server::server(unsigned int port) {
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -38,14 +36,4 @@ std::string server::receive(size_t message_size) {
     size_t new_size = recv(connection, buffer, buffer_size, 0);
 
     return std::string(buffer, new_size);
-}
-
-std::vector<std::string> server::receive_vector(size_t vector_size, size_t message_size) {
-    std::string result = receive(message_size);
-
-    trim(result);
-    std::vector<std::string> parts = split_by_spaces(result);
-    parts.resize(vector_size);
-
-    return parts;
 }
