@@ -61,7 +61,7 @@ fopen(t);
 while true
     while (get(t, 'BytesAvailable') > 0) 
         received = fscanf(t);
-        disp(received)
+        disp(received);
     end 
 end
 
@@ -75,19 +75,19 @@ end
 
 %% Solve inverse kinematics:
 
-% Create inverse kinematics solver:
-ik = robotics.InverseKinematics('RigidBodyTree', robot);
-ik.RigidBodyTree = robot;
-
-% Setup parameters for solving inverse kinematics:
-homeConf = homeConfiguration(robot);
-targetPoint = [8 10 18];
-target = getTransform(robot, homeConf, 'node6', 'base');
-target(1:3, 4) = targetPoint;
-weights = [0.01 0.01 0.01 1 1 1];
-
-% Solve inverse kinematics:
-[ikSolution, ikInfo] = ik('node6', target, weights, homeConf);
+% % Create inverse kinematics solver:
+% ik = robotics.InverseKinematics('RigidBodyTree', robot);
+% ik.RigidBodyTree = robot;
+% 
+% % Setup parameters for solving inverse kinematics:
+% homeConf = homeConfiguration(robot);
+% target = getTransform(robot, homeConf, 'node6', 'base');
+% targetPoint = [8 10 18];
+% target(1:3, 4) = targetPoint;
+% weights = [0.01 0.01 0.01 1 1 1];
+% 
+% % Solve inverse kinematics:
+% [ikSolution, ikInfo] = ik('node6', target, weights, homeConf);
 
 %% Serial connection to manipulator:
 
@@ -98,11 +98,11 @@ weights = [0.01 0.01 0.01 1 1 1];
 %% Other + cleanup:
 
 % Show manipulator model and info:
-showdetails(robot)
+showdetails(robot);
 show(robot, ikSolution);
-hold all
+hold all;
 scatter3(targetPoint(1), targetPoint(2), targetPoint(3), 'r*', 'linewidth', 20);
-hold off
+hold off;
 
 % Clean up TCP connection:
 % fclose(t); 
