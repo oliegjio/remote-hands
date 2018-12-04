@@ -15,8 +15,15 @@ const char *password = "fFK5ieoY";
 #define ip     IPAddress(10,42,0,1)
 #define BUTTON 16
 
-int last1 = 0;
-int last2 = 0;
+float currx  = 0;
+float lastx1 = 0;
+float lastx2 = 0;
+float curry  = 0;
+float lasty1 = 0;
+float lasty2 = 0;
+float currz  = 0;
+float lastz1 = 0;
+float lastz2 = 0;
 
 //Forward functions
 float clamp(float value, float min_value, float max_value);
@@ -28,7 +35,7 @@ void setup() {
   Wire.begin();
   Serial.begin(115200);
 
-  //connect(ssid, password);
+  connect(ssid, password);
 
   if (imu.begin() != INV_SUCCESS) {
     while (1) {
@@ -43,21 +50,33 @@ void setup() {
 
   pinMode(BUTTON, INPUT);
 
+  while ( !imu.fifoAvailable() && !imu.dmpUpdateFifo() == INV_SUCCESS );  
+  delay(12000);
+  
+  imu.updateAccel();
+  lastx2 = clamp(imu.calcAccel(imu.ax), -1.0, 1.0);
+  lasty2 = clamp(imu.calcAccel(imu.ay), -1.0, 1.0);
+  lastz2 = clamp(imu.calcAccel(imu.az), -1.0, 1.0);
+
+  imu.updateAccel();
+  lastx1 = clamp(imu.calcAccel(imu.ax), -1.0, 1.0);
+  lasty1 = clamp(imu.calcAccel(imu.ay), -1.0, 1.0);
+  lastz1 = clamp(imu.calcAccel(imu.az), -1.0, 1.0);
+  
+  for (unsigned i = 0; i < 30; ++i) {
+      imu.dmpUpdateFifo();
+      getData();
+  }
   Serial.println("Start loop");
 }
 
 void loop() {
-  //Serial.println(imu.fifoAvailable());
-  if ( imu.fifoAvailable() ) {
-    if ( imu.dmpUpdateFifo() == INV_SUCCESS) {
-      imu.computeEulerAngles();
-      imu.dmpUpdateFifo();
-      Serial.println(getData());
-      //client.println(getData());
-    }
-  }
-  if (checkButton() == HIGH)
-    Serial.println("Hello");
+  imu.dmpUpdateFifo();
+  Serial.println(getData());
+  client.println(getData());   
+  
+//  if (checkButton() == HIGH)
+//    Serial.println("Hello");
 }
 
 ///////////////////////////// ///////////////////////////////////
@@ -77,26 +96,27 @@ String getData() {
   float q2 = imu.calcQuat(imu.qy);
   float q3 = imu.calcQuat(imu.qz);
 
-  /*data += String(q0) + ' ';
+  data += String(q0) + ' ';
   data += String(q1) + ' ';
   data += String(q2) + ' ';
-  data += String(q3) + ' ';*/
+  data += String(q3) + ' ';
 
-  float sum_ax = 0;
-  float sum_ay = 0;
-  float sum_az = 0;
+  lastx2 = lastx1;
+  lasty2 = lasty1;
+  lastz2 = lastz1;
 
-//  Accel
-  for (unsigned i = 0; i < 3; ++i) {
-    imu.updateAccel();
-    sum_ax += clamp(imu.calcAccel(imu.ax), -1.0, 1.0);
-    sum_ay += clamp(imu.calcAccel(imu.ay), -1.0, 1.0);
-    sum_az += clamp(imu.calcAccel(imu.az), -1.0, 1.0);
-  }
+  lastx1 = currx;
+  lasty1 = curry;
+  lastz1 = currz;
 
-  float ax = sum_ax / 3;
-  float ay = sum_ay / 3;
-  float az = sum_az / 3;
+  imu.updateAccel();
+  currx = clamp(imu.calcAccel(imu.ax), -1.0, 1.0);
+  curry = clamp(imu.calcAccel(imu.ay), -1.0, 1.0);
+  currz = clamp(imu.calcAccel(imu.az), -1.0, 1.0);
+
+  float ax = (currx + lastx1 + lastx2) / 3;
+  float ay = (curry + lasty1 + lasty2) / 3;
+  float az = (currz + lastz1 + lastz2) / 3;
   
   data += String(ax) + ' ';
   data += String(ay) + ' ';

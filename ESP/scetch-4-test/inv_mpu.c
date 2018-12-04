@@ -47,7 +47,7 @@
 #define log_i     _MLPrintLog
 #define log_e     _MLPrintLog 
 
-int min(int a, int b) { return (a < b) ? a : b; }
+//int min(int a, int b) { return (a < b) ? a : b; }
 
 static inline int reg_int_cb(struct int_param_s *int_param)
 {
@@ -3222,4 +3222,3 @@ lp_int_restore:
 /**
  *  @}
  */
-
