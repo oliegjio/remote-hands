@@ -6,15 +6,15 @@
 server::server(unsigned int port) {
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
-    address.sin_family = AF_INET;
-    address.sin_port = htons(port);
-    address.sin_addr.s_addr = INADDR_ANY;
+    sock_address.sin_family = AF_INET;
+    sock_address.sin_port = htons(port);
+    sock_address.sin_addr.s_addr = INADDR_ANY;
 }
 
 void server::start() {
     started = true;
 
-    bind(sock, (sockaddr*) &address, sizeof address);
+    bind(sock, (sockaddr*) &sock_address, sizeof sock_address);
     listen(sock, 1);
 
     connection = accept(sock, NULL, NULL);

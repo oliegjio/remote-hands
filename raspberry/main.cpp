@@ -27,15 +27,8 @@
 float dt = 0.0f; // Time between frames.
 
 nested_group *arm;// Manipulator.
-shape *cube; // Expected end effector position.
+shape *end_effector; // Expected end effector position.
 
-vector3 effector_position {0.0f, 0.0f, 0.0f}; // Manipulator end effector position;
-
-vector4 camera_rotation = {0.0f, 1.0f, 0.0f, 0.0f};
-vector3 camera_position = {0.0f, 0.0f, -100.0f};
-
-unsigned int server_port;
-const char *tty;
 server *net; // Wi-Fi connection to bracer controller.
 serial *usb; // USB to manipulator controller.
 
@@ -44,13 +37,16 @@ void display() {
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 
+    vector4 camera_rotation = {0.0f, 1.0f, 0.0f, 0.0f};
+    vector3 camera_position = {0.0f, 0.0f, -100.0f};
+
 	// Apply camera transforms:
 	glTranslatef(camera_position[0], camera_position[1], camera_position[2]);
     glRotatef(camera_rotation[0], camera_rotation[1], camera_rotation[2], camera_rotation[3]);
 
     // Draw scene objects:
 	arm->draw();
-	cube->draw();
+	end_effector->draw();
 
 	glPopMatrix();
 	glutSwapBuffers();
@@ -68,13 +64,18 @@ void reshape(int width, int height) {
 	glutPostRedisplay();
 }
 
-void idle() {
-    // Calculate delta time:
+float getDeltaTime() {
     static clock_t current_time = clock();
     static clock_t last_time = current_time;
     current_time = clock();
-	dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
-	last_time = current_time;
+    dt = static_cast<float>(current_time - last_time) / CLOCKS_PER_SEC;
+    last_time = current_time;
+
+    return dt;
+}
+
+void idle() {
+    dt = getDeltaTime();
 
 	// Receive {q1, q2, q3, q4, a1, a2, a3} vector from bracer controller.
     std::string data_string = net->receive(1024);
@@ -93,14 +94,16 @@ void idle() {
     acceleration = q * acceleration;
     acceleration -= vector3 {0.0f, 0.0f, 1.0f};
 
+    static vector3 effector_position {0.0f, 0.0f, 0.0f}; // Manipulator end effector position;
+
     // Adjust and correct end effector position:
     effector_position += acceleration * 3.0f;
     effector_position = effector_position.map([](const GLfloat &x) { return clamp(x, -19.0f, 19.0f); });
 
     // Move cube to expected end effector position:
-    cube->translation[0] = effector_position[0];
-    cube->translation[1] = effector_position[1];
-    cube->translation[2] = 0.0f;
+    end_effector->translation[0] = effector_position[0];
+    end_effector->translation[1] = effector_position[1];
+    end_effector->translation[2] = 0.0f;
 
     // Calculate inverse kinematics:
     auto angles = inverse_kinematics_planar_arm(effector_position[0], effector_position[1], 10.0f, 10.0f, 10.0f);
@@ -129,49 +132,27 @@ void idle() {
 	glutPostRedisplay();
 }
 
-void special(int key, int x, int y) {
-    switch (key) {
-        case GLUT_KEY_F1:
-            camera_rotation = {0.0f, 0.0f, 1.0f, 0.0f};
-            camera_position = {0.0f, 0.0f, -100.0f};
-            break;
-        case GLUT_KEY_RIGHT:
-            camera_rotation += {10.0f, 10.0f, 0.0f, 0.0f};
-            break;
-        case GLUT_KEY_LEFT:
-            camera_rotation -= {10.0f, 10.0f, 0.0f, 0.0f};
-            break;
-        case GLUT_KEY_UP:
-            camera_rotation += {0.0f, 10.0f, 0.0f, 0.0f};
-            break;
-        case GLUT_KEY_DOWN:
-            camera_rotation -= {0.0f, 10.0f, 0.0f, 0.0f};
-            break;
-    }
-    glutPostRedisplay();
-}
-
 int main(int argc, char **argv) {
     /**
-     * SETUP:
+     * Setup:
      */
 
-    server_port = 7247;
-    tty = "/dev/ttyUSB0";
+    unsigned int server_port = 7247;
+    const char *tty = "/dev/ttyUSB0";
 
     net = new server(server_port);
 //    usb = new serial(tty);
 
     arm = make_planar_arm();
 
-    cube = shape::make_cube();
-    cube->color = {1.0f, 0.0f, 0.0f};
+    end_effector = shape::make_cube();
+    end_effector->color = {1.0f, 0.0f, 0.0f};
 
     net->start(); // Create server. Bracer controller will connect to this server.
     std::cout << "New connection." << std::endl;
 
     /**
-     * GLUT SETUP:
+     * OpenGL + GLUT setup:
      */
 
     glutInit(&argc, argv);
@@ -190,7 +171,6 @@ int main(int argc, char **argv) {
 
     glutDisplayFunc(display);
     glutIdleFunc(idle);
-    glutSpecialFunc(special);
     glutReshapeFunc(reshape);
 
     glutMainLoop();

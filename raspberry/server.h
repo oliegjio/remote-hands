@@ -14,7 +14,7 @@ public:
 
 private:
     int sock;
-    sockaddr_in address;
+    sockaddr_in sock_address;
     int connection;
 
     bool started = false;
