@@ -204,8 +204,8 @@ void vector<N>::normalize() {
 }
 
 template<size_t N>
-float vector<N>::length() const {
-    float len = 0;
+GLfloat vector<N>::length() const {
+    GLfloat len = 0;
     for (size_t i = 0; i < N; i++) {
         len += powf(data[i], 2.0f);
     }
@@ -213,7 +213,7 @@ float vector<N>::length() const {
 }
 
 template<size_t N>
-vector<N> vector<N>::map(std::function<float(float)> f) const {
+vector<N> vector<N>::map(std::function<GLfloat(GLfloat)> f) const {
     vector<N> result;
     for (size_t i = 0; i < N; i++) {
         result[i] = f(data[i]);
@@ -222,7 +222,7 @@ vector<N> vector<N>::map(std::function<float(float)> f) const {
 }
 
 template<size_t N>
-vector<N> vector<N>::operator*(const float &number) const {
+vector<N> vector<N>::operator*(const GLfloat &number) const {
     vector<N> result;
     for (size_t i = 0; i < N; i++) {
         result[i] = data[i] * number;
