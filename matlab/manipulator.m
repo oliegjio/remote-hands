@@ -1,3 +1,5 @@
+%% SETUP MANIPULATOR:
+
 robot = robotics.RigidBodyTree;
 
 dhparams = [0   0	 0  0;
@@ -36,6 +38,21 @@ addBody(robot, node3, 'node2');
 addBody(robot, node4, 'node3');
 addBody(robot, node5, 'node4');
 
+%% SETUP TCP CONNECTION
+
+connection = tcpip('localhost', 7247);
+set(connection, 'InputBufferSize', 1000);
+fopen(connection);
+
+while true
+ while (get(connection, 'BytesAvailable') > 0) 
+  received = fscanf(connection);
+  disp(received)
+ end 
+end
+
+%% Solve inverse kinematics:
+
 ik = robotics.InverseKinematics('RigidBodyTree', robot);
 ik.RigidBodyTree = robot;
 
@@ -48,5 +65,13 @@ weights = [0.01 0.01 0.01 1 1 1];
 
 [ikSolution, ikInfo] = ik('node5', target, weights, homeConf);
 
+%% OTHER:
+
+% Show manipulator model:
 showdetails(robot)
-show(robot, ikSolution);
+show(robot, ikSolution)
+
+% Clean up TCP connection:
+fclose(t); 
+delete(t); 
+clear t 
