@@ -14,7 +14,7 @@ server::server(unsigned int port) {
 void server::start() {
     started = true;
 
-    bind(sock, (sockaddr*) &address, sizeof(address));
+    bind(sock, (sockaddr*) &address, sizeof address);
     listen(sock, 1);
 
     connection = accept(sock, NULL, NULL);
@@ -33,7 +33,7 @@ std::string server::receive(size_t message_size) {
     size_t buffer_size = message_size;
     char buffer[buffer_size];
 
-    size_t new_size = recv(connection, buffer, buffer_size, 0);
+    ssize_t new_size = recv(connection, buffer, buffer_size, 0);
 
     return std::string(buffer, new_size);
 }

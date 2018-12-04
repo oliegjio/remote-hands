@@ -1,7 +1,0 @@
-*.o
-*.user
-*_moc*
-remote-hands
-build-*
-vs/
-*.pro*
