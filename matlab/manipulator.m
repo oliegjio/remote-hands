@@ -50,13 +50,17 @@ addBody(robot, node4, 'node3');
 addBody(robot, node5, 'node4');
 addBody(robot, node6, 'node5');
 
-%% TCP connection to bracers:
+%% Connections + initializations:
 
 % Create TCP connection:
 t = tcpip('0.0.0.0', 7247, 'NetworkRole', 'server');
 set(t, 'InputBufferSize', 1000);
 fopen(t);
 disp("New connection.");
+
+% Create serial connection:
+s = serial('COM0');
+fopen(s);
 
 % Create inverse kinematics solver:
 ik = robotics.InverseKinematics('RigidBodyTree', robot);
@@ -68,7 +72,8 @@ effector = getTransform(robot, homeConf, 'node6', 'base'); % End effector transf
 target = [10 10 10]; % Desired end effector position.
 weights = [0.01 0.01 0.01 1 1 1];
 
-% Receive data from TCP connection:
+%% Main loop:
+
 while true
     if t.BytesAvailable > 0
         data = fscanf(t); % Receive floating point values separated by spaces as string.
@@ -90,7 +95,7 @@ while true
         acc = quatrotate(quatinv(q), acc); % Rotate acceleration by quaternion.
         acc = acc - [0 0 1]; % Subtract gravity from acceleration.
         
-        % Discard wrong values:
+        % Discard wrong values (may appear after rotating by quaternion):
         if visnan(acc); continue; end
         
         target = target + (acc * 3); % Add acceleration to the desired position.
@@ -120,18 +125,17 @@ while true
     end
 end
 
-%% Serial connection to manipulator:
-
-% s = serial('/dev/ttyUSB0');
-% fopen(s);
-% fprintf(s, solutionPositions(ikSolution));
-
 %% Clean up:
 
 % Clean up TCP connection:
 fclose(t); 
 delete(t); 
-clear t 
+clear t;
+
+% Clean up serial connection:
+fclose(s);
+delete(s);
+clear s;
 
 %% Function definitions:
 
