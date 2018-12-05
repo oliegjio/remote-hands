@@ -53,8 +53,8 @@ addBody(robot, node6, 'node5');
 %% Connections + initializations:
 
 % Create serial connection:
-s = serial('COM0');
-fopen(s);
+% s = serial('COM0');
+% fopen(s);
 
 % Create TCP connection:
 t = tcpip('0.0.0.0', 7247, 'NetworkRole', 'server');
@@ -80,12 +80,10 @@ while true
         splited = strsplit(data); % Split (by spaces) this string into an array of strings.
         
         % Check if received array has all 7 values:
-        s = size(splited);
-        if s(2) < 7; continue; end
+        if fold(@or, size(splited) > 7); continue; end
         
         % Convert array of strings to vector of reals:
-        values = zeros(1, 7);
-        for i = 1:7; values(1, i) = str2double(splited{1, i}); end
+        values = arrayfun(@(x) str2double(x), splited);
         
         % Discard wrong values:
         if isequal(values(1:4), zeros(4)) || visnan(values); continue; end
@@ -122,7 +120,7 @@ while true
         drawnow;
 
         % Send inverse kinematics solution to manipulator via serial:
-        fprintf(s, prepareForOutput(solutionPositions(ikSolution)));
+%         fprintf(s, prepareForOutput(solutionPositions(ikSolution)));
         
         flushinput(t);
     end
@@ -143,34 +141,16 @@ clear s;
 %% Function definitions:
 
 function f = solutionPositions(solution)
-    % Get vector of positions from inverse kinematics solution.
-    s = size(solution);
-    result = zeros(s);
-    for i = 1:s
-        result(1, i) = solution(1, i).JointPosition;
-    end
-    f = result;
+    % Get vector of positions from inverse kinematics solution. 
+    f = arrayfun(@(x) x.JointPosition, solution);
 end
 
 function f = prepareForOutput(v)
     % Converts a vector to string for output to manipulator via serial.
-    result = '';
-    s = size(v);
-    for i = 1:s(2)
-        result = result + num2str(v(i));
-    end
-    result = result + '\n';
-    f = result;
+    f = strcat(fold(@(a, x) [num2str(a) ' ' num2str(x)], v, ''), '\n');
 end
 
 function f = visnan(v)
     % Check if any value in a vector is NaN.
-    flag = false;
-    s = size(v);
-    for i = 1:s(1)
-        for j = 1:s(2)
-            if isnan(v(i, j)) && ~flag; flag = true; end
-        end
-    end
-    f = flag;
+    f = fold(@or, arrayfun(@isnan, v), 0);
 end
