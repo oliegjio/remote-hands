@@ -1,4 +1,4 @@
-%% Setup manipulator:
+%% Manipulator setup:
 
 robot = robotics.RigidBodyTree;
 
@@ -75,7 +75,7 @@ weights = [0.01 0.01 0.01 1 1 1];
 %% Main loop:
 
 while true
-    if t.BytesAvailable > 0 % S
+    if t.BytesAvailable > 0
         data = fscanf(t); % Receive floating point values separated by spaces as string.
         splited = strsplit(data); % Split (by spaces) this string into an array of strings.
         
@@ -121,6 +121,9 @@ while true
         hold off;
         drawnow;
 
+        % Send inverse kinematics solution to manipulator via serial:
+        fprintf(s, );
+        
         flushinput(t);
     end
 end
@@ -140,7 +143,7 @@ clear s;
 %% Function definitions:
 
 function f = solutionPositions(solution)
-    % Get vector of positions for inverse kinematics solution.
+    % Get vector of positions from inverse kinematics solution.
     s = size(solution);
     result = zeros(s);
     for i = 1:s
@@ -148,6 +151,8 @@ function f = solutionPositions(solution)
     end
     f = result;
 end
+
+function f = 
 
 function f = visnan(v)
     % Check if any value in a vector is NaN.

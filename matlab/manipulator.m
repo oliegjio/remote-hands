@@ -1,4 +1,4 @@
-%% Setup manipulator:
+%% Manipulator setup:
 
 robot = robotics.RigidBodyTree;
 
@@ -52,15 +52,15 @@ addBody(robot, node6, 'node5');
 
 %% Connections + initializations:
 
+% Create serial connection:
+s = serial('COM0');
+fopen(s);
+
 % Create TCP connection:
 t = tcpip('0.0.0.0', 7247, 'NetworkRole', 'server');
 set(t, 'InputBufferSize', 1000);
 fopen(t);
 disp("New connection.");
-
-% Create serial connection:
-s = serial('COM0');
-fopen(s);
 
 % Create inverse kinematics solver:
 ik = robotics.InverseKinematics('RigidBodyTree', robot);
@@ -121,6 +121,9 @@ while true
         hold off;
         drawnow;
 
+        % Send inverse kinematics solution to manipulator via serial:
+        fprintf(s, prepareForOutput(solutionPositions(ikSolution)));
+        
         flushinput(t);
     end
 end
@@ -140,12 +143,23 @@ clear s;
 %% Function definitions:
 
 function f = solutionPositions(solution)
-    % Get vector of positions for inverse kinematics solution.
+    % Get vector of positions from inverse kinematics solution.
     s = size(solution);
     result = zeros(s);
     for i = 1:s
         result(1, i) = solution(1, i).JointPosition;
     end
+    f = result;
+end
+
+function f = prepareForOutput(v)
+    % Converts a vector to string for output to manipulator via serial.
+    result = '';
+    s = size(v);
+    for i = 1:s(2)
+        result = result + num2str(v(i));
+    end
+    result = result + '\n';
     f = result;
 end
 
