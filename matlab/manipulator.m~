@@ -1,4 +1,4 @@
-%% Setup manipulator:
+%% Manipulator setup:
 
 robot = robotics.RigidBodyTree;
 
@@ -50,33 +50,49 @@ addBody(robot, node4, 'node3');
 addBody(robot, node5, 'node4');
 addBody(robot, node6, 'node5');
 
-%% TCP connection to bracers:
+%% Connections + initializations:
+
+% Create serial connection:
+ s = serial('/dev/ttyUSB5');
+ set(s, 'BaudRate', 9600);
+ fopen(s);
 
 % Create TCP connection:
+disp("Start");
 t = tcpip('0.0.0.0', 7247, 'NetworkRole', 'server');
+disp("tcpip");
 set(t, 'InputBufferSize', 1000);
+disp("setBuffer");
 fopen(t);
 disp("New connection.");
 
+% Create inverse kinematics solver:
 ik = robotics.InverseKinematics('RigidBodyTree', robot);
 ik.RigidBodyTree = robot;
 
+% Setup values needed to solver:
 homeConf = homeConfiguration(robot);
-effector = getTransform(robot, homeConf, 'node6', 'base');
-target = [10 10 10];
-weights = [0.1 0.1 0.1 1 1 1];
+effector = getTransform(robot, homeConf, 'node6', 'base'); % End effector transformation matrix.
+target = [10 10 10]; % Desired end effector position.
+weights = [0.01 0.01 0.01 1 1 1];
 
-% Receive data from TCP connection:
+%% Main loop:
+
+disp("Start loop");
 while true
     if t.BytesAvailable > 0
-        % Get data from bracer and process it:
-        data = fscanf(t); % Receive 7 floating point values separated by spaces.
-        splited = strsplit(data); % Split (by spaces) this string into a vector of strings.
-        values = zeros(1, 7);
-        for i = 1:7
-            values(1, i) = str2double(splited{1, i}); % Convert vector of strings to the vector of reals.
+        data = fscanf(t); % Receive floating point values separated by spaces as string.
+        splited = strsplit(data); % Split (by spaces) this string into an array of strings.
+        
+        % Check if received array has all 7 values:
+        if (size(splited) < 7)
+            continue;
         end
         
+        % Convert array of strings to vector of reals:
+        values = arrayfun(@(x) str2double(x), splited);
+        
+        % Discard wrong values:
         if values(1:4) == zeros(4)
             continue;
         end
@@ -86,81 +102,78 @@ while true
         acc = quatrotate(quatinv(q), acc); % Rotate acceleration by quaternion.
         acc = acc - [0 0 1]; % Subtract gravity from acceleration.
         
+        % Discard wrong values (may appear after rotating by quaternion):
+        if visnan(acc); continue; end
+        
         target = target + (acc * 3); % Add acceleration to the desired position.
+        
+        % Prevent desired position going beyond manipulator working area:
         maxRange = 25;
         target = min(max(target, -maxRange), maxRange);
         
+        % Update end effector transformation matrix with new desired position:
         effector(1:3, 4) = target;
         
         % Debug values:
-        fprintf('acceleration: %f %f %f \n', acc(0), acc(1), acc(2));
-        fprintf('target: %f %f %f \n', target(0), acc(1), acc(2));
+        %%fprintf('acceleration: %f %f %f \n', acc(1), acc(2), acc(3));
+        %%fprintf('target: %f %f %f \n', target(1), target(2), target(3));
         
         % Solve inverse kinematics:
         [ikSolution, ikInfo] = ik('node6', effector, weights, homeConf);
         
         % Update manipulator plot:
+        disp("Show plot");
         show(robot, ikSolution);
         hold all;
         scatter3(target(1), target(2), target(3), 'r*', 'linewidth', 20);
         hold off;
         drawnow;
+        disp("End plot");
+        disp(prepare(solutionPositions(ikSolution)));
+        % Send inverse kinematics solution to manipulator via serial:
+        fprintf(s, prepare(solutionPositions(ikSolution)));
+        
+        flushinput(t);
     end
-%     flushinput(t);
 end
 
-%% Rotate acceleration:
-
-% acc = [0.3 0.1 0.9];
-% q = [0.1 0.2 0.3 0.4];
-% rotacc = quatrotate(q, acc);
-% disp(acc);
-% disp(rotacc);
-
-%% Solve inverse kinematics:
-
-% % Create inverse kinematics solver:
-% ik = robotics.InverseKinematics('RigidBodyTree', robot);
-% ik.RigidBodyTree = robot;
-% 
-% % Setup parameters for solving inverse kinematics:
-% homeConf = homeConfiguration(robot);
-% target = getTransform(robot, homeConf, 'node6', 'base');
-% targetPoint = [8 10 18];
-% target(1:3, 4) = targetPoint;
-% weights = [0.01 0.01 0.01 1 1 1];
-% 
-% % Solve inverse kinematics:
-% [ikSolution, ikInfo] = ik('node6', target, weights, homeConf);
-
-%% Serial connection to manipulator:
-
-% s = serial('/dev/ttyUSB0');
-% fopen(s);
-% fprintf(s, solutionPositions(ikSolution));
-
-%% Other + cleanup:
-
-% Show manipulator model and info:
-showdetails(robot);
-show(robot, ikSolution);
-hold all;
-scatter3(targetPoint(1), targetPoint(2), targetPoint(3), 'r*', 'linewidth', 20);
-hold off;
+%% Clean up:
 
 % Clean up TCP connection:
 fclose(t); 
 delete(t); 
-clear t 
+clear t;
+
+% Clean up serial connection:
+fclose(s);
+delete(s);
+clear s;
 
 %% Function definitions:
 
 function f = solutionPositions(solution)
-    % Get vector of positions for inverse kinematics solution.
+    % Get vector of positions from inverse kinematics solution.
     s = size(solution);
     result = zeros(s);
     for i = 1:s
         result(1, i) = solution(1, i).JointPosition;
     end
     f = result;
+end
+
+function f = prepare(v)
+    % Converts a vector to string for output to manipulator via serial.
+    f = [fold(@(a, x) [a ' ' x], arrayfun(@(x) {num2str(x)}, v)) ' \n'];
+end
+
+function f = visnan(v)
+    % Check if any value in a vector is NaN.
+    flag = false;
+    s = size(v);
+    for i = 1:s(1)
+        for j = 1:s(2)
+            if isnan(v(i, j)) && ~flag; flag = true; end
+        end
+    end
+    f = flag;
 end

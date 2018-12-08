@@ -5,7 +5,7 @@ MPU9250_DMP imu;
 
 void setup() 
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   // Call imu.begin() to verify communication with and
   // initialize the MPU-9250 to it's default values.

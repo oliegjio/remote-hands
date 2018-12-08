@@ -6,7 +6,7 @@
 #define DirectionPin  (10u)
 #define BaudRate      (1000000ul)
 #define Broadcast     (254u)
-#define MAX_ANGLE     (110)
+#define MAX_ANGLE     (90)
 
 AX12A ax12a2;
 
@@ -21,7 +21,7 @@ void correct_position(int & pos) {
 void setup() {
     Serial.begin(9600);
     Serial3.begin(9600);
-    ax12a.begin(BaudRate, DirectionPin, &Serial1);
+    ax12a.begin(BaudRate, DirectionPin, &Serial2);
     ax12a.setEndless(1, OFF);
     ax12a.setEndless(2, OFF);
     ax12a.setEndless(3, OFF);
@@ -43,7 +43,8 @@ void start_position(int start_angle = 0) {
 void convert_data(String data) {
     String tmp = "";
     for (int iter = 0, j = 0; iter < data.length(); ++iter) {
-        if (data[iter] == ' ') {
+        if (data[iter] == '.') {
+            while (data[iter] != ' ') iter++;
             input_data[j] = tmp.toInt();
             tmp = ""; ++j;
         } else {
@@ -69,7 +70,7 @@ void loop() {
             }
             Serial3.println();
             for (unsigned char iter = 1; iter <= 3; ++iter)
-                turnAngle(iter, input_data[iter - 1], 200);
+                turnAngle(iter, input_data[iter - 1] * 10, 200);
         }
     }
 }

@@ -8,6 +8,11 @@
 #define Broadcast     (254u)
 #define MAX_ANGLE     (110)
 
+#define ID1 4
+#define ID2 2
+#define ID3 1
+#define ID4 3
+
 AX12A ax12a2;
 
 int Cur_angle[4] = {0, 0, 0, 0};
@@ -21,7 +26,7 @@ void correct_position(int & pos) {
 void setup() {
     Serial.begin(9600);
     Serial3.begin(9600);
-    ax12a.begin(BaudRate, DirectionPin, &Serial1);
+    ax12a.begin(BaudRate, DirectionPin, &Serial2);
     ax12a.setEndless(1, OFF);
     ax12a.setEndless(2, OFF);
     ax12a.setEndless(3, OFF);
@@ -35,7 +40,7 @@ void turnAngle(unsigned char id, int angle, int _speed) {
 }
 
 void start_position(int start_angle = 0) {
-    for (int i = 1; i <= 4; ++i)
+    for (int i = 1; i <= 5; ++i)
       turnAngle(i, start_angle, 100); 
 }
 
@@ -45,25 +50,38 @@ void start_position(int start_angle = 0) {
 
 void loop() {
     start_position();
-    for (unsigned i = 0; i < 10; ++i) {
+    turnAngle(5, 90, 200);
+    delay(1000);
+    turnAngle(5, 0, 200);
+    delay(1000);
+    /*for (unsigned i = 0; i < 10; ++i) {
         Serial.println(1);
-        turnAngle(1, 90, 100);
+        turnAngle(ID1, 90, 100);
         delay(1500);
-        turnAngle(1, 0, 100);
+        turnAngle(ID1, 0, 100);
         delay(1500);
-    }
-    for (unsigned i = 0; i < 10; ++i) {
-        Serial.println(2);
-        turnAngle(2, 90, 100);
-        delay(1500);
-        turnAngle(2, 0, 100);
-        delay(1500);
-    }
-    for (unsigned i = 1; i <= 10; ++i) {
-        Serial.println(3);
-        turnAngle(3, -90, 100);
-        delay(1500);
-        turnAngle(3, 0, 100);
-        delay(1500);
-    }
+    }*/
+//    for (unsigned i = 0; i < 10; ++i) {
+//        Serial.println(2);
+//        turnAngle(ID2, 90, 100);
+//        delay(1500);
+//        turnAngle(ID2, 0, 100);
+//        delay(1500);
+//        turnAngle(ID2, -90, 100);
+//        delay(1500);
+//    }
+//    for (unsigned i = 1; i <= 10; ++i) {
+//        Serial.println(3);
+//        turnAngle(ID3, -90, 100);
+//        delay(1500);
+//        turnAngle(ID3, 0, 100);
+//        delay(1500);
+//    }
+//    for (unsigned i = 1; i <= 10; ++i) {
+//        Serial.println(i);
+//        turnAngle(ID4, -90, 100);
+//        delay(1500);
+//        turnAngle(ID4, 0, 100);
+//        delay(1500);
+//    }
 }

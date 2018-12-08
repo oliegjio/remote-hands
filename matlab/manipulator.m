@@ -53,12 +53,16 @@ addBody(robot, node6, 'node5');
 %% Connections + initializations:
 
 % Create serial connection:
-% s = serial('COM0');
-% fopen(s);
+ s = serial('/dev/ttyUSB8');
+ set(s, 'BaudRate', 9600);
+ fopen(s);
 
 % Create TCP connection:
+disp("Start");
 t = tcpip('0.0.0.0', 7247, 'NetworkRole', 'server');
+disp("tcpip");
 set(t, 'InputBufferSize', 1000);
+disp("setBuffer");
 fopen(t);
 disp("New connection.");
 
@@ -74,19 +78,24 @@ weights = [0.01 0.01 0.01 1 1 1];
 
 %% Main loop:
 
+disp("Start loop");
 while true
     if t.BytesAvailable > 0
         data = fscanf(t); % Receive floating point values separated by spaces as string.
         splited = strsplit(data); % Split (by spaces) this string into an array of strings.
         
         % Check if received array has all 7 values:
-        if fold(@or, size(splited) > 7); continue; end
+        if (size(splited) < 7)
+            continue;
+        end
         
         % Convert array of strings to vector of reals:
         values = arrayfun(@(x) str2double(x), splited);
         
         % Discard wrong values:
-        if isequal(values(1:4), zeros(4)) || visnan(values); continue; end
+        if values(1:4) == zeros(4)
+            continue;
+        end
         
         q = values(1:4); % Quaternion.
         acc = values(5:7); % Acceleration.
@@ -106,21 +115,24 @@ while true
         effector(1:3, 4) = target;
         
         % Debug values:
-        fprintf('acceleration: %f %f %f \n', acc(1), acc(2), acc(3));
-        fprintf('target: %f %f %f \n', target(1), target(2), target(3));
+        %%fprintf('acceleration: %f %f %f \n', acc(1), acc(2), acc(3));
+        %%fprintf('target: %f %f %f \n', target(1), target(2), target(3));
         
         % Solve inverse kinematics:
         [ikSolution, ikInfo] = ik('node6', effector, weights, homeConf);
         
         % Update manipulator plot:
+        disp("Show plot");
         show(robot, ikSolution);
         hold all;
         scatter3(target(1), target(2), target(3), 'r*', 'linewidth', 20);
         hold off;
         drawnow;
-
+        disp("End plot");
+       
+        disp(solutionPositions(ikSolution));
         % Send inverse kinematics solution to manipulator via serial:
-%         fprintf(s, prepareForOutput(solutionPositions(ikSolution)));
+        fprintf(s, prepare(solutionPositions(ikSolution)));
         
         flushinput(t);
     end
@@ -145,12 +157,19 @@ function f = solutionPositions(solution)
     f = arrayfun(@(x) x.JointPosition, solution);
 end
 
-function f = prepareForOutput(v)
+function f = prepare(v)
     % Converts a vector to string for output to manipulator via serial.
-    f = strcat(fold(@(a, x) [num2str(a) ' ' num2str(x)], v, ''), '\n');
+    f = [fold(@(a, x) [a ' ' x], arrayfun(@(x) {num2str(x)}, v)) ' \n'];
 end
 
 function f = visnan(v)
     % Check if any value in a vector is NaN.
-    f = fold(@or, arrayfun(@isnan, v), 0);
+    flag = false;
+    s = size(v);
+    for i = 1:s(1)
+        for j = 1:s(2)
+            if isnan(v(i, j)) && ~flag; flag = true; end
+        end
+    end
+    f = flag;
 end

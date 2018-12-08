@@ -8,8 +8,8 @@
 WiFiClient client;
 MPU9250_DMP imu;
 
-const char *ssid  = "mint-pc";
-const char *password = "fFK5ieoY";
+const char *ssid  = "vadim-N56JRH";
+const char *password = "sIRwHeaJ";
 
 #define port   7247
 #define ip     IPAddress(10,42,0,1)
@@ -74,7 +74,7 @@ void loop() {
   imu.dmpUpdateFifo();
   Serial.println(getData());
   client.println(getData());   
-  
+
 //  if (checkButton() == HIGH)
 //    Serial.println("Hello");
 }
@@ -121,8 +121,6 @@ String getData() {
   data += String(ax) + ' ';
   data += String(ay) + ' ';
   data += String(az);
-
-
 
   /*String data = String(imu.pitch) + ' ';
     data += String(imu.roll) + ' ';
