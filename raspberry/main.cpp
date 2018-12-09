@@ -117,8 +117,8 @@ void idle() {
     // Send angles to manipulator:
     std::string arm_message = std::to_string(angles[0]) + " "
                             + std::to_string(angles[1]) + " "
-                            + std::to_string(angles[2]) + " \r";
-//    usb->write(arm_message.c_str());
+                            + std::to_string(angles[2]) + " \n\r";
+    usb->write(arm_message.c_str());
 
     // Debug:
     std::cout << "DATA STRING " << data_string << std::endl;
@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
     const char *tty = "/dev/ttyUSB0";
 
     net = new server(server_port);
-//    usb = new serial(tty);
+    usb = new serial(tty);  
 
     arm = make_planar_arm();
 

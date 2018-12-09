@@ -50,17 +50,13 @@ void start_position(int start_angle = 0) {
 
 void loop() {
     start_position();
-    turnAngle(5, 90, 200);
-    delay(1000);
-    turnAngle(5, 0, 200);
-    delay(1000);
-    /*for (unsigned i = 0; i < 10; ++i) {
-        Serial.println(1);
-        turnAngle(ID1, 90, 100);
+    for (unsigned i = 1; i <= 5; ++i) {
+        Serial.println(i);
+        turnAngle(i, 90, 100);
         delay(1500);
-        turnAngle(ID1, 0, 100);
+        turnAngle(i, 0, 100);
         delay(1500);
-    }*/
+    }
 //    for (unsigned i = 0; i < 10; ++i) {
 //        Serial.println(2);
 //        turnAngle(ID2, 90, 100);

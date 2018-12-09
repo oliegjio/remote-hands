@@ -12,6 +12,7 @@ AX12A ax12a2;
 
 int Cur_angle[4] = {0, 0, 0, 0};
 long input_data[3] = {0, 0, 0};
+unsigned count = 0;
 
 void correct_position(int & pos) {
     pos = (pos < -MAX_ANGLE) ? -MAX_ANGLE : pos;
@@ -43,7 +44,7 @@ void start_position(int start_angle = 0) {
 void convert_data(String data) {
     String tmp = "";
     for (int iter = 0, j = 0; iter < data.length(); ++iter) {
-        if (data[iter] == '.') {
+        if (data[iter] == '.' || data[iter] == ' ') {
             while (data[iter] != ' ') iter++;
             input_data[j] = tmp.toInt();
             tmp = ""; ++j;
@@ -51,6 +52,8 @@ void convert_data(String data) {
             tmp += data[iter];
         }
     }
+    for (unsigned iter = 0; iter < 3; ++iter)
+        input_data[iter] = map(input_data[iter], -360, 360, -MAX_ANGLE, MAX_ANGLE);
 }
 
 // 40.6 mm 
@@ -58,19 +61,16 @@ void convert_data(String data) {
 // 94.7 mm
 
 void loop() {
-    Serial.println("Calibrate");
-    start_position();
-    while (1) {
-        if (Serial.available() > 0) {
-            String data = Serial.readStringUntil('\n');
-            //Serial3.println(data);
-            convert_data(data);
-            for (int i = 0; i < 3; ++i) {
-                Serial3.print(input_data[i]); Serial3.print(' ');
-            }
-            Serial3.println();
-            for (unsigned char iter = 1; iter <= 3; ++iter)
-                turnAngle(iter, input_data[iter - 1] * 10, 200);
+    Serial.println("Loop");
+    if (Serial.available() > 0) {
+        String data = Serial.readStringUntil('\n');
+        convert_data(data);
+        for (unsigned i = 0; i < 3; ++i) {
+            Serial.print(input_data[i]); Serial.print(' ');
         }
+        Serial.println();
+        for (unsigned char iter = 1; iter <= 3; ++iter)
+            turnAngle(iter, -input_data[iter - 1], 200);
     }
+    delay(1);
 }

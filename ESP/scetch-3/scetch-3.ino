@@ -33,7 +33,7 @@ bool checkButton();
 
 void setup() {
   Wire.begin();
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   connect(ssid, password);
 
