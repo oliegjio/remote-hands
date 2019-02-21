@@ -77,28 +77,30 @@ float getDeltaTime() {
 void idle() {
     dt = getDeltaTime();
 
-	// Receive {q1, q2, q3, q4, a1, a2, a3} vector from bracer controller.
-    std::string data_string = net->receive(1024);
-    std::vector<std::string> data = split_by_spaces(data_string);
-    data.resize(7);
-    std::vector<GLfloat> floats(7);
-    try {
-        std::transform(data.begin(), data.end(), floats.begin(), [](const std::string &s) { return std::stof(s); });
-    } catch (const std::exception &e) {
-        return;
-    }
-
-    // Rotate acceleration and subtract gravity:
-    quaternion q = quaternion(floats[0], floats[1], floats[2], floats[3]);
-    auto acceleration = vector3 {floats[4], floats[5], floats[6]};
-    acceleration = q * acceleration;
-    acceleration -= vector3 {0.0f, 0.0f, 1.0f};
+//	// Receive {q1, q2, q3, q4, a1, a2, a3} vector from bracer controller.
+//    std::string data_string = net->receive(1024);
+//    std::vector<std::string> data = split_by_spaces(data_string);
+//    data.resize(7);
+//    std::vector<GLfloat> floats(7);
+//    try {
+//        std::transform(data.begin(), data.end(), floats.begin(), [](const std::string &s) { return std::stof(s); });
+//    } catch (const std::exception &e) {
+//        return;
+//    }
+//
+//    // Rotate acceleration and subtract gravity:
+//    quaternion q = quaternion(floats[0], floats[1], floats[2], floats[3]);
+//    auto acceleration = vector3 {floats[4], floats[5], floats[6]};
+//    acceleration = q * acceleration;
+//    acceleration -= vector3 {0.0f, 0.0f, 1.0f};
 
     static vector3 effector_position {0.0f, 0.0f, 0.0f}; // Manipulator end effector position;
+    effector_position[0] = sinf(clock()) * 10000 * dt;
+    effector_position[1] = cosf(clock()) * 10000 * dt;
 
-    // Adjust and correct end effector position:
-    effector_position += acceleration * 3.0f;
-    effector_position = effector_position.map([](const GLfloat &x) { return clamp(x, -19.0f, 19.0f); });
+//    // Adjust and correct end effector position:
+//    effector_position += acceleration * 3.0f;
+//    effector_position = effector_position.map([](const GLfloat &x) { return clamp(x, -19.0f, 19.0f); });
 
     // Move cube to expected end effector position:
     end_effector->translation[0] = effector_position[0];
@@ -120,14 +122,14 @@ void idle() {
                             + std::to_string(angles[2]) + " \r";
 //    usb->write(arm_message.c_str());
 
-    // Debug:
-    std::cout << "DATA STRING " << data_string << std::endl;
-    std::cout << "DATA VECTOR "; print_vector(data); std::cout << std::endl;
-    std::cout << "ACCELERATION "; acceleration.print(); std::cout << std::endl;
-    std::cout << "POSITION "; effector_position.print(); std::cout << std::endl;
-    std::cout << "ANGLES "; angles.print(); std::cout << std::endl;
-    std::cout << "ARM MESSAGE " << arm_message << std::endl;
-    std::cout << std::endl;
+//    // Debug:
+//    std::cout << "DATA STRING " << data_string << std::endl;
+//    std::cout << "DATA VECTOR "; print_vector(data); std::cout << std::endl;
+//    std::cout << "ACCELERATION "; acceleration.print(); std::cout << std::endl;
+//    std::cout << "POSITION "; effector_position.print(); std::cout << std::endl;
+//    std::cout << "ANGLES "; angles.print(); std::cout << std::endl;
+//    std::cout << "ARM MESSAGE " << arm_message << std::endl;
+//    std::cout << std::endl;
 
 	glutPostRedisplay();
 }
@@ -140,7 +142,7 @@ int main(int argc, char **argv) {
     unsigned int server_port = 7247;
     const char *tty = "/dev/ttyUSB0";
 
-    net = new server(server_port);
+//    net = new server(server_port);
 //    usb = new serial(tty);
 
     arm = make_planar_arm();
@@ -148,8 +150,8 @@ int main(int argc, char **argv) {
     end_effector = shape::make_cube();
     end_effector->color = {1.0f, 0.0f, 0.0f};
 
-    net->start(); // Create server. Bracer controller will connect to this server.
-    std::cout << "New connection." << std::endl;
+//    net->start(); // Create server. Bracer controller will connect to this server.
+//    std::cout << "New connection." << std::endl;
 
     /**
      * OpenGL + GLUT setup:
