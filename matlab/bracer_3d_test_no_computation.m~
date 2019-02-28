@@ -8,39 +8,22 @@ p = [0 0 0];
 % Velocity of the effector:
 v = [0 0 0];
 
-% dt = 0;
-% last_time = cputime;
-
-while true
-%     dt = cputime - last_time;
-%     last_time = cputime;
+while true;
     if t.BytesAvailable       
         data = fscanf(t);
         
         % Split data string (with spaces):
         splitted = strsplit(data);
-        if (size(splitted) < 7); continue; end
+        if (size(splitted) < 3); continue; end
         
         % Convert strings to doubles:
         values = arrayfun(@(x) str2double(x), splitted);
-        if values(1:4) == zeros(4); continue; end
-        
-        % Quaternion rotation:
-        q = values(1:4);
         
         % Acceleration:
-        a = values(5:7);
-        
-        % Rotate acceleration with quaternion:
-        ar = quatrotate(quatinv(q), a);
-        
-        % Subtract gravity from acceleration:
-        ag = ar - [0 0 1];
-        if visnan(ag); continue; end
-%         ag = ag * dt;
+        a = values(1:3);
         
         % Update velocity with acceleration:
-        v = v + ag;
+        v = v + a;
         v = v * 0.99;
         
         % Update position with velocity:

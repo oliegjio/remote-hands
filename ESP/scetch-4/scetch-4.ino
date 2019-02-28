@@ -4,16 +4,16 @@
 #include <ESP8266WiFi.h>
 #include "SparkFunMPU9250-DMP.h"
 
+extern HardwareSerial Serial;
 
 WiFiClient client;
 MPU9250_DMP imu;
 
-const char *ssid  = "MS-7971";
-const char *password = "UfnbalFT";
+const char *SSID = "MS-7971";
+const char *PASSWORD = "UfnbalFT";
 
-#define port   7247
-#define ip     IPAddress(10,42,0,1)
-#define BUTTON 16
+#define SERVER_PORT 7247
+#define SERVER_ADDRESS IPAddress(10, 42, 0, 1)
 
 float currx  = 0;
 float lastx1 = 0;
@@ -25,22 +25,20 @@ float currz  = 0;
 float lastz1 = 0;
 float lastz2 = 0;
 
-//Forward functions
 float clamp(float value, float min_value, float max_value);
 String getData();
-void connect(const char *ssid, const char *password);
-bool checkButton();
+void connect(const char *SSID, const char *PASSWORD);
 
 void setup() {
   Wire.begin();
   Serial.begin(115200);
 
-  connect(ssid, password);
+  connect(SSID, PASSWORD);
 
   if (imu.begin() != INV_SUCCESS) {
     while (1) {
       Serial.println("Unable to communicate with MPU-9250");
-      Serial.println("Check connections, and try again.");
+      Serial.println("Check connections, and try again");
       Serial.println();
       delay(5000);
     }
@@ -48,9 +46,7 @@ void setup() {
 
   imu.dmpBegin(DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_GYRO_CAL, 10);
 
-  pinMode(BUTTON, INPUT);
-
-  while ( !imu.fifoAvailable() && !imu.dmpUpdateFifo() == INV_SUCCESS );  
+  while (!imu.fifoAvailable() && !imu.dmpUpdateFifo() == INV_SUCCESS);  
   delay(12000);
   
   imu.updateAccel();
@@ -67,16 +63,14 @@ void setup() {
       imu.dmpUpdateFifo();
       getData();
   }
+
   Serial.println("Start loop");
 }
 
 void loop() {
   imu.dmpUpdateFifo();
   Serial.println(getData());
-  client.println(getData());   
-
-//  if (checkButton() == HIGH)
-//    Serial.println("Hello");
+  client.println(getData());
 }
 
 ///////////////////////////// ///////////////////////////////////
@@ -122,16 +116,12 @@ String getData() {
   data += String(ay) + ' ';
   data += String(az);
 
-  /*String data = String(imu.pitch) + ' ';
-    data += String(imu.roll) + ' ';
-    data += String(imu.yaw);*/
-
   return data;
 }
 
-void connect(const char *ssid, const char *password) {
+void connect(const char *SSID, const char *PASSWORD) {
   WiFi.mode(WIFI_OFF);
-  WiFi.begin(ssid, password);
+  WiFi.begin(SSID, PASSWORD);
 
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
@@ -139,19 +129,15 @@ void connect(const char *ssid, const char *password) {
   }
   Serial.println();
   Serial.println("Connected to the WiFi");
-  Serial.println(ssid);
+  Serial.println(SSID);
   Serial.println(WiFi.localIP());
 
-  while (!client.connect(ip, port)) {
+  while (!client.connect(SERVER_ADDRESS, SERVER_PORT)) {
     Serial.println("connection failed");
     delay(2000);
   }
 
   Serial.println();
-  Serial.println("Connected to the Server");
+  Serial.println("Connected to the server");
   delay(3000);
-}
-
-bool checkButton() {
-  return digitalRead(BUTTON);
 }
