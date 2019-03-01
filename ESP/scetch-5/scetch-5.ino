@@ -42,7 +42,7 @@ void setup() {
   Wire.begin();
   Serial.begin(115200);
 
-  connect(SSID, PASSWORD);
+  //connect(SSID, PASSWORD);
 
   if (imu.begin() != INV_SUCCESS) {
     while (1) {
@@ -88,8 +88,8 @@ void loop() {
     last_time_interval = micros();
 
     String data = getData();
-//    Serial.println(data);
-    client.println(data);
+    Serial.println(data);
+//    client.println(data);
 
     clearData();
   }
