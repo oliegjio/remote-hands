@@ -101,8 +101,8 @@ float clamp(float value, float min_value, float max_value) {
   value = ( value > max_value ) ? max_value : value;
   value = ( value < min_value ) ? min_value : value;
   return value;
-}
-
+}                                 /*suka hule ti ne otvechayesh*/
+ 
 String getData() {
   String data = "";
 
@@ -184,9 +184,9 @@ void updateData(float dt) {
   // Inverse quaternion:
   float q[4] = { qw, qx, qy, qz };
   float qi[4];
-  if (!quat_inv(q, qi)) {
-    return;
-  }
+//  if (!quat_inv(q, qi)) {
+//    return;
+//  }
 
 //  float qi[4] = { qw, qx, qy, qz };
 

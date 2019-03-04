@@ -4,7 +4,6 @@
 #include <ESP8266WiFi.h>
 #include "SparkFunMPU9250-DMP.h"
 
-
 WiFiClient client;
 MPU9250_DMP imu;
 
@@ -28,14 +27,14 @@ float lastz2 = 0;
 //Forward functions
 float clamp(float value, float min_value, float max_value);
 String getData();
-void connect(const char *ssid, const char *password);
+//void connect(const char *ssid, const char *password);
 bool checkButton();
 
 void setup() {
   Wire.begin();
   Serial.begin(115200);
 
-  connect(ssid, password);
+  //connect(ssid, password);
 
   if (imu.begin() != INV_SUCCESS) {
     while (1) {
@@ -73,10 +72,7 @@ void setup() {
 void loop() {
   imu.dmpUpdateFifo();
   Serial.println(getData());
-  client.println(getData());   
-
-//  if (checkButton() == HIGH)
-//    Serial.println("Hello");
+  //client.println(getData());   
 }
 
 ///////////////////////////// ///////////////////////////////////
@@ -129,29 +125,25 @@ String getData() {
   return data;
 }
 
-void connect(const char *ssid, const char *password) {
-  WiFi.mode(WIFI_OFF);
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(250);
-  }
-  Serial.println();
-  Serial.println("Connected to the WiFi");
-  Serial.println(ssid);
-  Serial.println(WiFi.localIP());
-
-  while (!client.connect(ip, port)) {
-    Serial.println("connection failed");
-    delay(2000);
-  }
-
-  Serial.println();
-  Serial.println("Connected to the Server");
-  delay(3000);
-}
-
-bool checkButton() {
-  return digitalRead(BUTTON);
-}
+//void connect(const char *ssid, const char *password) {
+//  WiFi.mode(WIFI_OFF);
+//  WiFi.begin(ssid, password);
+//
+//  while (WiFi.status() != WL_CONNECTED) {
+//    Serial.print(".");
+//    delay(250);
+//  }
+//  Serial.println();
+//  Serial.println("Connected to the WiFi");
+//  Serial.println(ssid);
+//  Serial.println(WiFi.localIP());
+//
+//  while (!client.connect(ip, port)) {
+//    Serial.println("connection failed");
+//    delay(2000);
+//  }
+//
+//  Serial.println();
+//  Serial.println("Connected to the Server");
+//  delay(3000);
+//}
