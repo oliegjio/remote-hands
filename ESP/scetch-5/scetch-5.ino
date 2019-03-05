@@ -101,7 +101,7 @@ float clamp(float value, float min_value, float max_value) {
   value = ( value > max_value ) ? max_value : value;
   value = ( value < min_value ) ? min_value : value;
   return value;
-}                                 /*suka hule ti ne otvechayesh*/
+}
  
 String getData() {
   String data = "";
