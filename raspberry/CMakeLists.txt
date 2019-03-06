@@ -1,29 +1,54 @@
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required(VERSION 3.0)
 
-set (MY_NAME "remote-hands")
-project (${MY_NAME})
+set(MY_PROJECT_NAME default)
+project(${MY_PROJECT_NAME})
 
-set (MY_FILES
-        "main.cpp"
-        "vector.h"
-        "matrix.h"
-        "mathematics.cpp" "mathematics.h"
-        "shape.h" "shape.cpp"
-        "nested_shape.cpp" "nested_shape.h"
-        "shape_group.cpp" "shape_group.h"
-        "nested_group.cpp" "nested_group.h"
-        "arms.h"
-        "arms_animations.h"
-        "forward_kinematics.h"
-        "inverse_kinematics.h"
-        "inverse_kinematics_animations.h"
-        "forward_kinematics_animations.h"
-        "server.cpp" "server.h"
-        "string_utils.h"
-        "quaternion.cpp" "quaternion.h"
-        "serial.cpp" "serial.h"
-        "std_vector_utils.h")
+include(GNUInstallDirs)
 
-add_executable (${MY_NAME} ${MY_FILES})
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "${PROJECT_SOURCE_DIR}/build" CACHE PATH "Default installation directory" FORCE)
+endif()
 
-target_link_libraries (${MY_NAME} "GL" "GLU" "glut")
+# Git submodules:
+option(GIT_SUBMODULE "Check submodules during build" ON)
+if(GIT_SUBMODULE)
+    find_package(Git QUIET)
+    if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+        message(STATUS "Submodules updating")
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                RESULT_VARIABLE GIT_SUBMOD_RESULT)
+        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+            message(FATAL_ERROR "Failed to update Git submodules!")
+        endif()
+    else()
+        message(STATUS "Could not find Git executable or Git project!")
+    endif()
+endif()
+
+# Doxygen:
+option(BUILD_DOC "Build documentation" ON)
+if(BUILD_DOC)
+    find_package(Doxygen QUIET)
+    if(DOXYGEN_FOUND)
+        set(DOXYGEN_IN "${PROJECT_SOURCE_DIR}/Doxyfile")
+        set(DOXYGEN_OUT "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile")
+
+        configure_file("${DOXYGEN_IN}" "${DOXYGEN_OUT}" @ONLY)
+
+        add_custom_target(doxygen ALL
+                COMMAND ${DOXYGEN_EXECUTABLE} "${DOXYGEN_OUT}"
+                WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+                COMMENT "Generating API documentation with Doxygen"
+                VERBATIM)
+    else()
+        message(STATUS "Doxygen need to be installed to generate the Doxygen documentation!")
+    endif()
+endif()
+
+add_subdirectory(sources)
+add_subdirectory(tests)
+add_subdirectory(apps)
+add_subdirectory(extern/serial-cpp)
+add_subdirectory(extern/tcp-cpp)
+add_subdirectory(extern/mathematics-c)

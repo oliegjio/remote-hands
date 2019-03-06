@@ -2,6 +2,8 @@
 
 #include <string>
 #include <regex>
+#include <iostream>
+#include <vector>
 
 std::vector<std::string> split(const std::string& text, const std::regex& re) {
     const std::vector<std::string> parts(
@@ -29,4 +31,14 @@ static inline void rtrim(std::string &s) {
 static inline void trim(std::string &s) {
     ltrim(s);
     rtrim(s);
+}
+
+template<typename T>
+void print_vector(const std::vector<T> &v, const std::string &delimiter = " ") {
+    for (size_t i = 0; i < v.size(); i++) {
+        std::cout << v[i];
+        if (i != v.size() - 1) {
+            std::cout << delimiter;
+        }
+    }
 }
