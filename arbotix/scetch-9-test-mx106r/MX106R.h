@@ -150,10 +150,13 @@ class MX106 {
     void begin(long baud, unsigned char directionPin, HardwareSerial *srl);
     void end(void);
 
+    int torqueStatus(unsigned char ID, bool Status);
+
     int ping(unsigned char ID);
 
     int setID(unsigned char ID, unsigned char newID);
     int setBD(unsigned char ID, long baud);
+    int setMaxTorque(unsigned char ID, int MaxTorque);
 
     int move(unsigned char ID, int Position);
     int moveSpeed(unsigned char ID, int Position, int Speed);
@@ -161,6 +164,9 @@ class MX106 {
     int turn(unsigned char ID, bool SIDE, int Speed);
     int moveRW(unsigned char ID, int Position);
     int moveSpeedRW(unsigned char ID, int Position, int Speed);
+
+    void turnAngle(unsigned char ID, double Angle);
+    void turnAngleSpeed(unsigned char ID, double Angle, int Speed);
 
     void action(void);
     int setPunch(unsigned char ID, int Punch);

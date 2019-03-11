@@ -67,7 +67,7 @@ int MX106::ping(unsigned char ID)
   const unsigned int length = 6;
   unsigned char packet[length];
 
-  Checksum = (~(2 + 2 + 1));
+  Checksum = (~(ID + MX_READ_DATA + MX_PING)) & 0xFF;
 
   packet[0] = MX_START;
   packet[1] = MX_START;
@@ -76,6 +76,24 @@ int MX106::ping(unsigned char ID)
   packet[4] = 1;
   packet[5] = Checksum;
 
+  return (sendMXPacket(packet, length));
+}
+
+int MX106::torqueStatus(unsigned char ID, bool Status) {
+  const unsigned int length = 8;
+  unsigned char packet[length];
+
+  Checksum = (~(ID + MX_TORQUE_LENGTH + MX_WRITE_DATA + MX_TORQUE_ENABLE + Status)) & 0xFF;
+
+  packet[0] = MX_START;
+  packet[1] = MX_START;
+  packet[2] = ID;
+  packet[3] = MX_TORQUE_LENGTH;
+  packet[4] = MX_WRITE_DATA;
+  packet[5] = MX_TORQUE_ENABLE;
+  packet[6] = Status;
+  packet[7] = Checksum;
+    
   return (sendMXPacket(packet, length));
 }
 
@@ -116,6 +134,30 @@ int MX106::setBD(unsigned char ID, long baud)
   packet[7] = Checksum;
 
   return (sendMXPacket(packet, length));
+}
+
+int MX106::setMaxTorque(unsigned char ID, int MaxTorque)
+{
+    char MaxTorque_H,MaxTorque_L;
+    MaxTorque_H = MaxTorque >> 8;           // 16 bits - 2 x 8 bits variables
+    MaxTorque_L = MaxTorque;
+
+	const unsigned int length = 9;
+	unsigned char packet[length];
+
+	Checksum = (~(ID + MX_MT_LENGTH + MX_WRITE_DATA + MX_MAX_TORQUE_L + MaxTorque_L + MaxTorque_H)) & 0xFF;
+
+	packet[0] = MX_START;
+	packet[1] = MX_START;
+	packet[2] = ID;
+	packet[3] = MX_MT_LENGTH;
+	packet[4] = MX_WRITE_DATA;
+	packet[5] = MX_MAX_TORQUE_L;
+	packet[6] = MaxTorque_L;
+	packet[7] = MaxTorque_H;
+	packet[8] = Checksum;
+
+	return (sendMXPacket(packet, length));
 }
 
 int MX106::move(unsigned char ID, int Position)
@@ -315,6 +357,20 @@ int MX106::moveSpeedRW(unsigned char ID, int Position, int Speed)
   packet[10] = Checksum;
 
   return (sendMXPacket(packet, length));
+}
+
+void MX106::turnAngle(unsigned char ID, double Angle) {
+  Angle = (Angle > 90) ? 90 : Angle;
+  Angle = (Angle < -90) ? -90 : Angle;
+  Angle = map(Angle, -90, 90, 1024, 3096);
+  move(ID, Angle);
+}
+
+void MX106::turnAngleSpeed(unsigned char ID, double Angle, int Speed) {
+  Angle = (Angle > 90) ? 90 : Angle;
+  Angle = (Angle < -90) ? -90 : Angle;
+  Angle = map(Angle, -90, 90, 1024, 3096);
+  moveSpeed(ID, Angle, Speed);
 }
 
 void MX106::action()

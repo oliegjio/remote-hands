@@ -11,7 +11,12 @@ void setup(){
   mx106.begin(baud, d_pin, &Serial1);
 }
 
-void loop(){ 
-  for (unsigned char i = 0; i < 6; ++i)
-    mx106.move(i, 1000);
+void loop(){
+  Serial.println("Loop");
+  mx106.turnAngle(0, -90);
+  delay(1000);
+  for (int i = -90; i < 90; i += 5) {
+    mx106.turnAngle(0, i);
+    delay(100);
+  }
 }
