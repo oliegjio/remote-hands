@@ -4,3 +4,6 @@
 [submodule "raspberry/extern/serial-cpp"]
 	path = raspberry/extern/serial-cpp
 	url = https://github.com/unbleaklessness/serial-cpp
+[submodule "raspberry/extern/mathematics-cpp"]
+	path = raspberry/extern/mathematics-cpp
+	url = https://github.com/unbleaklessness/mathematics-cpp

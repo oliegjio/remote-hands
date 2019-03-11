@@ -2,10 +2,10 @@
 
 #include <cmath>
 
-#include "mathematics.h"
+#include "mathematics_cpp/utils.h"
 #include "vector.h"
 
-vector3 inverse_kinematics_planar_arm(const float &x, const float &y, const float &l1, const float &l2,
+vector<3> inverse_kinematics_planar_arm(const float &x, const float &y, const float &l1, const float &l2,
         const float &l3) {
     float phi = atan2f(y, x);
     float xw = x - l3 * cosf(phi);
@@ -18,10 +18,10 @@ vector3 inverse_kinematics_planar_arm(const float &x, const float &y, const floa
     float r1 = alpha - gamma;
     float r2 = PI - beta;
     float r3 = phi - r1 - r2;
-    return vector3 {r1, r2, r3};
+    return vector<3> {r1, r2, r3};
 }
 
-vector4 inverse_kinematics_4dof_arm(const float &x, const float &y, const float &z, const float &angle1,
+vector<4> inverse_kinematics_4dof_arm(const float &x, const float &y, const float &z, const float &angle1,
         const float &angle3, const float &l1, const float &l2, const float &l3, const float &l4) {
 //    float len = sqrtf(powf(x, 2.0f) + powf(y, 2.0f));
 //    float phi = atan2f(z, len);
@@ -57,5 +57,5 @@ vector4 inverse_kinematics_4dof_arm(const float &x, const float &y, const float 
     float r3 = PI - beta;
     float r4 = phi - r2 - r3;
 
-    return vector4 {r1, r2, r3, r4};
+    return vector<4> {r1, r2, r3, r4};
 }

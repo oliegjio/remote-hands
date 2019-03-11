@@ -13,11 +13,12 @@
 #include <functional>
 #include <algorithm>
 
-#include "shape_groups/nested_group.h"
+#include "opengl_shape_groups/nested_group.h"
 #include "tcp_cpp/tcp_server.h"
 #include "serial_cpp/serial.h"
 #include "std_utils.h"
-#include "mathematics_c/mathematics.h"
+#include "mathematics_cpp/vector.h"
+#include "mathematics_cpp/utils.h"
 
 #include "inverse_kinematics.h"
 #include "arms.h"
@@ -38,8 +39,8 @@ void display() {
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
 
-    vector4 camera_rotation = {0.0f, 1.0f, 0.0f, 0.0f};
-    vector3 camera_position = {0.0f, 0.0f, -100.0f};
+    vector<4> camera_rotation = {0.0f, 1.0f, 0.0f, 0.0f};
+    vector<3> camera_position = {0.0f, 0.0f, -100.0f};
 
     // Apply camera transforms:
     glTranslatef(camera_position[0], camera_position[1], camera_position[2]);
@@ -95,7 +96,7 @@ void idle() {
 //    acceleration = q * acceleration;
 //    acceleration -= vector3 {0.0f, 0.0f, 1.0f};
 
-    static vector3 effector_position {0.0f, 0.0f, 0.0f}; // Manipulator end effector position;
+    static vector<3> effector_position {0.0f, 0.0f, 0.0f}; // Manipulator end effector position;
     effector_position[0] = sinf(clock()) * 10000 * dt;
     effector_position[1] = cosf(clock()) * 10000 * dt;
 

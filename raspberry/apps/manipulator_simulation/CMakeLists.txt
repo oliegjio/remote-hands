@@ -8,8 +8,8 @@ target_include_directories(${NAME} PRIVATE
         "${PROJECT_SOURCE_DIR}/include"
         "${PROJECT_SOURCE_DIR}/extern/tcp-cpp/include"
         "${PROJECT_SOURCE_DIR}/extern/serial-cpp/include"
-        "${PROJECT_SOURCE_DIR}/extern/mathematics-c/include")
+        "${PROJECT_SOURCE_DIR}/extern/mathematics-cpp/include")
 
-target_link_libraries(${NAME} PRIVATE GL GLU glut shape_groups tcp_cpp serial_cpp mathematics_c)
+target_link_libraries(${NAME} PRIVATE GL GLU glut opengl_shape_groups tcp_cpp serial_cpp mathematics_cpp)
 
 install(TARGETS ${NAME} DESTINATION "${CMAKE_INSTALL_BINDIR}")

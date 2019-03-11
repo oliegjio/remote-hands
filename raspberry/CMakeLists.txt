@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(MY_PROJECT_NAME default)
+set(MY_PROJECT_NAME manipulator_simulation)
 project(${MY_PROJECT_NAME})
 
 include(GNUInstallDirs)
@@ -15,7 +15,7 @@ if(GIT_SUBMODULE)
     find_package(Git QUIET)
     if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
         message(STATUS "Submodules updating")
-        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive --remote
                 WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
                 RESULT_VARIABLE GIT_SUBMOD_RESULT)
         if(NOT GIT_SUBMOD_RESULT EQUAL "0")
@@ -36,7 +36,7 @@ if(BUILD_DOC)
 
         configure_file("${DOXYGEN_IN}" "${DOXYGEN_OUT}" @ONLY)
 
-        add_custom_target(doxygen ALL
+        add_custom_target(manipulator_simulation_doxygen ALL
                 COMMAND ${DOXYGEN_EXECUTABLE} "${DOXYGEN_OUT}"
                 WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
                 COMMENT "Generating API documentation with Doxygen"
@@ -51,4 +51,4 @@ add_subdirectory(tests)
 add_subdirectory(apps)
 add_subdirectory(extern/serial-cpp)
 add_subdirectory(extern/tcp-cpp)
-add_subdirectory(extern/mathematics-c)
+add_subdirectory(extern/mathematics-cpp)

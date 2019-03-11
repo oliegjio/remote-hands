@@ -14,13 +14,13 @@ void nested_group::draw() const {
 }
 
 nested_group::nested_group(std::initializer_list<shape_group *> arguments) {
-    for (auto it = arguments.begin(); it != arguments.end(); ++it) {
-        groups.push_back(*it);
+    for (auto it : arguments) {
+        groups.push_back(it);
     }
 }
 
 void nested_group::draw_recursive(std::vector<shape_group*> groups) const {
-    if (groups.size() == 0) return;
+    if (groups.empty()) return;
 
     groups[0]->draw();
 

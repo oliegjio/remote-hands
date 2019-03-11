@@ -14,13 +14,13 @@ void nested_shape::draw() const {
 }
 
 nested_shape::nested_shape(std::initializer_list<shape *> arguments) {
-    for (auto it = arguments.begin(); it != arguments.end(); ++it) {
-        shapes.push_back(*it);
+    for (auto it : arguments) {
+        shapes.push_back(it);
     }
 }
 
 void nested_shape::draw_recursive(std::vector<shape*> shapes) const {
-    if (shapes.size() == 0) return;
+    if (shapes.empty()) return;
 
     shapes[0]->draw();
 

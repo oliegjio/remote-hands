@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(NAME test)
+set(NAME manipulator_simulation_test)
 
 add_executable(${NAME} main.cpp library/library_test.h)
 
