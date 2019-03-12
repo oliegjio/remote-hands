@@ -13,10 +13,10 @@ void setup(){
 
 void loop(){
   Serial.println("Loop");
-  mx106.turnAngle(0, -90);
+  mx106.turnAngle(2, -90);
   delay(1000);
   for (int i = -90; i < 90; i += 5) {
-    mx106.turnAngle(0, i);
+    mx106.turnAngle(2, i);
     delay(100);
   }
 }
