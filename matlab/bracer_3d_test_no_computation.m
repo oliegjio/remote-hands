@@ -21,7 +21,8 @@ while true
         a = ad(1:3);
         
         % Update velocity with acceleration:
-        v = (v + a) * 0.99;
+%         v = (v + a) * 0.99;
+        v = v + a;
         
         % Update position with velocity:
         p = p + v;
@@ -38,7 +39,7 @@ while true
         
         % Draw:
         plot3(p(1), p(2), p(3), '.');
-        limit = [-25 25];
+        limit = [-250 250];
         xlim(limit);
         ylim(limit);
         zlim(limit);
