@@ -68,6 +68,18 @@ float clamp(float value, float min_value, float max_value) {
 
 String getData() {
   String data = "";
+  
+  float q0 = imu.calcQuat(imu.qw);
+  float q1 = imu.calcQuat(imu.qx);
+  float q2 = imu.calcQuat(imu.qy);
+  float q3 = imu.calcQuat(imu.qz);
+
+  data += String(q0) + ' ';
+  data += String(q1) + ' ';
+  data += String(q2) + ' ';
+  data += String(q3) + ' ';
+  
+  
   data += String(optX) + ' ';
   data += String(optY) + ' ';
   data += String(optZ);
