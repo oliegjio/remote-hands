@@ -53,9 +53,9 @@ addBody(robot, node6, 'node5');
 %% Connections + initializations:
 
 % Create serial connection:
-s = serial('/dev/ttyUSB8');
-set(s, 'BaudRate', 9600);
-fopen(s);
+% s = serial('/dev/ttyUSB8');
+% set(s, 'BaudRate', 9600);
+% fopen(s);
 
 % Create TCP connection:
 t = tcpip('0.0.0.0', 7247, 'NetworkRole', 'server');
@@ -68,6 +68,7 @@ ik.RigidBodyTree = robot;
 
 % Setup values needed to solver:
 homeConf = homeConfiguration(robot);
+disp(homeConf)
 effector = getTransform(robot, homeConf, 'node6', 'base'); % End effector transformation matrix.
 target = [10 10 10]; % Desired end effector position.
 weights = [0.01 0.01 0.01 1 1 1];
@@ -79,28 +80,10 @@ while true
         data = fscanf(t); % Receive floating point values separated by spaces as string.
         splited = strsplit(data); % Split (by spaces) this string into an array of strings.
         
-        % Check if received array has all 7 values:
-        if (size(splited) < 7)
-            continue;
-        end
-        
         % Convert array of strings to vector of reals:
         values = arrayfun(@(x) str2double(x), splited);
         
-        % Discard wrong values:
-        if values(1:3) == zeros(4)
-            continue;
-        end
-        
-        q = values(1:4); % Quaternion.
-        acc = values(5:7); % Acceleration.
-        acc = quatrotate(quatinv(q), acc); % Rotate acceleration by quaternion.
-        acc = acc - [0 0 1]; % Subtract gravity from acceleration.
-        
-        % Discard wrong values (may appear after rotating by quaternion):
-        if visnan(acc); continue; end
-        
-        target = target + (acc * 3); % Add acceleration to the desired position.
+        target = target + values(1:3); % Add acceleration to the desired position.
         
         % Prevent desired position going beyond manipulator working area:
         maxRange = 25;
@@ -110,11 +93,13 @@ while true
         effector(1:3, 4) = target;
         
         % Debug values:
-%         fprintf('acceleration: %f %f %f \n', acc(1), acc(2), acc(3));
 %         fprintf('target: %f %f %f \n', target(1), target(2), target(3));
         
         % Solve inverse kinematics:
         [ikSolution, ikInfo] = ik('node6', effector, weights, homeConf);
+        
+        positions = solutionPositions(ikSolution);
+        homeConf = setPositionsToConfiguration(homeConf, positions);
         
         % Update manipulator plot:
         show(robot, ikSolution);
@@ -123,10 +108,8 @@ while true
         hold off;
         drawnow;
        
-        disp(solutionPositions(ikSolution));
-        
         % Send inverse kinematics solution to manipulator via serial:
-        fprintf(s, prepare(solutionPositions(ikSolution)));
+%         fprintf(s, prepare(solutionPositions(ikSolution)));
         
         flushinput(t);
     end
@@ -151,19 +134,10 @@ function f = solutionPositions(solution)
     f = arrayfun(@(x) x.JointPosition, solution);
 end
 
-function f = prepare(v)
-    % Converts a vector to string for output to manipulator via serial.
-    f = [fold(@(a, x) [a ' ' x], arrayfun(@(x) {num2str(x)}, v)) ' \n'];
-end
-
-function f = visnan(v)
-    % Check if any value in a vector is NaN.
-    flag = false;
-    s = size(v);
-    for i = 1:s(1)
-        for j = 1:s(2)
-            if isnan(v(i, j)) && ~flag; flag = true; end
-        end
+function f = setPositionsToConfiguration(configuration, positions)
+    s = size(positions);
+    for i = 1:s(2)
+        configuration(i).JointPosition = positions(i);
     end
-    f = flag;
+    f = configuration;
 end

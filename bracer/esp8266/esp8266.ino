@@ -10,7 +10,7 @@ const char *WIFI_SSID = "MS-7971";
 const char *WIFI_PASSWORD = "UfnbalFT";
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);

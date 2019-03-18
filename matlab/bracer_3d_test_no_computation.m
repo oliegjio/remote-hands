@@ -25,7 +25,7 @@ while true
         v = v + a;
         
         % Update position with velocity:
-        p = p + v;
+        p = p + a;
         
         % Debug:
 %         fprintf('dt: %f ', dt);
@@ -39,7 +39,7 @@ while true
         
         % Draw:
         plot3(p(1), p(2), p(3), '.');
-        limit = [-250 250];
+        limit = [-100 100];
         xlim(limit);
         ylim(limit);
         zlim(limit);
@@ -50,7 +50,7 @@ end
 
 %% Clear:
 
-fclose(f);
+fclose(t);
 delete(t);
 clear t;
 
