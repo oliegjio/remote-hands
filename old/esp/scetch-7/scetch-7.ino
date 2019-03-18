@@ -34,11 +34,11 @@ float clamp(float value, float min_value, float max_value) {
   return min(max(value, max_value), min_value);
 }
 
-void set_in_range(float &value, float new_value, float from, float to) {
-  if (value >= from && value <= to) {
-    value = new_value;
-  }
-}
+//void set_in_range(float &value, float new_value, float from, float to) {
+//  if (value >= from && value <= to) {
+//    value = new_value;
+//  }
+//}
  
 String getData() {
   String data = "";
@@ -144,7 +144,7 @@ void updateData(float dt) {
   // set_in_range(ar[1], va, cl, -cl);
   // set_in_range(ar[2], va, cl, -cl);
 
-  Serial.println("AR: " + String(ar[0], 6) + ' ' + String(ar[1], 6) + ' ' + String(ar[2], 6));
+  //Serial.println("AR: " + String(ar[0], 6) + ' ' + String(ar[1], 6) + ' ' + String(ar[2], 6));
 
   optX += ar[0];
   optY += ar[1];
@@ -234,7 +234,7 @@ void setup() {
    * END: I2C Scanner.
    */
 
-  connect(SSID, PASSWORD);
+  //connect(SSID, PASSWORD);
 
   if (imu.begin() != INV_SUCCESS) {
     while (1) {
