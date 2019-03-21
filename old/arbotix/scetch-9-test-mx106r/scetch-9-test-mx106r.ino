@@ -4,7 +4,7 @@
 
 MX106 mx106;
 
-int arr[count_data];
+int input_data[count_data];
 
 void setup(){
   Serial.begin(9600);
@@ -16,10 +16,23 @@ void setup(){
   mx106.begin(baud, d_pin, &Serial1);
 }
 
+void convertData(String data) {
+  String tmp = "";
+  for (int iter = 0, j = 0; iter < data.length(); ++iter) {
+      if (data[iter] == '.') {
+          while (data[iter] != ' ') iter++;
+          input_data[j] = tmp.toInt();
+          tmp = ""; ++j;
+      } else {
+          tmp += data[iter];
+      }
+  }
+}
+
 void readFromSerial() {
   if (Serial.available()) {
-    String data = Serial.readStringUntil('/n');
-    Serial2.println(data);
+    String data = Serial.readStringUntil('\n');
+    convertData(data);
   }
 }
 

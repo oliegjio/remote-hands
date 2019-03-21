@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <WiFiClient.h>
 #include <ESP8266WiFi.h>
+//#include "Matrix.h"
 #include "SparkFunMPU9250-DMP.h"
 
 #define K 0.2
@@ -56,7 +57,17 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("Loop");
+  dt = (micros() - last_time_dt) / 1000000.0f;
+  last_time_dt = micros();
+
+  updateData(dt);
+  if (micros() - last_time_interval > interval) {
+    last_time_interval = micros();
+
+    String data = getData();
+    Serial.println(data);
+    //client.println(data);
+  }
 }
 
 //////////////////////////////////////////////////////////////////
@@ -158,15 +169,15 @@ void kalman_filter() {
 String getData() {
   String data = "";
 
-  data += String(quat[0], 6) + ' ';
-  data += String(quat[0], 6) + ' ';
-  data += String(quat[0], 6) + ' ';
-  data += String(quat[0], 6) + ' ';
+//  data += String(quat[0], 6) + ' ';
+//  data += String(quat[0], 6) + ' ';
+//  data += String(quat[0], 6) + ' ';
+//  data += String(quat[0], 6) + ' ';
 
 
-  data += String(optX, 6) + ' ';
-  data += String(optY, 6) + ' ';
-  data += String(optZ, 6);
+  data += String(optX*1000, 6) + ' ';
+  data += String(optY*1000, 6) + ' ';
+  data += String(optZ*1000, 6);
   return data;
 }
 
@@ -220,7 +231,7 @@ void updateData(float dt) {
 
   optX = qrc[1] * dt;
   optY = qrc[2] * dt;
-  otpZ = (qrc[3] - 1.0f) * dt
+  optZ = (qrc[3] - 1.0f) * dt;
 
   // float cl = 0.001f;
   // float va = 0.0f;
