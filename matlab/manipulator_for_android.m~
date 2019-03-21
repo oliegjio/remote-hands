@@ -123,10 +123,7 @@ while true
     end
 end
 
-%% Plot trajectory:
-
-plot3(trajectory(:, 1), trajectory(:, 2), trajectory(:, 3), 'r')
-grid on;
+%% Plot trajecto
 
 %% Clean up:
 

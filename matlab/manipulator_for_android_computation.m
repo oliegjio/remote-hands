@@ -70,12 +70,8 @@ ik.RigidBodyTree = robot;
 % Setup values needed to solver:
 homeConf = homeConfiguration(robot);
 effector = getTransform(robot, homeConf, 'node6', 'base'); % End effector transformation matrix.
-target = [0 0 0]; % Desired end effector position.
-origin = [10 10 10];
+target = [10 10 10]; % Desired end effector position.
 weights = [0.01 0.01 0.01 1 1 1];
-
-trajectory = zeros(10000, 3);
-index = 1;
 
 %% Main loop:
 
@@ -86,15 +82,12 @@ while true
         
         % Convert array of strings to vector of reals:
         values = arrayfun(@(x) str2double(x), splited);
+        
         disp(values(1:3));
-        
-        target = values(1:3) + origin; % Add acceleration to the desired position.
-        
-        trajectory(index, 1:3) = target;
-        index = index + 1;
+        target = target + values(1:3); % Add acceleration to the desired position.
         
         % Prevent desired position going beyond manipulator working area:
-        maxRange = 20;
+        maxRange = 25;
         target = min(max(target, -maxRange), maxRange);
         
         % Update end effector transformation matrix with new desired position:
@@ -122,11 +115,6 @@ while true
         flushinput(t);
     end
 end
-
-%% Plot trajectory:
-
-plot3(trajectory(:, 1), trajectory(:, 2), trajectory(:, 3), 'r')
-grid on;
 
 %% Clean up:
 
