@@ -9,8 +9,6 @@
 #define SERVER_PORT 7247
 #define SERVER_IP IPAddress(10, 42, 0, 1)
 
-extern HardwareSerial Serial;
-
 WiFiClient client;
 MPU9250_DMP imu;
 
