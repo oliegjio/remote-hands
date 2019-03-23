@@ -61,27 +61,27 @@ addBody(robot, node6, 'node5');
 
 %% Connections + initializations:
 
-% % Find available serial ports:
-% serials = seriallist;
-% r_serial = ' ';
-% serials_size = size(serials);
-% for i = 1:serials_size(2)
-%     c_serial = serials(i);
-%     if contains(c_serial, 'USB')
-%         r_serial = c_serial;
-%         break;
-%     end
-% end
-% 
-% if r_serial == ' '
-%     error('Available serial port not found!');
-% end
-% 
-% % Create serial connection:
-% s = serial(r_serial);
-% % s = serial('/dev/ttyUSB5');
-% set(s, 'BaudRate', 9600);
-% fopen(s);
+% Find available serial ports:
+serials = seriallist;
+r_serial = ' ';
+serials_size = size(serials);
+for i = 1:serials_size(2)
+    c_serial = serials(i);
+    if contains(c_serial, 'USB')
+        r_serial = c_serial;
+        break;
+    end
+end
+
+if r_serial == ' '
+    error('Available serial port not found!');
+end
+
+% Create serial connection:
+s = serial(r_serial);
+% s = serial('/dev/ttyUSB5');
+set(s, 'BaudRate', 9600);
+fopen(s);
 
 % Create TCP connection:
 t = tcpip('0.0.0.0', 7247, 'NetworkRole', 'server');
@@ -150,10 +150,10 @@ while looping
         hold off;
         drawnow;
        
-%         % Send inverse kinematics solution to manipulator via serial:
-%         message = prepare(solutionPositions(ikSolution));
-%         fprintf(s, message);
-%         disp(message);
+        % Send inverse kinematics solution to manipulator via serial:
+        message = prepare(solutionPositions(ikSolution));
+        fprintf(s, message);
+        disp(message);
         
         flushinput(t);
     end
