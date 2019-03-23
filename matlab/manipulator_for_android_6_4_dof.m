@@ -1,25 +1,34 @@
 %% Main loop:
 
-while true
+main_loop = true;
+
+while main_loop
     
     %% Manipulator setup:
 
     robot = robotics.RigidBodyTree;
 
     % Denavit-Hartenberg manipulator parameters:
-    % dhparams = [0     pi/2  3.5   0;
-    %             9.5	  0     0     0;
-    %             9.5	  0     0     0;
-    %             5     0     0     0;
-    %             0     pi/2  0     0;
-    %             10    0     0     0];
+    dhparams = [0        pi/2  0.2372   0;
+                0.6438   0     0        0;
+                0.6438 	 0     0        0;
+                0.3388   0     0        0;
+                0        pi/2  0        0;
+                0        0     0        0];
+    
+%     dhparams = [0     pi/2  3.5   0;
+%                 9.5	  0     0     0;
+%                 9.5	  0     0     0;
+%                 5     0     0     0;
+%                 0     pi/2  0     0;
+%                 0     0     0     0];
 
-    dhparams = [0    pi/2  5    0;
-                9.5	 0     0    0;
-                7	 0     0    0;
-                6.5  0     0    0;
-                0    pi/2  0    0;
-                4    0     0    0];
+%     dhparams = [0    pi/2  5    0;
+%                 9.5	 0     0    0;
+%                 7	 0     0    0;
+%                 6.5  0     0    0;
+%                 0    pi/2  0    0;
+%                 0    0     0    0];
 
     % Setup manipulator nodes:
     node1 = robotics.RigidBody('node1');
@@ -74,34 +83,36 @@ while true
 
     is_serial = true;
 
+    % Find available serial port:
     if is_serial
-
-        % Find available serial ports:
-        serials = seriallist;
-        r_serial = '';
-        serials_size = size(serials);
-        for i = 1:serials_size(2)
-            c_serial = serials(i);
-            if contains(c_serial, 'USB')
-                r_serial = c_serial;
-                break;
+        fprintf('Searching available serial port... \n');
+        search_flag = true;
+        while search_flag
+            serials = seriallist;
+            r_serial = '';
+            serials_size = size(serials);
+            for i = 1:serials_size(2)
+                c_serial = serials(i);
+                if contains(c_serial, 'USB')
+                    r_serial = c_serial;
+                    search_flag = false;
+                    break
+                end
             end
-        end
-
-        if strcmp(r_serial, '')
-            error('Available serial port not found!');
         end
 
         % Create serial connection:
         s = serial(r_serial);
         set(s, 'BaudRate', 9600);
-        fopen(s); 
+        fopen(s);
     end
-
+    fprintf('Serial port found! \n');
+    
     % Create TCP connection:
+    fprintf('Accepting connections... \n');
     t = tcpip('0.0.0.0', 7247, 'NetworkRole', 'server');
     fopen(t);
-    fprintf('New connection \n')
+    fprintf('New connection! \n');
 
     % Create inverse kinematics solver:
     ik = robotics.InverseKinematics('RigidBodyTree', robot);
@@ -111,7 +122,7 @@ while true
     homeConf = homeConfiguration(robot);
     effector = getTransform(robot, homeConf, 'node6', 'base'); % End effector transformation matrix.
     target = [0 0 0]; % Desired end effector position.
-    origin = [10 10 10];
+    origin = [0 0 0.8];
     weights = [0.01 0.01 0.01 1 1 1];
 
     trajectory = zeros(10000, 3);
@@ -126,8 +137,16 @@ while true
             data = fscanf(t); % Receive floating point values separated by spaces as string.
 
             fprintf('Data: %s \n', data)
+            
             if contains(data, 'Restart')
                 fprintf('Restart \n')
+                looping = false;
+                break
+            end
+            
+            if contains(data, 'Stop')
+                fprintf('Stop \n')
+                main_loop = false;
                 looping = false;
                 break
             end
@@ -138,7 +157,7 @@ while true
             values = arrayfun(@(x) str2double(x), splited);
             fprintf("Values: %f   %f   %f \n", values(1), values(2), values(3));
 
-            target = (values(1:3) * 100) + origin; % Add acceleration to the desired position.
+            target = (values(1:3) * 20) + origin; % Add acceleration to the desired position.
 
             trajectory(index, 1:3) = target;
             index = index + 1;
