@@ -52,10 +52,10 @@ addBody(robot, node6, 'node5');
 
 %% Connections + initializations:
 
-% Create serial connection:
-s = serial('/dev/ttyUSB0');
-set(s, 'BaudRate', 9600);
-fopen(s);
+% % Create serial connection:
+% s = serial('/dev/ttyUSB0');
+% set(s, 'BaudRate', 9600);
+% fopen(s);
 
 % Create TCP connection:
 t = tcpip('0.0.0.0', 7247, 'NetworkRole', 'server');
@@ -116,10 +116,10 @@ while true
         hold off;
         drawnow;
        
-        % Send inverse kinematics solution to manipulator via serial:
-        message = prepare(solutionPositions(ikSolution));
-        fprintf(s, message);
-        disp(message);
+%         % Send inverse kinematics solution to manipulator via serial:
+%         message = prepare(solutionPositions(ikSolution));
+%         fprintf(s, message);
+%         disp(message);
         
         flushinput(t);
     end
