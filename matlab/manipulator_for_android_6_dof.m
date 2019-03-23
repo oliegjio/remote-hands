@@ -52,8 +52,8 @@ addBody(robot, node6, 'node5');
 
 %% Connections + initializations:
 
-% Create serial connection:
-% s = serial('/dev/ttyUSB8');
+% % Create serial connection:
+% s = serial('/dev/ttyUSB0');
 % set(s, 'BaudRate', 9600);
 % fopen(s);
 
@@ -88,7 +88,7 @@ while true
         values = arrayfun(@(x) str2double(x), splited);
         disp(values(1:3));
         
-        target = (values(1:3) * 10) + origin; % Add acceleration to the desired position.
+        target = (values(1:3) * 500) + origin; % Add acceleration to the desired position.
         
         trajectory(index, 1:3) = target;
         index = index + 1;
@@ -116,8 +116,10 @@ while true
         hold off;
         drawnow;
        
-        % Send inverse kinematics solution to manipulator via serial:
-%         fprintf(s, prepare(solutionPositions(ikSolution)));
+%         % Send inverse kinematics solution to manipulator via serial:
+%         message = prepare(solutionPositions(ikSolution));
+%         fprintf(s, message);
+%         disp(message);
         
         flushinput(t);
     end
@@ -141,6 +143,11 @@ delete(s);
 clear s;
 
 %% Function definitions:
+
+function f = prepare(v)
+    % Converts a vector to string for output to manipulator via serial.
+    f = [fold(@(a, x) [a ' ' x], arrayfun(@(x) {num2str(rad2deg(x))}, v)) ' \n'];
+end
 
 function f = solutionPositions(solution)
     % Get vector of positions from inverse kinematics solution. 

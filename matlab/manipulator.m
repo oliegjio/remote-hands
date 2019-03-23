@@ -52,15 +52,19 @@ addBody(robot, node6, 'node5');
 
 %% Connections + initializations:
 
-% Create serial connection:
-s = serial('/dev/ttyUSB8');
-set(s, 'BaudRate', 9600);
-fopen(s);
+% % Create serial connection:
+% s = serial('/dev/ttyUSB8');
+% set(s, 'BaudRate', 9600);
+% fopen(s);
 
 % Create TCP connection:
 t = tcpip('0.0.0.0', 7247, 'NetworkRole', 'server');
-set(t, 'InputBufferSize', 1000);
 fopen(t);
+disp('New connection');
+
+% t = tcpip('0.0.0.0', 7247, 'NetworkRole', 'server');
+% set(t, 'InputBufferSize', 1000);
+% fopen(t);
 
 % Create inverse kinematics solver:
 ik = robotics.InverseKinematics('RigidBodyTree', robot);
@@ -125,8 +129,8 @@ while true
        
         disp(solutionPositions(ikSolution));
         
-        % Send inverse kinematics solution to manipulator via serial:
-        fprintf(s, prepare(solutionPositions(ikSolution)));
+%         % Send inverse kinematics solution to manipulator via serial:
+%         fprintf(s, prepare(solutionPositions(ikSolution)));
         
         flushinput(t);
     end
