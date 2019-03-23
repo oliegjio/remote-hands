@@ -20,7 +20,6 @@ joint2 = robotics.Joint('joint2', 'revolute');
 joint3 = robotics.Joint('joint3', 'revolute');
 joint4 = robotics.Joint('joint4', 'revolute');
 
-
 % Set position limits for joints:
 limit = [(-pi / 2) (pi / 2)];
 joint1.PositionLimits = limit;
@@ -53,7 +52,8 @@ serials = seriallist;
 r_serial = ' ';
 serials_size = size(serials);
 for i = 1:serials_size(2)
-    if contains(serials(i), 'USB')
+    c_serial = serials(i);
+    if contains(c_serial, 'USB')
         r_serial = c_serial;
         break;
     end
@@ -65,6 +65,7 @@ end
 
 % Create serial connection:
 s = serial(r_serial);
+% s = serial('/dev/ttyUSB5');
 set(s, 'BaudRate', 9600);
 fopen(s);
 
@@ -165,7 +166,7 @@ clear s;
 
 function f = prepare(v)
     % Converts a vector to string for output to manipulator via serial.
-    f = [fold(@(a, x) [a ' ' x], arrayfun(@(x) {num2str(rad2deg(x))}, v)) ' \n'];
+    f = [fold(@(a, x) [a ' ' x], arrayfun(@(x) {num2str(uint8(rad2deg(x)))}, v)) ' \n'];
 end
 
 function f = solutionPositions(solution)
