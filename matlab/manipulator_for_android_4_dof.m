@@ -3,10 +3,10 @@
 robot = robotics.RigidBodyTree;
 
 % Denavit-Hartenberg manipulator parameters:
-dhparams = [0    pi/2  10    0;
-            15	 0     0     0;
-            15	 0     0     0;
-            15   0     0     0];
+dhparams = [0    pi/2  3.5   0;
+            9.5	 0     0     0;
+            9.5	 0     0     0;
+            5    0     0     0];
 
 % Setup manipulator nodes:
 node1 = robotics.RigidBody('node1');
@@ -19,6 +19,14 @@ joint1 = robotics.Joint('joint1', 'revolute');
 joint2 = robotics.Joint('joint2', 'revolute');
 joint3 = robotics.Joint('joint3', 'revolute');
 joint4 = robotics.Joint('joint4', 'revolute');
+
+
+% Set position limits for joints:
+limit = [(-pi / 2) (pi / 2)];
+joint1.PositionLimits = limit;
+joint2.PositionLimits = limit;
+joint3.PositionLimits = limit;
+joint4.PositionLimits = limit;
 
 % Transform joints with DH parameters:
 setFixedTransform(joint1, dhparams(1,:), 'dh');
@@ -40,10 +48,25 @@ addBody(robot, node4, 'node3');
 
 %% Connections + initializations:
 
+% Find available serial ports:
+serials = seriallist;
+r_serial = ' ';
+serials_size = size(serials);
+for i = 1:serials_size(2)
+    if contains(serials(i), 'USB')
+        r_serial = c_serial;
+        break;
+    end
+end
+
+if r_serial == ' '
+    error('Available serial port not found!');
+end
+
 % Create serial connection:
-% s = serial('/dev/ttyUSB8');
-% set(s, 'BaudRate', 9600);
-% fopen(s);
+s = serial(r_serial);
+set(s, 'BaudRate', 9600);
+fopen(s);
 
 % Create TCP connection:
 t = tcpip('0.0.0.0', 7247, 'NetworkRole', 'server');
@@ -60,14 +83,16 @@ homeConf = homeConfiguration(robot);
 effector = getTransform(robot, homeConf, 'node4', 'base'); % End effector transformation matrix.
 target = [0 0 0]; % Desired end effector position.
 origin = [10 10 10];
-weights = [10 10 10 1 1 1];
+weights = [0.01 0.01 0.01 1 1 1];
 
 trajectory = zeros(10000, 3);
 index = 1;
 
 %% Main loop:
 
-while true
+looping = true;
+
+while looping
     if t.BytesAvailable > 0
         data = fscanf(t); % Receive floating point values separated by spaces as string.
         splited = strsplit(data); % Split (by spaces) this string into an array of strings.
@@ -76,7 +101,7 @@ while true
         values = arrayfun(@(x) str2double(x), splited);
         disp(values(1:3));
         
-        target = (values(1:3) * 10) + origin; % Add acceleration to the desired position.
+        target = (values(1:3) * 500) + origin; % Add acceleration to the desired position.
         
         trajectory(index, 1:3) = target;
         index = index + 1;
@@ -97,6 +122,12 @@ while true
         positions = solutionPositions(ikSolution);
         homeConf = setPositionsToConfiguration(homeConf, positions);
         
+        % Stop button:
+        c = uicontrol;
+        c.Style = 'pushbutton';
+        c.String = 'Stop';
+        c.Callback = 'looping = false;';
+        
         % Update manipulator plot:
         show(robot, ikSolution);
         hold all;
@@ -105,7 +136,9 @@ while true
         drawnow;
        
         % Send inverse kinematics solution to manipulator via serial:
-%         fprintf(s, prepare(solutionPositions(ikSolution)));
+        message = prepare(solutionPositions(ikSolution));
+        fprintf(s, message);
+        disp(message);
         
         flushinput(t);
     end
@@ -129,6 +162,11 @@ delete(s);
 clear s;
 
 %% Function definitions:
+
+function f = prepare(v)
+    % Converts a vector to string for output to manipulator via serial.
+    f = [fold(@(a, x) [a ' ' x], arrayfun(@(x) {num2str(rad2deg(x))}, v)) ' \n'];
+end
 
 function f = solutionPositions(solution)
     % Get vector of positions from inverse kinematics solution. 
