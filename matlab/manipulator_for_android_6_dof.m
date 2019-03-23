@@ -88,7 +88,7 @@ while true
         values = arrayfun(@(x) str2double(x), splited);
         disp(values(1:3));
         
-        target = (values(1:3) * 10) + origin; % Add acceleration to the desired position.
+        target = (values(1:3) * 500) + origin; % Add acceleration to the desired position.
         
         trajectory(index, 1:3) = target;
         index = index + 1;
