@@ -144,10 +144,13 @@ class MX106 {
 
     int read_error(void);
 
+    unsigned int count_servo;
+    int zero_positions[10];
+
     HardwareSerial *varSerial;
 
   public:
-    void begin(long baud, unsigned char directionPin, HardwareSerial *srl);
+    void begin(long baud, unsigned char directionPin, HardwareSerial *srl, unsigned int count_servo, int *angl);
     void end(void);
 
     int torqueStatus(unsigned char ID, bool Status);

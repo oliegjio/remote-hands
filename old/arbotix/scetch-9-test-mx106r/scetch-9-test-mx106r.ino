@@ -1,6 +1,6 @@
 #include "MX106R.h"
 
-#define count_servo 3
+#define count_servo 4
 
 MX106 mx106;
 
@@ -38,12 +38,13 @@ void setup(){
   delay(1000);
   unsigned char d_pin = 0x02;
   long baud = 1000000;
-  mx106.begin(baud, d_pin, &Serial1);
+  int zeros[count_servo] = { 2525, 2080, 2048, 2015 };
+  mx106.begin(baud, d_pin, &Serial1, count_servo, zeros);
   zero_position();
 }
 
 void loop(){
-  readFromSerial();
-  for (unsigned char ID = 0; ID < count_servo; ++ID)
-    mx106.turnAngleSpeed(ID, input_data[ID], 100);
+  // readFromSerial();
+  // for (unsigned char ID = 0; ID < count_servo; ++ID)
+  //   mx106.turnAngleSpeed(ID, input_data[ID], 100);
 }
