@@ -6,7 +6,7 @@ MX106 mx106;
 
 int input_data[count_servo];
 
-void zero_position() {
+void goToZeroPosition() {
   for (unsigned char ID = 0; ID < count_servo; ++ID)
     mx106.turnAngleSpeed(ID, 0, 100);
 }
@@ -40,7 +40,7 @@ void setup(){
   long baud = 1000000;
   int zeros[count_servo] = { 2525, 2080, 2048, 2015 };
   mx106.begin(baud, d_pin, &Serial1, count_servo, zeros);
-  zero_position();
+  goToZeroPosition();
 }
 
 void loop(){

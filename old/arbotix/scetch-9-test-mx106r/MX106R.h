@@ -106,7 +106,7 @@
 #define MX_PUNCH_LENGTH             5
 #define MX_SPEED_LENGTH             5
 #define MX_GOAL_SP_LENGTH           7
-#define MX_ACTION_CHECKSUM			250
+#define MX_ACTION_CHECKSUM			    250
 #define BROADCAST_ID                254
 #define MX_START                    255
 #define MX_CCW_AL_L                 255
