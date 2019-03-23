@@ -49,13 +49,15 @@ int MX106::read_error(void)
 
 // Public Methods /////////////////////////////////////////////////////////////
 
-void MX106::begin(long baud, unsigned char directionPin, HardwareSerial *srl, unsigned int count_servo, int *angl)
+void MX106::begin(long baud, unsigned char directionPin, HardwareSerial *srl, unsigned int count_servo, int *angl, int min_angle, int max_angle)
 {
   varSerial = srl;
   Direction_Pin = directionPin;
   setDPin(Direction_Pin, OUTPUT);
   beginCom(baud);
   this->count_servo = count_servo;
+  this->min_angle   = min_angle;
+  this->max_angle   = max_angle;
   for (unsigned i = 0; i < count_servo; ++i)
     zero_positions[i] = angl[i];
 }
@@ -363,16 +365,19 @@ int MX106::moveSpeedRW(unsigned char ID, int Position, int Speed)
 }
 
 void MX106::turnAngle(unsigned char ID, double Angle) {
-  Angle = (Angle > 90) ? 90 : Angle;
-  Angle = (Angle < -90) ? -90 : Angle;
-  Angle = map(Angle, -90, 90, zero_positions[ID] - 1020, zero_positions[ID] + 1020);
+  Angle = (Angle > max_angle) ? max_angle : Angle;
+  Angle = (Angle < min_angle) ? min_angle : Angle;
+  int a = 4096 * max_angle / 360;
+  Angle = map(Angle, min_angle, max_angle, zero_positions[ID] - a, zero_positions[ID] + a);
   move(ID, Angle);
 }
 
 void MX106::turnAngleSpeed(unsigned char ID, double Angle, int Speed) {
-  Angle = (Angle > 90) ? 90 : Angle;
-  Angle = (Angle < -90) ? -90 : Angle;
-  Angle = map(Angle, -90, 90, zero_positions[ID] - 1020, zero_positions[ID] + 1020);
+  Angle = (Angle > max_angle) ? max_angle : Angle;
+  Angle = (Angle < min_angle) ? min_angle : Angle;
+  // int a = 4096 * max_angle / 360;
+  int a = 450;
+  Angle = map(Angle, min_angle, max_angle, zero_positions[ID] - a, zero_positions[ID] + a);
   moveSpeed(ID, Angle, Speed);
 }
 
