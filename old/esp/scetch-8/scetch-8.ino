@@ -2,7 +2,7 @@
 #include <Wire.h>
 #include <WiFiClient.h>
 #include <ESP8266WiFi.h>
-//#include "Matrix.h"
+#include "Matrix.h"
 #include "SparkFunMPU9250-DMP.h"
 
 #define K 0.2

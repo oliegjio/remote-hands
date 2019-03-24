@@ -147,10 +147,13 @@ class MX106 {
     unsigned int count_servo;
     int zero_positions[10];
 
+    int min_angle;
+    int max_angle;
+
     HardwareSerial *varSerial;
 
   public:
-    void begin(long baud, unsigned char directionPin, HardwareSerial *srl, unsigned int count_servo, int *angl);
+    void begin(long baud, unsigned char directionPin, HardwareSerial *srl, unsigned int count_servo, int *angl, int min_angle, int max_angle);
     void end(void);
 
     int torqueStatus(unsigned char ID, bool Status);
