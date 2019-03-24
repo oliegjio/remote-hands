@@ -2,18 +2,24 @@
 #include <Wire.h>
 #include <WiFiClient.h>
 #include <ESP8266WiFi.h>
-#include "Matrix.h"
+// #include "Matrix.h"
 #include "SparkFunMPU9250-DMP.h"
 
 #define K 0.2
-#define SERVER_PORT 7247
-#define SERVER_IP IPAddress(10, 42, 0, 1)
+// #define SERVER_PORT 7247
+// #define SERVER_IP IPAddress(10, 42, 0, 1)
+
+#define SERVER_PORT 9997
+#define SERVER_IP IPAddress(192, 168, 0, 21)
 
 WiFiClient client;
 MPU9250_DMP imu;
 
-const char *SSID = "MS-7971";
-const char *PASSWORD = "UfnbalFT";
+// const char *SSID = "MS-7971";
+// const char *PASSWORD = "UfnbalFT";
+
+const char *SSID = "vadim-N56JRH";
+const char *PASSWORD = "oU2kAWyJ";
 
 float dt = 0.0f;
 float last_time_dt;
@@ -50,6 +56,8 @@ void setup() {
 
   Serial.println("Setup");
 
+  connect(SSID, PASSWORD);
+
   I2C_scanner();
   start_mpu();
 
@@ -66,7 +74,7 @@ void loop() {
 
     String data = getData();
     Serial.println(data);
-    //client.println(data);
+    client.println(data);
   }
 }
 
@@ -175,9 +183,9 @@ String getData() {
 //  data += String(quat[0], 6) + ' ';
 
 
-  data += String(optX*1000, 6) + ' ';
-  data += String(optY*1000, 6) + ' ';
-  data += String(optZ*1000, 6);
+  data += String(optX, 6) + ' ';
+  data += String(optY, 6) + ' ';
+  data += String(optZ, 6) + ' ';
   return data;
 }
 
@@ -213,7 +221,11 @@ void updateData(float dt) {
   quat[2] = imu.calcQuat(imu.qy);
   quat[3] = imu.calcQuat(imu.qz);
 
-  kalman_filter();
+  // kalman_filter();
+  imu.updateAccel();
+  optX = clamp(imu.calcAccel(imu.ax), -1.0, 1.0);
+  optY = clamp(imu.calcAccel(imu.ay), -1.0, 1.0);
+  optZ = clamp(imu.calcAccel(imu.az), -1.0, 1.0);
 
   // Quaternion:
   // float q[4] = { qw, qx, qy, qz };
