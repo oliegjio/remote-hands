@@ -3,12 +3,12 @@
 robot = robotics.RigidBodyTree;
 
 % Denavit-Hartenberg manipulator parameters:
-dhparams = [0    pi/2  5    0;
-            9.5	 0     0    0;
-            7	 0     0    0;
-            6.5  0     0    0;
-            0    pi/2  0    0;
-            4    0     0    0];
+dhparams = [0        pi/2  0.2372   0;
+            0.6438   0     0        0;
+            0.6438 	 0     0        0;
+            0.3388   0     0        0;
+            0        pi/2  0        0;
+            0        0     0        0];
 
 % Setup manipulator nodes:
 node1 = robotics.RigidBody('node1');
@@ -60,7 +60,7 @@ ik.RigidBodyTree = robot;
 homeConf = homeConfiguration(robot);
 disp(homeConf)
 effector = getTransform(robot, homeConf, 'node6', 'base'); % End effector transformation matrix.
-target = [10 10 10]; % Desired end effector position.
+target = [0 0 0.8]; % Desired end effector position.
 effector(1:3, 4) = target;
 weights = [0.01 0.01 0.01 1 1 1];
 
