@@ -1,5 +1,3 @@
-%% Main loop:
-
 main_loop = true;
 
 while main_loop
@@ -12,74 +10,46 @@ while main_loop
     dhparams = [0        pi/2  0.2372   0;
                 0.6438   0     0        0;
                 0.6438 	 0     0        0;
-                0.3388   0     0        0;
-                0        pi/2  0        0;
-                0        0     0        0];
-    
-%     dhparams = [0     pi/2  3.5   0;
-%                 9.5	  0     0     0;
-%                 9.5	  0     0     0;
-%                 5     0     0     0;
-%                 0     pi/2  0     0;
-%                 0     0     0     0];
-
-%     dhparams = [0    pi/2  5    0;
-%                 9.5	 0     0    0;
-%                 7	 0     0    0;
-%                 6.5  0     0    0;
-%                 0    pi/2  0    0;
-%                 0    0     0    0];
+                0.3388   0     0        0];
 
     % Setup manipulator nodes:
     node1 = robotics.RigidBody('node1');
     node2 = robotics.RigidBody('node2');
     node3 = robotics.RigidBody('node3');
     node4 = robotics.RigidBody('node4');
-    node5 = robotics.RigidBody('node5');
-    node6 = robotics.RigidBody('node6');
 
     % Setup manipulator joints:
     joint1 = robotics.Joint('joint1', 'revolute');
     joint2 = robotics.Joint('joint2', 'revolute');
     joint3 = robotics.Joint('joint3', 'revolute');
     joint4 = robotics.Joint('joint4', 'revolute');
-    joint5 = robotics.Joint('joint5', 'revolute');
-    joint6 = robotics.Joint('joint6', 'revolute');
 
     % Set position limits for joints:
     limit = [(-pi / 2) (pi / 2)];
-    joint1.PositionLimits = limit;
-    joint2.PositionLimits = limit;
+    joint1.PositionLimits = [0 2*pi];
+    joint2.PositionLimits = [0 pi];
     joint3.PositionLimits = limit;
     joint4.PositionLimits = limit;
-    joint5.PositionLimits = limit;
-    joint6.PositionLimits = limit;
 
     % Transform joints with DH parameters:
     setFixedTransform(joint1, dhparams(1,:), 'dh');
     setFixedTransform(joint2, dhparams(2,:), 'dh');
     setFixedTransform(joint3, dhparams(3,:), 'dh');
     setFixedTransform(joint4, dhparams(4,:), 'dh');
-    setFixedTransform(joint5, dhparams(5,:), 'dh');
-    setFixedTransform(joint6, dhparams(6,:), 'dh');
 
     % Assign joints to manipulator nodes:
     node1.Joint = joint1;
     node2.Joint = joint2;
     node3.Joint = joint3;
     node4.Joint = joint4;
-    node5.Joint = joint5;
-    node6.Joint = joint6;
 
     % Assemble manipulator:
     addBody(robot, node1, robot.BaseName);
     addBody(robot, node2, 'node1');
     addBody(robot, node3, 'node2');
     addBody(robot, node4, 'node3');
-    addBody(robot, node5, 'node4');
-    addBody(robot, node6, 'node5');
 
-    %% Connections + initializations:
+    %% Serial:
 
     is_serial = true;
 
@@ -108,19 +78,23 @@ while main_loop
     end
     fprintf('Serial port found! \n');
     
+    %% TCP:
+    
     % Create TCP connection:
     fprintf('Accepting connections... \n');
     t = tcpip('0.0.0.0', 7247, 'NetworkRole', 'server');
     fopen(t);
     fprintf('New connection! \n');
 
+    %% Kinematics:
+    
     % Create inverse kinematics solver:
     ik = robotics.InverseKinematics('RigidBodyTree', robot);
     ik.RigidBodyTree = robot;
 
     % Setup values needed to solver:
     homeConf = homeConfiguration(robot);
-    effector = getTransform(robot, homeConf, 'node6', 'base'); % End effector transformation matrix.
+    effector = getTransform(robot, homeConf, 'node4', 'base'); % End effector transformation matrix.
     target = [0 0 0]; % Desired end effector position.
     origin = [0 0 0.8];
     weights = [0.01 0.01 0.01 1 1 1];
@@ -136,16 +110,16 @@ while main_loop
         if t.BytesAvailable > 0
             data = fscanf(t); % Receive floating point values separated by spaces as string.
 
-            fprintf('Data: %s \n', data)
+            fprintf('Data: %s \n', data);
             
             if contains(data, 'Restart')
-                fprintf('Restart \n')
+                fprintf('Restart \n');
                 looping = false;
                 break
             end
             
             if contains(data, 'Stop')
-                fprintf('Stop \n')
+                fprintf('Stop \n');
                 main_loop = false;
                 looping = false;
                 break
@@ -159,6 +133,7 @@ while main_loop
 
             target = (values(1:3) * 20) + origin; % Add acceleration to the desired position.
 
+            % Save target position to trajectory:
             trajectory(index, 1:3) = target;
             index = index + 1;
 
@@ -172,13 +147,14 @@ while main_loop
             % Solve inverse kinematics:
             [ikSolution, ikInfo] = ik('node6', effector, weights, homeConf);
 
+            % Update initial guess with new position:
             positions = solutionPositions(ikSolution);
             homeConf = setPositionsToConfiguration(homeConf, positions);
 
-            % Stop button:
+            % Restart button:
             c = uicontrol;
             c.Style = 'pushbutton';
-            c.String = 'Stop';
+            c.String = 'Restart';
             c.Callback = 'looping = false;';
 
             % Update manipulator plot:
