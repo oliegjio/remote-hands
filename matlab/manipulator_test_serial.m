@@ -54,9 +54,9 @@ ik.RigidBodyTree = robot;
 % Setup values needed to solver:
 homeConf = homeConfiguration(robot);
 effector = getTransform(robot, homeConf, 'node4', 'base'); % End effector transformation matrix.
-weights = [0.01 0.01 0.01 1 1 1];
+weights = [0 0 0 1 1 1];
 
-target = [0.8 0.8 0.75]; % Desired end effector position.
+target = [0.8 0.8 1.1]; % Desired end effector position.
 effector(1:3, 4) = target;
 [ikSolution, ~] = ik('node4', effector, weights, homeConf);
 
@@ -69,53 +69,53 @@ drawnow;
 
 %% Serial:
 
-is_serial = true;
-
-% Find available serial port:
-if is_serial
-    fprintf('Searching available serial port... \n');
-    search_flag = true;
-    while search_flag
-        serials = seriallist;
-        r_serial = '';
-        serials_size = size(serials);
-        for i = 1:serials_size(2)
-            c_serial = serials(i);
-            if contains(c_serial, 'USB')
-                r_serial = c_serial;
-                search_flag = false;
-                break
-            end
-        end
-    end
-
-    % Create serial connection:
-    s = serial(r_serial);
-    set(s, 'BaudRate', 9600);
-    fopen(s);
-end
-fprintf('Serial port found! \n');
-
-%% Send:
-
-solPos = solutionPositions(ikSolution);
-
-if is_serial
-    % Send inverse kinematics solution to manipulator via serial:
-    message = prepare(solPos);
-    fprintf('Message: "%s" \n', message);
-    fprintf(s, message);
-end
-
-%% Function definitions:
-
-function f = prepare(v)
-    % Converts a vector to string for output to manipulator via serial.
-    f = [fold(@(a, x) [a ' ' x], arrayfun(@(x) {num2str(round(rad2deg(x), 4))}, v)) ' \n'];
-end
-
-function f = solutionPositions(solution)
-    % Get vector of positions from inverse kinematics solution.
-    r = arrayfun(@(x) x.JointPosition, solution);
-    f = r(1, 1:4);
-end
+% is_serial = false;
+% 
+% % Find available serial port:
+% if is_serial
+%     fprintf('Searching available serial port... \n');
+%     search_flag = true;
+%     while search_flag
+%         serials = seriallist;
+%         r_serial = '';
+%         serials_size = size(serials);
+%         for i = 1:serials_size(2)
+%             c_serial = serials(i);
+%             if contains(c_serial, 'USB')
+%                 r_serial = c_serial;
+%                 search_flag = false;
+%                 break
+%             end
+%         end
+%     end
+%     fprintf('Serial port found! \n');
+% 
+%     % Create serial connection:
+%     s = serial(r_serial);
+%     set(s, 'BaudRate', 9600);
+%     fopen(s);
+% end
+% 
+% %% Send:
+% 
+% solPos = solutionPositions(ikSolution);
+% 
+% if is_serial
+%     % Send inverse kinematics solution to manipulator via serial:
+%     message = prepare(solPos);
+%     fprintf('Message: "%s" \n', message);
+%     fprintf(s, message);
+% end
+% 
+% %% Function definitions:
+% 
+% function f = prepare(v)
+%     % Converts a vector to string for output to manipulator via serial.
+%     f = [fold(@(a, x) [a ' ' x], arrayfun(@(x) {num2str(round(rad2deg(x), 4))}, v)) ' \n'];
+% end
+% 
+% function f = solutionPositions(solution)
+%     % Get vector of positions from inverse kinematics solution.
+%     r = arrayfun(@(x) x.JointPosition, solution);
+%     f = r(1, 1:4);
+% end
