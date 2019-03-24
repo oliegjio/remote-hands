@@ -56,10 +56,10 @@ void setup() {
 
   Serial.println("Setup");
 
-  connect(SSID, PASSWORD);
-
   I2C_scanner();
   start_mpu();
+
+  connect(SSID, PASSWORD);
 
   Serial.println("Start loop");
 }
@@ -185,7 +185,7 @@ String getData() {
 
   data += String(optX, 6) + ' ';
   data += String(optY, 6) + ' ';
-  data += String(optZ, 6) + ' ';
+  data += String(optZ, 6) + " \n";
   return data;
 }
 

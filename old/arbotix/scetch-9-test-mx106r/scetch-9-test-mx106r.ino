@@ -10,7 +10,9 @@ int input_data[count_servo];
 
 void goToZeroPosition() {
   for (unsigned char ID = 0; ID < count_servo; ++ID)
-    if (ID == 1)
+    if (ID == 0)
+      mx106.turnAngleSpeed(ID, 180, 100);
+    else if (ID == 1)
       mx106.turnAngleSpeed(ID, 90, 100);
     else 
       mx106.turnAngleSpeed(ID, 0, 100);
@@ -32,6 +34,7 @@ void convertData(String data) {
 void readFromSerial() {
   if (Serial.available()) {
     String data = Serial.readStringUntil('\n');
+    Serial2.println(data);
     convertData(data);
   }
 }
@@ -43,7 +46,7 @@ void setup(){
   delay(1000);
   unsigned char d_pin = 0x02;
   long baud = 1000000;
-  int zeros[count_servo] = { 2048, 1574, 1938, 1395 };
+  int zeros[count_servo] = { 2048, 1574, 2435, 1395 };
   mx106.begin(baud, d_pin, &Serial1, count_servo, zeros, min_angle, max_angle);
   goToZeroPosition();
   delay(3000);
@@ -51,11 +54,13 @@ void setup(){
 }
 
 void loop(){
-  Serial2.println("Loop");
   readFromSerial();
   for (unsigned char ID = 0; ID < count_servo; ++ID) {
-    int k = -1;
-    if (ID % 2) k = 1;
+    int k;
+    if (ID == 0) k = 1;
+    if (ID == 1) k = 1;
+    if (ID == 2) k = -1;
+    if (ID == 3) k = 1;
     Serial2.print(input_data[ID]);
     Serial2.print(' ');
     mx106.turnAngleSpeed(ID, k * input_data[ID], 100);

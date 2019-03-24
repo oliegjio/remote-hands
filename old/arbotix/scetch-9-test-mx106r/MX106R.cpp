@@ -373,13 +373,12 @@ void MX106::turnAngle(unsigned char ID, double Angle) {
 }
 
 void MX106::turnAngleSpeed(unsigned char ID, double Angle, int Speed) {
-  // if (ID == 0) {
-  //   Angle = (Angle > 350) ? 350 : Angle;
-  //   Angle = (Angle < 10) ? 10 : Angle;
-  //   int a = ;
-  //   Angle = map(Angle, 10, 350, zero_positions[ID] - a, zero_positions[ID] + a);
-  // } else 
-  if (ID == 1) {
+  if (ID == 0) {
+    Angle = (Angle > 350) ? 350 : Angle;
+    Angle = (Angle < 10) ? 10 : Angle;
+    Angle = map(Angle, 10, 350, 150, 3900);
+    moveSpeed(ID, Angle, Speed);
+  } else if (ID == 1) {
     Angle = (Angle > 180) ? 180 : Angle;
     Angle = (Angle < 0) ? 0 : Angle;
     Angle = map(Angle, 0, 180, 570, 2525);
