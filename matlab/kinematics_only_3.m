@@ -82,7 +82,7 @@ drawnow;
 
 %% Serial:
 
-is_serial = true;
+is_serial = false;
 
 % Find available serial port:
 if is_serial

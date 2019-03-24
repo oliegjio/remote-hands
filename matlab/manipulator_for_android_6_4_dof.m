@@ -113,12 +113,12 @@ while main_loop
     origin = [-0.5 0.75 1];
     weights = [0 0 0 1 1 1];
 
-    trajectory = zeros(10000, 3);
-    index = 1;
+%     trajectory = zeros(10000, 3);
+%     index = 1;
 
     %% Main loop:
 
-    plotting = true;
+    plotting = false;
     
     looping = true;
     
@@ -126,29 +126,29 @@ while main_loop
         if t.BytesAvailable > 0
             data = fscanf(t); % Receive floating point values separated by spaces as string.
             
-            if contains(data, 'Restart')
-                fprintf('Restart \n');
-                looping = false;
-                break
-            end
-            
-            if contains(data, 'Stop')
-                fprintf('Stop \n');
-                main_loop = false;
-                looping = false;
-                break
-            end
+%             if contains(data, 'Restart')
+%                 fprintf('Restart \n');
+%                 looping = false;
+%                 break
+%             end
+%             
+%             if contains(data, 'Stop')
+%                 fprintf('Stop \n');
+%                 main_loop = false;
+%                 looping = false;
+%                 break
+%             end
 
             splited = strsplit(data); % Split (by spaces) this string into an array of strings.
 
             % Convert array of strings to vector of reals:
             values = arrayfun(@(x) str2double(x), splited);
 
-            target = (values(1:3) * 20) + origin; % Add acceleration to the desired position.
+            target = (values(1:3) * 10) + origin; % Add acceleration to the desired position.
 
-            % Save target position to trajectory:
-            trajectory(index, 1:3) = target;
-            index = index + 1;
+%             % Save target position to trajectory:
+%             trajectory(index, 1:3) = target;
+%             index = index + 1;
 
             % Prevent desired position going beyond manipulator working area:
             maxRange = 1;
@@ -164,31 +164,31 @@ while main_loop
             positions = solutionPositions(ikSolution);
             homeConf = setPositionsToConfiguration(homeConf, positions);
             
-            uicontrol('Style', 'pushbutton', 'String', 'Stop', 'Callback', 'looping = false; main_loop = false;');
+%             uicontrol('Style', 'pushbutton', 'String', 'Stop', 'Callback', 'looping = false; main_loop = false;');
             
-            if plotting
+%             if plotting
                 % Update manipulator plot:
-                show(robot, ikSolution);
+%                 show(robot, ikSolution);
 %                 hold all;
 %                 scatter3(target(1), target(2), target(3), 'r*', 'linewidth', 20);
 %                 hold off;
-                drawnow;
-            end
+%                 drawnow;
+%             end
 
             if is_serial
                 % Send inverse kinematics solution to manipulator via serial:
-                message = prepare(solutionPositions(ikSolution));
+                message = prepare(positions);
                 fprintf('Message: "%s" \n', message);
                 fprintf(s, message);
             end
 
-            flushinput(t);
+%             flushinput(t);
         end
     end
 
     %% Plot trajectory:
-    plot3(trajectory(:, 1), trajectory(:, 2), trajectory(:, 3), 'r')
-    grid on;
+%     plot3(trajectory(:, 1), trajectory(:, 2), trajectory(:, 3), 'r')
+%     grid on;
 
     %% Clean up:
 
