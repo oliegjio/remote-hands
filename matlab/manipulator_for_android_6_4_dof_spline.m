@@ -1,7 +1,3 @@
-clear;
-clc;
-clf('reset');
-
 main_loop = true;
 
 while main_loop
@@ -11,20 +7,10 @@ while main_loop
     robot = robotics.RigidBodyTree;
 
     % Denavit-Hartenberg manipulator parameters:
-    dhparams = [0        pi/2  0.3796   0;
+    dhparams = [0        pi/2  0.2372   0;
                 0.6438   0     0        0;
                 0.6438 	 0     0        0;
-                0.1650   0     0        0];
-    
-%     dhparams = [0        pi/2  35       0;
-%                 95       0     0        0;
-%                 95  	 0     0        0;
-%                 50       0     0        0];
-            
-% 	dhparams = [0        pi/2  0.2372   0;
-%                 0.6438   0     0        0;
-%                 0.6438 	 0     0        0;
-%                 0.3388   0     0        0];
+                0.3388   0     0        0];
 
     % Setup manipulator nodes:
     node1 = robotics.RigidBody('node1');
@@ -39,8 +25,8 @@ while main_loop
     joint4 = robotics.Joint('joint4', 'revolute');
 
     % Set position limits for joints:
-    limit = [-pi/2 pi/2];
-    joint1.PositionLimits = [0.1745 6.1087];
+    limit = [(-pi / 2) (pi / 2)];
+    joint1.PositionLimits = [0 2*pi];
     joint2.PositionLimits = [0 pi];
     joint3.PositionLimits = limit;
     joint4.PositionLimits = limit;
@@ -84,13 +70,13 @@ while main_loop
                 end
             end
         end
-        fprintf('Serial port found! \n');
 
         % Create serial connection:
         s = serial(r_serial);
         set(s, 'BaudRate', 9600);
         fopen(s);
     end
+    fprintf('Serial port found! \n');
     
     %% TCP:
     
@@ -110,21 +96,21 @@ while main_loop
     homeConf = homeConfiguration(robot);
     effector = getTransform(robot, homeConf, 'node4', 'base'); % End effector transformation matrix.
     target = [0 0 0]; % Desired end effector position.
-    origin = [-0.5 0.75 1];
-    weights = [0 0 0 1 1 1];
+    origin = [0 0 0.8];
+    weights = [0.01 0.01 0.01 1 1 1];
 
     trajectory = zeros(10000, 3);
     index = 1;
 
     %% Main loop:
 
-    plotting = true;
-    
     looping = true;
-    
+
     while looping
         if t.BytesAvailable > 0
             data = fscanf(t); % Receive floating point values separated by spaces as string.
+
+            fprintf('Data: %s \n', data);
             
             if contains(data, 'Restart')
                 fprintf('Restart \n');
@@ -143,6 +129,7 @@ while main_loop
 
             % Convert array of strings to vector of reals:
             values = arrayfun(@(x) str2double(x), splited);
+            fprintf("Values: %f   %f   %f \n", values(1), values(2), values(3));
 
             target = (values(1:3) * 20) + origin; % Add acceleration to the desired position.
 
@@ -151,29 +138,31 @@ while main_loop
             index = index + 1;
 
             % Prevent desired position going beyond manipulator working area:
-            maxRange = 1;
+            maxRange = 20;
             target = min(max(target, -maxRange), maxRange);
 
             % Update end effector transformation matrix with new desired position:
             effector(1:3, 4) = target;
 
             % Solve inverse kinematics:
-            [ikSolution, ~] = ik('node4', effector, weights, homeConf);
+            [ikSolution, ikInfo] = ik('node6', effector, weights, homeConf);
 
             % Update initial guess with new position:
             positions = solutionPositions(ikSolution);
             homeConf = setPositionsToConfiguration(homeConf, positions);
-            
-            uicontrol('Style', 'pushbutton', 'String', 'Stop', 'Callback', 'looping = false; main_loop = false;');
-            
-            if plotting
-                % Update manipulator plot:
-                show(robot, ikSolution);
-%                 hold all;
-%                 scatter3(target(1), target(2), target(3), 'r*', 'linewidth', 20);
-%                 hold off;
-                drawnow;
-            end
+
+            % Restart button:
+            c = uicontrol;
+            c.Style = 'pushbutton';
+            c.String = 'Restart';
+            c.Callback = 'looping = false;';
+
+            % Update manipulator plot:
+            show(robot, ikSolution);
+            hold all;
+            scatter3(target(1), target(2), target(3), 'r*', 'linewidth', 20);
+            hold off;
+            drawnow;
 
             if is_serial
                 % Send inverse kinematics solution to manipulator via serial:
@@ -187,6 +176,7 @@ while main_loop
     end
 
     %% Plot trajectory:
+
     plot3(trajectory(:, 1), trajectory(:, 2), trajectory(:, 3), 'r')
     grid on;
 
