@@ -7,10 +7,10 @@ clf('reset');
 robot = robotics.RigidBodyTree;
 
 % Denavit-Hartenberg manipulator parameters:
-dhparams = [0         pi/2  0.2372  0;
-            0.6438    0     0       0;
-            0.6438 	  0     0       0;
-            0.3388    0     0       0];
+dhparams = [0        pi/2  0.3796   0;
+            0.6438   0     0        0;
+            0.6438 	 0     0        0;
+            0.1650   0     0        0];
 
 % Setup manipulator nodes:
 node1 = robotics.RigidBody('node1');
@@ -68,81 +68,15 @@ effector(1:3, 4) = target;
 positions = solutionPositions(ikSolution);
 homeConf = setPositionsToConfiguration(homeConf, positions);
 
-target = [-0.7 -0.9 1]; % Desired end effector position.
-effector(1:3, 4) = target;
-[ikSolution, ~] = ik('node4', effector, weights, homeConf);
-
 % Update manipulator plot:
 clf('reset');
 show(robot, ikSolution);
 hold all;
-scatter3(target(1), target(2), target(3), 'r*', 'linewidth', 20);
+scatter3(target(1), target(2), target(3), 'r*', 'linewidth', 5);
 hold off;
 drawnow;
 
-%% Serial:
-
-is_serial = false;
-
-% Find available serial port:
-if is_serial
-    fprintf('Searching available serial port... \n');
-    search_flag = true;
-    while search_flag
-        serials = seriallist;
-        r_serial = '';
-        serials_size = size(serials);
-        for i = 1:serials_size(2)
-            c_serial = serials(i);
-            if contains(c_serial, 'USB')
-                r_serial = c_serial;
-                search_flag = false;
-                break
-            end
-        end
-    end
-    fprintf('Serial port found! \n');
-
-    % Create serial connection:
-    s = serial(r_serial);
-    set(s, 'BaudRate', 9600);
-    fopen(s);
-end
-
-%% Send:
-
-serial_loop = true;
-
-% Stop button:
-stop_button = uicontrol;
-stop_button.Style = 'pushbutton';
-stop_button.String = 'Stop';
-stop_button.Callback = 'serial_loop = false;';
-
-align(stop_button, 'distribute', 'bottom');
-
-solPos = solutionPositions(ikSolution);
-
-if is_serial
-    while serial_loop
-        % Send inverse kinematics solution to manipulator via serial:
-        message = prepare(solPos);
-        fprintf('Message: "%s" \n', message);
-        fprintf(s, message);
-    end
-    
-    % Clean up serial connection:
-    fclose(s);
-    delete(s);
-    clear s; 
-end
-
 %% Function definitions:
-
-function f = prepare(v)
-    % Converts a vector to string for output to manipulator via serial.
-    f = [fold(@(a, x) [a ' ' x], arrayfun(@(x) {num2str(round(rad2deg(x), 4))}, v)) ' \n'];
-end
 
 function f = solutionPositions(solution)
     % Get vector of positions from inverse kinematics solution. 
